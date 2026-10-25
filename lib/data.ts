@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import type { Campus } from "@/lib/campus";
-import type { Contact, Procedure, Trip, Workshop } from "@/lib/types";
+import type { Contact, Procedure, Workshop } from "@/lib/types";
 
 // campus=null → everything; otherwise that campus plus rows marked "all".
 const scopes = (c: Campus | null) => (c ? [c, "all"] : ["maiden-ln", "early-years", "all"]);
@@ -17,15 +17,6 @@ export async function getProcedures(campus: Campus | null) {
   const { data } = await supabase.from("emergency_procedures").select("*").in("campus", scopes(campus))
     .order("sort").order("title");
   return (data ?? []) as Procedure[];
-}
-
-export async function getTrips(campus: Campus | null, opts: { from?: string; to?: string } = {}) {
-  const supabase = await createClient();
-  let q = supabase.from("off_campus_trips").select("*").in("campus", scopes(campus));
-  if (opts.from) q = q.gte("trip_date", opts.from);
-  if (opts.to) q = q.lte("trip_date", opts.to);
-  const { data } = await q.order("trip_date").order("depart_time", { nullsFirst: true });
-  return (data ?? []) as Trip[];
 }
 
 export async function getWorkshops(campus: Campus | null, opts: { from?: string } = {}) {

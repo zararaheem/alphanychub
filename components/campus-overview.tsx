@@ -1,13 +1,14 @@
 import Link from "next/link";
 import { CAMPUS_LABEL, clock, shortDay, todayNY, type Campus } from "@/lib/campus";
-import { getContacts, getProcedures, getTrips, getWorkshops } from "@/lib/data";
-import { TRIP_STATUS } from "@/lib/types";
+import { getContacts, getProcedures, getWorkshops } from "@/lib/data";
+import { OFF_CAMPUS_URL } from "@/lib/links";
+import { ExtIcon } from "@/components/external-link";
 
 // Shared summary for a campus page: emergency, trips and workshops for that campus.
 export async function CampusOverview({ campus }: { campus: Campus }) {
   const today = todayNY();
-  const [contacts, procedures, trips, workshops] = await Promise.all([
-    getContacts(campus), getProcedures(campus), getTrips(campus, { from: today }), getWorkshops(campus, { from: today }),
+  const [contacts, procedures, workshops] = await Promise.all([
+    getContacts(campus), getProcedures(campus), getWorkshops(campus, { from: today }),
   ]);
 
   return (
@@ -35,20 +36,16 @@ export async function CampusOverview({ campus }: { campus: Campus }) {
       </section>
 
       <section className="card" aria-labelledby={`${campus}-trips`}>
-        <div className="between" style={{ alignItems: "center" }}>
-          <h2 id={`${campus}-trips`}>Off-campus trips</h2>
-          <Link href={`/off-campus?campus=${campus}`} className="small">Tracker →</Link>
-        </div>
-        {trips.length === 0 && <p className="muted">No upcoming trips.</p>}
-        {trips.slice(0, 5).map((t) => (
-          <div key={t.id} className="list-row">
-            <span>
-              <strong>{t.destination}</strong>
-              <span className="muted small"> · {t.trip_date === today ? "Today" : shortDay(t.trip_date)}{t.depart_time ? ` ${clock(t.depart_time)}` : ""}</span>
-            </span>
-            <span className={`pill ${TRIP_STATUS[t.status].tone}`}>{TRIP_STATUS[t.status].label}</span>
-          </div>
-        ))}
+        <h2 id={`${campus}-trips`}>Off campus</h2>
+        <p className="muted">Trips are planned, cleared and checked out on the Off-Campus Today board.</p>
+        {OFF_CAMPUS_URL ? (
+          <a href={OFF_CAMPUS_URL} target="_blank" rel="noopener noreferrer" className="btn secondary" style={{ alignSelf: "flex-start" }}>
+            Open off-campus board <ExtIcon />
+          </a>
+        ) : (
+          <span className="pill amber" style={{ alignSelf: "flex-start" }}>Link coming soon</span>
+        )}
+        <p className="small muted">Assembly: South Street Seaport on Fulton St (primary) · Louise Nevelson Plaza (secondary)</p>
       </section>
 
       <section className="card" aria-labelledby={`${campus}-ws`}>

@@ -19,7 +19,7 @@ const num = (name: string) => name.replace("Student ", "");
 function Pill({ level, label }: { level: Level; label?: string }) {
   const l = LEVEL[level];
   return (
-    <span className="pill" style={{ background: l.bg, color: l.fg, border: level === "N" ? "1px dashed #B7791F" : undefined }}>
+    <span className="pill" style={{ background: l.bg, color: l.fg, border: level === "N" ? "1px dashed var(--amber)" : undefined }}>
       {label ?? l.label}
     </span>
   );
@@ -135,7 +135,7 @@ export function GuideApp() {
         </button>
       </div>
 
-      <p className="notice" style={{ background: "#fff4df", color: "var(--amber-ink)", fontWeight: 500 }}>
+      <p className="notice" style={{ background: "var(--amber-soft)", color: "var(--amber-ink)", fontWeight: 500 }}>
         Preview with sample students. Observations you log here aren&apos;t saved yet.
       </p>
 
@@ -243,7 +243,7 @@ export function GuideApp() {
               <section className="card" aria-labelledby="next-h">
                 <h2 id="next-h">Suggested next presentations</h2>
                 {allMats.filter((m) => m.s === "N").slice(0, 3).map((m) => (
-                  <div key={m.id} style={{ padding: "12px 14px", borderRadius: 12, border: "1px dashed #B7791F", background: "#FFF8EA" }}>
+                  <div key={m.id} style={{ padding: "12px 14px", borderRadius: 12, border: "1px dashed var(--amber)", background: "var(--amber-soft)" }}>
                     <strong>{m.name}</strong> <span className="small" style={{ color: "var(--amber-ink)" }}>· {AREA_OF[m.id].name}</span>
                     <p className="small" style={{ color: "var(--ink-2)", marginTop: 4 }}>{m.purpose}</p>
                   </div>
@@ -277,7 +277,7 @@ export function GuideApp() {
                 <div className="row" style={{ gap: 8 }}>
                   {KIDS.map(([name]) => (
                     <button key={name} type="button" className="chip" aria-pressed={!!picked[name]}
-                      style={picked[name] ? { background: "var(--teal)", borderColor: "var(--teal)", color: "#fff" } : undefined}
+                      style={picked[name] ? { background: "var(--teal)", borderColor: "var(--teal)", color: "var(--on-accent)" } : undefined}
                       onClick={() => setPicked((p) => { const n = { ...p }; if (n[name]) delete n[name]; else n[name] = true; return n; })}>
                       {name}
                     </button>
@@ -295,7 +295,7 @@ export function GuideApp() {
                   {AREAS.find((a) => a.id === area)!.mats.map((m) => (
                     <button key={m.id} type="button" aria-pressed={mat === m.id} onClick={() => setMat(m.id)}
                       style={{ textAlign: "left", minHeight: 52, padding: "0 14px", borderRadius: 12, fontWeight: 600, cursor: "pointer",
-                        ...(mat === m.id ? { background: "var(--teal-soft)", border: "2px solid var(--teal)" } : { background: "#fff", border: "1px solid var(--line)", margin: 1 }) }}>
+                        ...(mat === m.id ? { background: "var(--teal-soft)", border: "2px solid var(--teal)" } : { background: "var(--surface)", border: "1px solid var(--line)", margin: 1 }) }}>
                       {m.name}
                     </button>
                   ))}
@@ -332,7 +332,7 @@ export function GuideApp() {
 
               <Seg label="Scan filter" value={filter} onChange={setFilter} options={Object.entries(FILTERS).map(([k, v]) => [k as Filter, v.label])} />
               <input ref={fileRef} id="g-scan" type="file" accept="image/*" capture="environment" multiple className="sr-only" onChange={(e) => onFiles(e.target.files)} />
-              <label htmlFor="g-scan" style={{ minHeight: 90, border: "2px dashed #5FA89C", borderRadius: 12, background: "#F2F8F6", color: "var(--teal-ink)", fontWeight: 700, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4, textAlign: "center", padding: 12 }}>
+              <label htmlFor="g-scan" style={{ minHeight: 90, border: "2px dashed var(--teal)", borderRadius: 12, background: "var(--teal-soft)", color: "var(--teal-ink)", fontWeight: 700, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4, textAlign: "center", padding: 12 }}>
                 <span className="row" style={{ gap: 8 }}>
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3" /><path d="M7 12h10" /></svg>
                   {scans.length ? "Scan another page" : "Scan work with camera"}
@@ -344,7 +344,7 @@ export function GuideApp() {
                 <input type="checkbox" checked={share} onChange={() => setShare(!share)} style={{ width: 20, height: 20, accentColor: "var(--teal)", margin: 0 }} />
                 <span>Share with families</span>
               </label>
-              <div style={{ background: "#F2F8F6", borderRadius: 14, padding: 14 }} className="stack-sm">
+              <div style={{ background: "var(--teal-soft)", borderRadius: 14, padding: 14 }} className="stack-sm">
                 <span className="small" style={{ fontWeight: 700, color: "var(--teal-ink)" }}>Summary</span>
                 <span>{summary}</span>
                 {masteryHint && <span className="small" style={{ color: "var(--teal-ink)" }}>Student 1&apos;s third independent cycle on Food Preparation: this confirms mastery.</span>}

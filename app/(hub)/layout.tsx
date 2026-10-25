@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { requireMember, ROLE_LABELS } from "@/lib/access";
-import { HUB_NAME } from "@/lib/campus";
 import { SignOut } from "@/components/sign-out";
 import { HubNav } from "@/components/hub-nav";
+import { Brand } from "@/components/brand";
+import { OFF_CAMPUS_URL, ATTENDANCE_URL } from "@/lib/links";
 
 // Every page in this group requires a signed-in user who is on the access list.
 export default async function HubLayout({ children }: { children: React.ReactNode }) {
@@ -10,20 +11,22 @@ export default async function HubLayout({ children }: { children: React.ReactNod
   const tabs = [
     { href: "/", label: "Home" },
     { href: "/emergency", label: "Emergency" },
-    { href: "/off-campus", label: "Off campus" },
     { href: "/workshops", label: "Workshops" },
     { href: "/maiden-ln", label: "Maiden Ln" },
     { href: "/early-years", label: "Early Years" },
     ...(me.role === "admin" ? [{ href: "/access", label: "Access" }] : []),
+  ];
+  const external = [
+    ...(OFF_CAMPUS_URL ? [{ href: OFF_CAMPUS_URL, label: "Off-campus board" }] : []),
+    ...(ATTENDANCE_URL ? [{ href: ATTENDANCE_URL, label: "Attendance" }] : []),
   ];
 
   return (
     <>
       <header className="hub-header">
         <div className="wrap">
-          <Link href="/" className="brand">
-            <span className="brand-mark">NYC</span>
-            <span className="brand-name">{HUB_NAME}</span>
+          <Link href="/" className="brand" aria-label="Alpha NYC Hub home">
+            <Brand />
           </Link>
           <div className="who">
             <span>
@@ -33,7 +36,7 @@ export default async function HubLayout({ children }: { children: React.ReactNod
           </div>
         </div>
       </header>
-      <HubNav tabs={tabs} />
+      <HubNav tabs={tabs} external={external} />
       {children}
     </>
   );

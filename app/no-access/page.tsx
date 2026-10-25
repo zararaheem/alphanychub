@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { SignOut } from "@/components/sign-out";
-import { HUB_NAME } from "@/lib/campus";
+import { Brand } from "@/components/brand";
 
 export default async function NoAccessPage() {
   const supabase = await createClient();
@@ -13,7 +13,8 @@ export default async function NoAccessPage() {
   return (
     <div className="auth">
       <div className="auth-hero">
-        <h1>{HUB_NAME}</h1>
+        <span className="brand"><Brand size={48} /></span>
+        <h1>Staff <em>hub</em></h1>
         <p>This hub is for guides and staff on the access list.</p>
       </div>
       <div className="auth-panel">
