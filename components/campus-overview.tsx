@@ -43,7 +43,7 @@ export async function CampusOverview({ campus }: { campus: Campus }) {
             Open off-campus board <ExtIcon />
           </a>
         ) : (
-          <span className="pill amber" style={{ alignSelf: "flex-start" }}>Link coming soon</span>
+          <span className="pill amber" style={{ alignSelf: "flex-start" }}>Coming soon</span>
         )}
         <p className="small muted">Assembly: South Street Seaport on Fulton St (primary) · Louise Nevelson Plaza (secondary)</p>
       </section>

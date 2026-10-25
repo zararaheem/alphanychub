@@ -2,7 +2,7 @@ import Link from "next/link";
 import { requireMember } from "@/lib/access";
 import { CAMPUSES, clock, shortDay, todayNY } from "@/lib/campus";
 import { getContacts, getProcedures, getWorkshops } from "@/lib/data";
-import { ATTENDANCE_URL, OFF_CAMPUS_URL } from "@/lib/links";
+import { OFF_CAMPUS_URL } from "@/lib/links";
 import { Clock } from "@/components/clock";
 import { ExtIcon } from "@/components/external-link";
 
@@ -32,8 +32,8 @@ export default async function HomePage() {
         <div className="kpis">
           <div className="kpi">
             <span className="label-caps">Students on campus today</span>
-            <b style={{ color: "var(--red)" }}>--</b>
-            <span className="note">{ATTENDANCE_URL ? "Live count from the Attendance app coming soon" : "Will pull from the Attendance app"}</span>
+            <b style={{ color: "var(--muted)" }}>--</b>
+            <span className="note">Coming soon, from the Attendance app</span>
           </div>
           <div className="kpi">
             <span className="label-caps">Next workshop</span>
@@ -72,7 +72,7 @@ export default async function HomePage() {
             <div className="card">
               <span className="card-title">Off-campus tracker</span>
               <span className="muted">Links to the Off-Campus Today board in the Attendance app.</span>
-              <span className="pill amber" style={{ alignSelf: "flex-start" }}>Link coming soon</span>
+              <span className="pill amber" style={{ alignSelf: "flex-start" }}>Coming soon</span>
             </div>
           )}
 
