@@ -1,0 +1,25 @@
+import type { Metadata } from "next";
+import "./globals.css";
+import { HUB_NAME } from "@/lib/campus";
+
+export const metadata: Metadata = {
+  title: HUB_NAME,
+  description: "Staff hub for the Maiden Ln and Early Years campuses.",
+  robots: { index: false, follow: false },
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Figtree:wght@400;500;600;700&display=swap"
+        />
+      </head>
+      <body>{children}</body>
+    </html>
+  );
+}
