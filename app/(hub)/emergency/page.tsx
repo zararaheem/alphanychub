@@ -48,7 +48,7 @@ export default async function EmergencyPage({ searchParams }: { searchParams: SP
                         {canEdit && <ContactEditor contact={c} />}
                       </td>
                       <td>{c.role}</td>
-                      <td>{c.phone && <a href={`tel:${c.phone.replace(/[^\d+]/g, "")}`} style={{ fontWeight: 700 }}>{c.phone}</a>}</td>
+                      <td>{c.phone && <a href={`tel:${c.phone.replace(/[^\d+]/g, "")}`} style={{ fontWeight: 700, whiteSpace: "nowrap" }}>{c.phone}</a>}</td>
                       <td className="muted">{CAMPUS_LABEL[c.campus]}</td>
                     </tr>
                   ))}

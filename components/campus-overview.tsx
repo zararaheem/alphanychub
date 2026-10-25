@@ -22,7 +22,7 @@ export async function CampusOverview({ campus }: { campus: Campus }) {
         {contacts.slice(0, 5).map((c) => (
           <div key={c.id} className="list-row">
             <span><strong>{c.name}</strong>{c.role && <span className="muted"> · {c.role}</span>}</span>
-            {c.phone && <a href={`tel:${c.phone.replace(/[^\d+]/g, "")}`} style={{ fontWeight: 700 }}>{c.phone}</a>}
+            {c.phone && <a href={`tel:${c.phone.replace(/[^\d+]/g, "")}`} style={{ fontWeight: 700, whiteSpace: "nowrap" }}>{c.phone}</a>}
           </div>
         ))}
         {procedures.length > 0 && (
