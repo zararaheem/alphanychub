@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import type { Campus } from "@/lib/campus";
-import type { Contact, Procedure, Workshop } from "@/lib/types";
+import type { Contact, ParentContact, Procedure, Workshop } from "@/lib/types";
 
 // campus=null → everything; otherwise that campus plus rows marked "all".
 const scopes = (c: Campus | null) => (c ? [c, "all"] : ["maiden-ln", "early-years", "all"]);
@@ -25,4 +25,12 @@ export async function getWorkshops(campus: Campus | null, opts: { from?: string 
   if (opts.from) q = q.gte("day", opts.from);
   const { data } = await q.order("day").order("start_time", { nullsFirst: true });
   return (data ?? []) as Workshop[];
+}
+
+export async function getParentContacts(campus: Campus | null) {
+  const supabase = await createClient();
+  let q = supabase.from("parent_contacts").select("*");
+  if (campus) q = q.eq("campus", campus);
+  const { data } = await q.order("sort").order("student").order("id");
+  return (data ?? []) as ParentContact[];
 }

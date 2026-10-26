@@ -2,6 +2,7 @@ import Link from "next/link";
 import { CAMPUS_LABEL, clock, shortDay, todayNY, type Campus } from "@/lib/campus";
 import { getContacts, getProcedures, getWorkshops } from "@/lib/data";
 import { OFF_CAMPUS_URL } from "@/lib/links";
+import { LEVELS, SESSION, WORKSHOPS } from "@/lib/session2";
 import { ExtIcon } from "@/components/external-link";
 
 // Shared summary for a campus page: emergency, trips and workshops for that campus.
@@ -48,10 +49,22 @@ export async function CampusOverview({ campus }: { campus: Campus }) {
         <p className="small muted">Assembly: South Street Seaport on Fulton St (primary) · Louise Nevelson Plaza (secondary)</p>
       </section>
 
+      <section className="card" aria-labelledby={`${campus}-s2`}>
+        <div className="between" style={{ alignItems: "center" }}>
+          <h2 id={`${campus}-s2`}>{SESSION.name} workshops</h2>
+          <Link href="/workshops" className="small">All →</Link>
+        </div>
+        {LEVELS.filter((l) => l.campus === campus).map((l) => (
+          <Link key={l.id} href={`/workshops?level=${l.id}`} className="list-row" style={{ textDecoration: "none", color: "inherit" }}>
+            <span><strong>{l.id}</strong> <span className="muted small">· {WORKSHOPS.filter((w) => w.level === l.id).map((w) => w.title).join(", ")}</span></span>
+          </Link>
+        ))}
+      </section>
+
       <section className="card" aria-labelledby={`${campus}-ws`}>
         <div className="between" style={{ alignItems: "center" }}>
-          <h2 id={`${campus}-ws`}>Planning workshops</h2>
-          <Link href={`/workshops?campus=${campus}`} className="small">Schedule →</Link>
+          <h2 id={`${campus}-ws`}>Staff planning</h2>
+          <Link href="/workshops?view=staff" className="small">Schedule →</Link>
         </div>
         {workshops.length === 0 && <p className="muted">Nothing scheduled.</p>}
         {workshops.slice(0, 5).map((w) => (

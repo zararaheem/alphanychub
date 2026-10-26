@@ -9,7 +9,7 @@ One staff hub for the **Maiden Ln** and **Early Years** campuses. Access is limi
 | **Home** | Cards for the Emergency contact list, the Off-campus tracker (links to the Attendance app) and Planning workshops | — |
 | **Emergency** | Emergency contact list (tap-to-call) and emergency procedures, filterable by campus | Admins, Lead Guides |
 | **Off-campus board** | Links out to the Off-Campus Today board in the Attendance app (`NEXT_PUBLIC_OFF_CAMPUS_URL`) | — |
-| **Workshops** | Planning workshop schedule, seeded with the week of Oct 26 2026 | Admins, Lead Guides |
+| **Workshops** | Session 2 student workshops by level (WL, LL, L1, L2, MS) with descriptions, AlphaTests, weekly schedules, showcases and off-campus locations (edit `lib/session2.ts`); plus the all-staff planning schedule | Staff planning: Admins, Lead Guides |
 | **Maiden Ln** / **Early Years** | Campus pages: that campus's contacts, procedures, trips and workshops | — |
 | **Early Years → Guide tools** | My classes, roster, student progress, log an observation, scan work with the camera *(sample data for now)* | — |
 | **Early Years → Lead Guide** | Early Years at a glance, all students, classes *(sample data for now; admins and Lead Guides only)* | — |

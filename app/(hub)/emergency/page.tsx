@@ -1,89 +1,184 @@
 import { requireMember } from "@/lib/access";
-import { CAMPUS_LABEL, parseCampus } from "@/lib/campus";
-import { getContacts, getProcedures } from "@/lib/data";
-import { deleteContact, deleteProcedure, saveContact, saveProcedure } from "@/lib/actions";
-import { CampusFilter } from "@/components/campus-filter";
+import { CAMPUS_LABEL } from "@/lib/campus";
+import { getContacts, getParentContacts, getProcedures } from "@/lib/data";
+import { deleteContact, deleteProcedure, importParentContacts, saveContact, saveProcedure } from "@/lib/actions";
+import { ParentContacts } from "@/components/parent-contacts";
+import { currentCampus } from "@/lib/campus-pref";
 import { CampusSelect, Field, TextArea } from "@/components/fields";
 import { Flash } from "@/components/flash";
 import type { Contact, Procedure } from "@/lib/types";
 
-type SP = Promise<{ campus?: string; msg?: string; err?: string }>;
+type SP = Promise<{ msg?: string; err?: string; edit?: string }>;
 
 export default async function EmergencyPage({ searchParams }: { searchParams: SP }) {
   const sp = await searchParams;
-  const campus = parseCampus(sp.campus);
+  const campus = await currentCampus();
   const me = await requireMember();
   const canEdit = me.role === "admin" || me.role === "lead";
-  const [contacts, procedures] = await Promise.all([getContacts(campus), getProcedures(campus)]);
+  // Edit controls stay hidden until an editor turns them on for a section.
+  const editing = (section: string) => canEdit && sp.edit === section;
+  const EditToggle = ({ section }: { section: string }) =>
+    canEdit ? (
+      <a href={editing(section) ? "/emergency" : `/emergency?edit=${section}`} className="edit-toggle" aria-pressed={editing(section)}>
+        {editing(section) ? "Done" : "Edit"}
+      </a>
+    ) : null;
+  const [contacts, procedures, parents] = await Promise.all([getContacts(campus), getProcedures(campus), getParentContacts(campus)]);
 
   return (
     <main className="page">
-      <div className="between">
-        <div className="stack-sm">
-          <h1>Emergency</h1>
-          <p className="lede">Call 911 first in any life-threatening emergency. Then use the contacts and procedures below.</p>
-        </div>
-        <CampusFilter base="/emergency" current={campus} />
+      <div className="stack-sm">
+        <h1>Emergency</h1>
+        <p className="lede">Who to call and what to do{campus ? ` · ${CAMPUS_LABEL[campus]}` : ""}.</p>
       </div>
+
+      <section className="sos" aria-label="In an emergency">
+        <a href="tel:911" className="btn sos-call"><PhoneIcon /> Call 911</a>
+        <ol className="sos-steps">
+          <li><b>1</b> Call 911 if anyone is in danger</li>
+          <li><b>2</b> Everyone to radio Channel 2</li>
+          <li><b>3</b> Notify the Emergency Coordinator</li>
+        </ol>
+        <span className="sos-code">Lockdown code: <b>&lsquo;Tiger, Tiger&rsquo;</b></span>
+      </section>
       <Flash msg={sp.msg} err={sp.err} />
 
       <div className="split">
-        <section className="main card" aria-labelledby="contacts-h">
-          <h2 id="contacts-h">Emergency contact list</h2>
-          {contacts.length === 0 ? (
-            <p className="empty">No contacts yet.{canEdit ? " Add the first one below." : " An admin or Lead Guide can add them."}</p>
-          ) : (
-            <div style={{ overflowX: "auto" }}>
-              <table style={{ minWidth: 560 }}>
-                <thead>
-                  <tr><th scope="col">Name</th><th scope="col">Role</th><th scope="col">Phone</th><th scope="col">Campus</th></tr>
-                </thead>
-                <tbody>
-                  {contacts.map((c) => (
-                    <tr key={c.id}>
-                      <td>
-                        <strong>{c.name}</strong>
-                        {c.email && <div className="small"><a href={`mailto:${c.email}`}>{c.email}</a></div>}
-                        {c.notes && <div className="small muted">{c.notes}</div>}
-                        {canEdit && <ContactEditor contact={c} />}
-                      </td>
-                      <td>{c.role}</td>
-                      <td>{c.phone && <a href={`tel:${c.phone.replace(/[^\d+]/g, "")}`} style={{ fontWeight: 700, whiteSpace: "nowrap" }}>{c.phone}</a>}</td>
-                      <td className="muted">{CAMPUS_LABEL[c.campus]}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+        <div className="main stack" style={{ gap: 28 }}>
+          <section className="card" aria-labelledby="contacts-h">
+            <div className="section-head">
+              <h2 id="contacts-h">Immediate contacts</h2>
+              <EditToggle section="contacts" />
             </div>
-          )}
-          {canEdit && <ContactEditor />}
-        </section>
+            {contacts.length === 0 ? (
+              <p className="empty">No contacts yet.{canEdit ? " Choose Edit to add the first one." : " An admin or Lead Guide can add them."}</p>
+            ) : (
+              <ul className="contact-list">
+                {contacts.map((c) => (
+                  <li key={c.id} className="contact">
+                    <div className="who">
+                      <strong>
+                        {c.name}
+                        {!campus && c.campus !== "all" && <span className="tag">{CAMPUS_LABEL[c.campus]}</span>}
+                      </strong>
+                      {c.role && <span className="role">{c.role}</span>}
+                      {c.notes && <span className="note">{c.notes}</span>}
+                      {editing("contacts") && <ContactEditor contact={c} />}
+                    </div>
+                    <div className="actions">
+                      {c.phone && (
+                        <a href={`tel:${c.phone.replace(/[^\d+]/g, "")}`} className={`call-btn${c.phone === "911" ? " urgent" : ""}`} aria-label={`Call ${c.name}: ${c.phone}`}>
+                          <PhoneIcon /> {c.phone}
+                        </a>
+                      )}
+                      {c.email && (
+                        <a href={`mailto:${c.email}`} className="icon-btn" aria-label={`Email ${c.name}: ${c.email}`} title={c.email}>
+                          <MailIcon />
+                        </a>
+                      )}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {editing("contacts") && <ContactEditor />}
+          </section>
+
+          <section className="card" aria-labelledby="parents-h">
+            <div className="section-head">
+              <h2 id="parents-h">Parent contacts</h2>
+              <span className="row" style={{ gap: 12 }}>
+                {parents.length > 0 && (
+                  <span className="small muted">
+                    Updated {new Date(parents[0].imported_at).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "America/New_York" })}
+                  </span>
+                )}
+                {parents.length > 0 && <EditToggle section="parents" />}
+              </span>
+            </div>
+            {parents.length === 0 ? (
+              <p className="empty">No parent contacts yet.{canEdit ? " Import the Google Sheet below." : " An admin or Lead Guide can import them."}</p>
+            ) : (
+              <ParentContacts rows={parents} />
+            )}
+            {canEdit && (parents.length === 0 || editing("parents")) && (
+              <details className="editor" open={editing("parents")}>
+                <summary>{parents.length ? "Re-import from Google Sheet" : "+ Import from Google Sheet"}</summary>
+                <form action={importParentContacts} className="stack" style={{ paddingBottom: 12 }}>
+                  <p className="small muted">
+                    In the sheet: File → Download → Comma-separated values (.csv). Needs a student column and a grade column, plus parent
+                    name / phone / email columns (&quot;Parent 1 Phone&quot;, &quot;Parent 2 Email&quot;… also work). PreK and K go under Early Years;
+                    grades 1–12 under Maiden Ln. Importing replaces the whole list.
+                  </p>
+                  <div className="field">
+                    <label htmlFor="pc-file">CSV file</label>
+                    <input id="pc-file" name="file" type="file" accept=".csv,text/csv" className="input" style={{ paddingTop: 9 }} required />
+                  </div>
+                  <button type="submit" className="btn" style={{ alignSelf: "flex-start" }}>Import parent contacts</button>
+                </form>
+              </details>
+            )}
+          </section>
+        </div>
 
         <section className="side card" aria-labelledby="proc-h">
-          <h2 id="proc-h">Emergency procedures</h2>
+          <div className="section-head">
+            <h2 id="proc-h">Procedures</h2>
+            <EditToggle section="procedures" />
+          </div>
           {procedures.length === 0 && (
-            <p className="empty">No procedures yet.{canEdit ? " Add lockdown, evacuation, shelter-in-place and so on below." : ""}</p>
+            <p className="empty">No procedures yet.{canEdit ? " Choose Edit to add lockdown, evacuation and so on." : ""}</p>
           )}
-          {procedures.map((p) => (
-            <details key={p.id} className="card" style={{ padding: 14, gap: 8 }}>
-              <summary style={{ cursor: "pointer", fontWeight: 700, minHeight: 32 }}>
-                {p.title} <span className="pill" style={{ marginLeft: 6 }}>{CAMPUS_LABEL[p.campus]}</span>
-              </summary>
-              <p style={{ whiteSpace: "pre-line", lineHeight: 1.55 }}>{p.body}</p>
-              {canEdit && <ProcedureEditor procedure={p} />}
-            </details>
-          ))}
-          {canEdit && <ProcedureEditor />}
+          <div className="proc-list">
+            {procedures.map((p) => (
+              <details key={p.id}>
+                <summary>
+                  <span>
+                    {p.title}
+                    {!campus && p.campus !== "all" && <span className="tag">{CAMPUS_LABEL[p.campus]}</span>}
+                  </span>
+                  <Chevron />
+                </summary>
+                <div className="proc-body">{p.body}</div>
+                {editing("procedures") && <ProcedureEditor procedure={p} />}
+              </details>
+            ))}
+          </div>
+          {editing("procedures") && <ProcedureEditor />}
         </section>
       </div>
     </main>
   );
 }
 
+function PhoneIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z" />
+    </svg>
+  );
+}
+
+function MailIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="3" y="5" width="18" height="14" rx="2" /><path d="M3 7l9 6 9-6" />
+    </svg>
+  );
+}
+
+function Chevron() {
+  return (
+    <svg className="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M6 9l6 6 6-6" />
+    </svg>
+  );
+}
+
 function ContactEditor({ contact }: { contact?: Contact }) {
   const k = contact?.id ?? "new";
   return (
-    <details className="editor">
+    <details className={contact ? "editor quiet" : "editor"}>
       <summary>{contact ? "Edit" : "+ Add a contact"}</summary>
       <form action={saveContact} className="form-grid" style={{ paddingBottom: 12 }}>
         {contact && <input type="hidden" name="id" value={contact.id} />}
@@ -109,8 +204,8 @@ function ContactEditor({ contact }: { contact?: Contact }) {
 function ProcedureEditor({ procedure }: { procedure?: Procedure }) {
   const k = procedure?.id ?? "new";
   return (
-    <details className="editor">
-      <summary>{procedure ? "Edit procedure" : "+ Add a procedure"}</summary>
+    <details className={procedure ? "editor quiet" : "editor"}>
+      <summary>{procedure ? "Edit" : "+ Add a procedure"}</summary>
       <form action={saveProcedure} className="form-grid" style={{ paddingBottom: 12 }}>
         {procedure && <input type="hidden" name="id" value={procedure.id} />}
         <Field id={`p-title-${k}`} label="Title" name="title" defaultValue={procedure?.title} placeholder="e.g. Lockdown" required />

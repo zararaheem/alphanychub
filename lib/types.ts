@@ -11,3 +11,9 @@ export type Workshop = {
   id: number; campus: CampusScope; day: string; start_time: string | null; end_time: string | null;
   topic: string; notes: string | null;
 };
+
+export type ParentContact = {
+  id: number; campus: "early-years" | "maiden-ln"; student: string; grade: string | null; guardian: string | null;
+  relationship: string | null; phone: string | null; email: string | null; notes: string | null; sort: number;
+  imported_at: string;
+};

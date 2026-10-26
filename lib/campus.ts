@@ -4,8 +4,8 @@ export type Campus = "maiden-ln" | "early-years";
 export type CampusScope = Campus | "all";
 
 export const CAMPUSES: { id: Campus; name: string; blurb: string }[] = [
-  { id: "maiden-ln", name: "Maiden Ln", blurb: "Maiden Ln campus" },
-  { id: "early-years", name: "Early Years", blurb: "Pre-K (WonderLab) and Kinder (Learning Lab)" },
+  { id: "maiden-ln", name: "Maiden Ln", blurb: "Grades 1–12 · 180 Maiden Lane" },
+  { id: "early-years", name: "Early Years", blurb: "William St · WL (PreK + K)" },
 ];
 
 export const CAMPUS_LABEL: Record<CampusScope, string> = {
