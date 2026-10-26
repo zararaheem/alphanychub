@@ -3,6 +3,9 @@ import { CAMPUS_LABEL } from "@/lib/campus";
 import { getContacts, getParentContacts, getProcedures } from "@/lib/data";
 import { deleteContact, deleteProcedure, importParentContacts, saveContact, saveProcedure } from "@/lib/actions";
 import { ParentContacts } from "@/components/parent-contacts";
+import Link from "next/link";
+import { isRespondNow, procKind, shortTitle } from "@/lib/procedure-meta";
+import { ProcIcon } from "@/components/procedure-view";
 import { currentCampus } from "@/lib/campus-pref";
 import { CampusSelect, Field, TextArea } from "@/components/fields";
 import { Flash } from "@/components/flash";
@@ -24,6 +27,8 @@ export default async function EmergencyPage({ searchParams }: { searchParams: SP
       </a>
     ) : null;
   const [contacts, procedures, parents] = await Promise.all([getContacts(campus), getProcedures(campus), getParentContacts(campus)]);
+  const respond = procedures.filter(isRespondNow);
+  const reference = procedures.filter((p) => !isRespondNow(p));
 
   return (
     <main className="page">
@@ -42,6 +47,23 @@ export default async function EmergencyPage({ searchParams }: { searchParams: SP
         <span className="sos-code">Lockdown code: <b>&lsquo;Tiger, Tiger&rsquo;</b></span>
       </section>
       <Flash msg={sp.msg} err={sp.err} />
+
+      {respond.length > 0 && (
+        <section aria-labelledby="now-h" className="stack-sm" style={{ gap: 10 }}>
+          <h2 id="now-h" className="label-caps">What&rsquo;s happening?</h2>
+          <div className="em-tiles">
+            {respond.map((p) => {
+              const kind = procKind(p.title);
+              return (
+                <Link key={p.id} href={`/emergency/${p.id}`} className={`em-tile k-${kind}`}>
+                  <span className={`proc-icon k-${kind}`}><ProcIcon kind={kind} /></span>
+                  <span>{shortTitle(p.title)}</span>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       <div className="split">
         <div className="main stack" style={{ gap: 28 }}>
@@ -129,21 +151,41 @@ export default async function EmergencyPage({ searchParams }: { searchParams: SP
           {procedures.length === 0 && (
             <p className="empty">No procedures yet.{canEdit ? " Choose Edit to add lockdown, evacuation and so on." : ""}</p>
           )}
-          <div className="proc-list">
-            {procedures.map((p) => (
-              <details key={p.id}>
-                <summary>
-                  <span>
-                    {p.title}
-                    {!campus && p.campus !== "all" && <span className="tag">{CAMPUS_LABEL[p.campus]}</span>}
-                  </span>
-                  <Chevron />
-                </summary>
-                <div className="proc-body">{p.body}</div>
-                {editing("procedures") && <ProcedureEditor procedure={p} />}
-              </details>
-            ))}
-          </div>
+          {editing("procedures") ? (
+            <div className="proc-list">
+              {procedures.map((p) => (
+                <details key={p.id}>
+                  <summary>
+                    <span>{p.title}</span>
+                    <Chevron />
+                  </summary>
+                  <ProcedureEditor procedure={p} />
+                </details>
+              ))}
+            </div>
+          ) : (
+            [["Respond now", respond], ["Reference", reference]].map(([label, list]) =>
+              (list as typeof procedures).length > 0 && (
+                <div key={label as string} className="stack-sm" style={{ gap: 0 }}>
+                  <span className="label-caps" style={{ margin: "10px 0 2px" }}>{label as string}</span>
+                  <ul className="proc-links">
+                    {(list as typeof procedures).map((p) => (
+                      <li key={p.id}>
+                        <Link href={`/emergency/${p.id}`}>
+                          <span className={`proc-icon sm k-${procKind(p.title)}`}><ProcIcon kind={procKind(p.title)} size={16} /></span>
+                          <span className="t">
+                            {p.title}
+                            {!campus && p.campus !== "all" && <span className="tag">{CAMPUS_LABEL[p.campus]}</span>}
+                          </span>
+                          <span aria-hidden="true" className="muted">›</span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ),
+            )
+          )}
           {editing("procedures") && <ProcedureEditor />}
         </section>
       </div>
@@ -210,7 +252,7 @@ function ProcedureEditor({ procedure }: { procedure?: Procedure }) {
         {procedure && <input type="hidden" name="id" value={procedure.id} />}
         <Field id={`p-title-${k}`} label="Title" name="title" defaultValue={procedure?.title} placeholder="e.g. Lockdown" required />
         <CampusSelect id={`p-campus-${k}`} defaultValue={procedure?.campus} />
-        <Field id={`p-sort-${k}`} label="Order" name="sort" type="number" defaultValue={procedure?.sort ?? 0} />
+        <Field id={`p-sort-${k}`} label="Order (10–19 = Respond now)" name="sort" type="number" defaultValue={procedure?.sort ?? 0} />
         <TextArea id={`p-body-${k}`} label="Steps (one per line)" name="body" defaultValue={procedure?.body ?? ""} rows={6} />
         <button type="submit" className="btn">{procedure ? "Save procedure" : "Add procedure"}</button>
       </form>

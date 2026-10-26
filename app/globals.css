@@ -242,3 +242,43 @@ details.week table { margin-top: 8px; font-size: 13px; }
 details.week th { font-size: 11px; color: var(--ink); }
 details.week .off { color: var(--amber-ink); }
 ul.plain { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: 13.5px; color: var(--ink-2); }
+
+/* Procedures ------------------------------------------------------------ */
+.em-tiles { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+.em-tile { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding: 14px 16px; border-radius: 14px; background: var(--surface); border: 1px solid rgba(255, 255, 255, .06); color: var(--ink); text-decoration: none; font-weight: 600; font-size: 14.5px; min-height: 92px; transition: border-color .15s, transform .15s; }
+.em-tile:hover { color: #fff; border-color: var(--teal); transform: translateY(-1px); }
+.proc-icon { display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 10px; background: var(--teal-soft); color: var(--teal-ink); flex: none; }
+.proc-icon.sm { width: 28px; height: 28px; border-radius: 8px; }
+.proc-icon.k-fire, .proc-icon.k-bomb { background: var(--red-soft); color: var(--red); }
+.proc-icon.k-lockdown { background: rgba(185, 140, 255, .15); color: #c9a8ff; }
+.proc-icon.k-medical { background: rgba(47, 212, 138, .14); color: var(--green); }
+.proc-icon.k-weather, .proc-icon.k-gas { background: var(--amber-soft); color: var(--amber-ink); }
+ul.proc-links { list-style: none; margin: 0; padding: 0; }
+ul.proc-links li + li { border-top: 1px solid rgba(255, 255, 255, .06); }
+ul.proc-links a { display: flex; align-items: center; gap: 10px; padding: 9px 0; color: var(--ink); text-decoration: none; font-size: 14px; font-weight: 500; }
+ul.proc-links a:hover { color: var(--teal-ink); }
+ul.proc-links .t { flex: 1; min-width: 0; }
+.back-link { font-size: 13px; color: var(--muted); text-decoration: none; }
+.back-link:hover { color: var(--teal-ink); }
+.proc-page { max-width: 820px; gap: 20px; }
+.proc-head { display: flex; align-items: center; gap: 14px; }
+.proc-head .proc-icon { width: 52px; height: 52px; border-radius: 14px; }
+.sos-compact { padding: 10px 14px; gap: 10px 18px; }
+.sos-compact .sos-call { min-height: 40px; font-size: 14px; }
+.proc-card { padding: 24px 26px; }
+.proc-doc { display: flex; flex-direction: column; gap: 14px; }
+.proc-lead { font-size: 16px; line-height: 1.55; color: #fff; font-weight: 500; padding: 12px 16px; border-radius: 12px; background: var(--teal-soft); border-left: 3px solid var(--teal); }
+.proc-h { font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--teal); margin-top: 6px; }
+.proc-h.warn { color: var(--red); }
+.proc-para { font-size: 14.5px; line-height: 1.6; color: var(--ink-2); }
+ol.proc-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+ol.proc-steps li { display: flex; gap: 14px; align-items: flex-start; font-size: 15.5px; line-height: 1.5; }
+ol.proc-steps .n { flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--teal); color: var(--on-accent); font-weight: 800; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; margin-top: 1px; }
+ul.proc-bullets { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; font-size: 14.5px; line-height: 1.55; color: var(--ink-2); }
+ul.proc-bullets li::marker { color: var(--teal); }
+ul.proc-bullets.warn { list-style: none; padding: 12px 16px; border-radius: 12px; background: var(--red-soft); border: 1px solid rgba(255, 122, 104, .3); color: #ffd6cf; }
+ul.proc-bullets.warn li::before { content: "✕"; color: var(--red); font-weight: 800; margin-right: 10px; }
+@media (max-width: 640px) {
+  .proc-card { padding: 18px; }
+  ol.proc-steps li { font-size: 15px; }
+}
