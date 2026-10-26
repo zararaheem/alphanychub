@@ -54,7 +54,7 @@ export function LeadApp() {
         <span className="pill amber" style={{ fontSize: 13, padding: "8px 14px" }}>XP lives in Timeback</span>
       </div>
 
-      <p className="notice" style={{ background: "#fff4df", color: "var(--amber-ink)", fontWeight: 500 }}>
+      <p className="notice" style={{ background: "var(--amber-soft)", color: "var(--amber-ink)", fontWeight: 500 }}>
         Preview with sample students from the mockup. Numbers will be live once rosters and observations are connected.
       </p>
 
@@ -84,14 +84,14 @@ export function LeadApp() {
                 <div key={name} className="stack-sm">
                   <span className="between" style={{ alignItems: "center" }}><strong style={{ fontWeight: 600 }}>{name}</strong><span style={{ color: "var(--ink-2)" }}>{i}% independent</span></span>
                   <span className="bar" style={{ height: 14 }} aria-label={`${i}% independent, ${d}% developing, ${e}% emerging`} role="img">
-                    <span style={{ flex: `${i} 0 0`, background: "#0F6E64" }} />
-                    <span style={{ flex: `${d} 0 0`, background: "#5FA89C" }} />
-                    <span style={{ flex: `${e} 0 0`, background: "#B9D3CC" }} />
+                    <span style={{ flex: `${i} 0 0`, background: "#12b5f6" }} />
+                    <span style={{ flex: `${d} 0 0`, background: "#4f7cf0" }} />
+                    <span style={{ flex: `${e} 0 0`, background: "#8a8fd6" }} />
                   </span>
                 </div>
               ))}
               <div className="row small" style={{ gap: 14, color: "var(--ink-2)" }}>
-                {[["#0F6E64", "Independent"], ["#5FA89C", "Developing"], ["#B9D3CC", "Emerging"]].map(([c, l]) => (
+                {[["#12b5f6", "Independent"], ["#4f7cf0", "Developing"], ["#8a8fd6", "Emerging"]].map(([c, l]) => (
                   <span key={l} className="row" style={{ gap: 6 }}><span style={{ width: 12, height: 12, borderRadius: 3, background: c }} />{l}</span>
                 ))}
               </div>

@@ -4,10 +4,10 @@
 export type Level = "N" | "E" | "D" | "I";
 
 export const LEVEL: Record<Level, { label: string; bg: string; fg: string; bar: string }> = {
-  N: { label: "Up next", bg: "#FCEFD6", fg: "#6B4508", bar: "#E3C58A" },
-  E: { label: "Emerging", bg: "#E6EFEC", fg: "#2F4A44", bar: "#B9D3CC" },
-  D: { label: "Developing", bg: "#9ED0C6", fg: "#123C36", bar: "#5FA89C" },
-  I: { label: "Independent", bg: "#0F6E64", fg: "#FFFFFF", bar: "#0F6E64" },
+  N: { label: "Up next", bg: "rgba(245,165,36,.14)", fg: "#ffc46b", bar: "#f5a524" },
+  E: { label: "Emerging", bg: "#2c2f7a", fg: "#d6d8ff", bar: "#8a8fd6" },
+  D: { label: "Developing", bg: "#4f7cf0", fg: "#ffffff", bar: "#4f7cf0" },
+  I: { label: "Independent", bg: "#12b5f6", fg: "#04102e", bar: "#12b5f6" },
 };
 
 export type Material = { id: string; name: string; s: Level; since: string; purpose: string; mastered?: string; confirm?: string[] };
@@ -69,7 +69,7 @@ export const KIDS: [string, number, string, string][] = (
   ] as [number, string, string][]
 ).map((k, i) => [`Student ${i + 1}`, ...k]);
 
-export const AVATAR = ["#CFE6E1", "#FCEFD6", "#E4E1F3", "#F6DDD5", "#DCE8F5"];
+export const AVATAR = ["#7fd8ff", "#ffc46b", "#b9bdf5", "#ffb3a6", "#9be7c4"];
 
 // Lead Guide dashboard: 36 students across both classes, deterministic pseudo-random stats.
 const rnd = (i: number, k: number) => { const x = Math.sin(i * 97.13 + k * 13.7) * 10000; return x - Math.floor(x); };

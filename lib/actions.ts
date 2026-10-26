@@ -73,40 +73,6 @@ export async function deleteProcedure(form: FormData) {
   back("/emergency", res, "Procedure removed.");
 }
 
-// Off-campus trips (any member) ---------------------------------------------
-export async function saveTrip(form: FormData) {
-  await requireMember();
-  const supabase = await createClient();
-  const id = num(form, "id");
-  const campus = str(form, "campus") === "early-years" ? "early-years" : "maiden-ln";
-  const row = {
-    campus, trip_date: str(form, "trip_date"), depart_time: str(form, "depart_time"), return_time: str(form, "return_time"),
-    destination: str(form, "destination") ?? "Unnamed destination", group_name: str(form, "group_name"),
-    lead_staff: str(form, "lead_staff"), headcount: num(form, "headcount"), transport: str(form, "transport"),
-    notes: str(form, "notes"),
-  };
-  if (!row.trip_date) back("/off-campus", { error: { message: "Pick a date for the trip." } }, "");
-  const res = id
-    ? await supabase.from("off_campus_trips").update(row).eq("id", id)
-    : await supabase.from("off_campus_trips").insert(row);
-  back("/off-campus", res, id ? "Trip updated." : "Trip added to the tracker.");
-}
-
-export async function setTripStatus(form: FormData) {
-  await requireMember();
-  const supabase = await createClient();
-  const status = str(form, "status");
-  const res = await supabase.from("off_campus_trips").update({ status }).eq("id", num(form, "id") ?? -1);
-  back("/off-campus", res, "Status updated.");
-}
-
-export async function deleteTrip(form: FormData) {
-  await requireRole(EDITORS);
-  const supabase = await createClient();
-  const res = await supabase.from("off_campus_trips").delete().eq("id", num(form, "id") ?? -1);
-  back("/off-campus", res, "Trip removed.");
-}
-
 // Workshops ------------------------------------------------------------------
 export async function saveWorkshop(form: FormData) {
   await requireRole(EDITORS);

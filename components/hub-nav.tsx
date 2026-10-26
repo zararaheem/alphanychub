@@ -2,8 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { ExtIcon } from "@/components/external-link";
 
-export function HubNav({ tabs }: { tabs: { href: string; label: string }[] }) {
+type Item = { href: string; label: string };
+
+export function HubNav({ tabs, external = [] }: { tabs: Item[]; external?: Item[] }) {
   const path = usePathname();
   const active = (href: string) => (href === "/" ? path === "/" : path === href || path.startsWith(href + "/"));
   return (
@@ -13,6 +16,11 @@ export function HubNav({ tabs }: { tabs: { href: string; label: string }[] }) {
           <Link key={t.href} href={t.href} className="tab" aria-current={active(t.href) ? "page" : undefined}>
             {t.label}
           </Link>
+        ))}
+        {external.map((t) => (
+          <a key={t.href} href={t.href} className="tab" target="_blank" rel="noopener noreferrer" style={{ gap: 6 }}>
+            {t.label} <ExtIcon />
+          </a>
         ))}
       </div>
     </nav>
