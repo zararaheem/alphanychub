@@ -52,10 +52,7 @@ export default async function HomePage() {
 
         <div className="grid">
           <Link href="/emergency" className="card card-link card-alert">
-            <span className="row" style={{ justifyContent: "space-between" }}>
-              <span className="card-title">Emergency contact list</span>
-              <span className="pill red">Emergency</span>
-            </span>
+            <span className="card-title">Emergency contact list</span>
             <span className="muted">Immediate contacts first, then parent contacts by campus, plus step-by-step procedures.</span>
             <span style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8 }}>
               <span className="stat"><b>{contacts.length}</b><span>contacts</span></span>
