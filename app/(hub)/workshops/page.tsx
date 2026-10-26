@@ -70,7 +70,7 @@ function WorkshopTable({ rows, canEdit, today }: { rows: Workshop[]; canEdit: bo
               {w.topic}
               {w.notes && <div className="small muted" style={{ whiteSpace: "pre-line" }}>{w.notes}</div>}
               {canEdit && (
-                <details className="editor">
+                <details className="editor quiet">
                   <summary>Edit</summary>
                   <WorkshopForm workshop={w} />
                   <form action={deleteWorkshop} style={{ marginTop: 8 }}>
