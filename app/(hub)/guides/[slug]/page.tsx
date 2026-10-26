@@ -58,11 +58,11 @@ function Section({ s }: { s: GuideSection }) {
   );
 }
 
-function Table({ head, rows }: { head: string[]; rows: React.ReactNode[][] }) {
+function Table({ head, rows }: { head?: string[]; rows: React.ReactNode[][] }) {
   return (
     <table className="sheet-table">
-      <thead><tr>{head.map((h) => <th key={h} scope="col">{h}</th>)}</tr></thead>
-      <tbody>{rows.map((r, i) => <tr key={i}>{r.map((c, j) => <td key={j}>{c}</td>)}</tr>)}</tbody>
+      {head && <thead><tr>{head.map((h) => <th key={h} scope="col">{h}</th>)}</tr></thead>}
+      <tbody>{rows.map((r, i) => <tr key={i}>{r.map((c, j) => <td key={j} className={typeof c === "string" && c.length <= 12 ? "nowrap" : undefined}>{c}</td>)}</tr>)}</tbody>
     </table>
   );
 }
@@ -79,9 +79,9 @@ async function EmergencySheet() {
       <section className="sheet-first">
         <h2>First 60 seconds</h2>
         <ol>
-          <li><b>Call 911</b> if anyone is in danger</li>
-          <li>Switch radios to <b>Channel 2</b></li>
-          <li>Notify the <b>Emergency Coordinator</b>{leads[0] ? ` (${leads[0].name})` : ""}</li>
+          <li><span><b>Call 911</b> if anyone is in danger</span></li>
+          <li><span>Switch radios to <b>Channel 2</b></span></li>
+          <li><span>Notify the <b>Emergency Coordinator</b>{leads[0] ? ` (${leads[0].name})` : ""}</span></li>
         </ol>
         <p><b>&lsquo;Tiger, Tiger&rsquo;</b> = lockdown. Act immediately, no confirmation needed.</p>
       </section>
@@ -112,7 +112,7 @@ async function EmergencySheet() {
         })}
         <section className="sheet-sec">
           <h2>Assembly areas</h2>
-          <Table head={["", "Where"]} rows={[
+          <Table rows={[
             [<b key="p">Primary</b>, "South Street Seaport, Fulton St (Front St – South St)"],
             [<b key="s">Secondary</b>, "Louise Nevelson Plaza, William St (Maiden Ln – Liberty St)"],
           ]} />
