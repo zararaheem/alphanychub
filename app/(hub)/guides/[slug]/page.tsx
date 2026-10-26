@@ -65,7 +65,7 @@ async function EmergencySheet() {
         </ol>
         <p><b>Lockdown code: &lsquo;Tiger, Tiger&rsquo;</b> — act immediately, no confirmation needed.</p>
       </section>
-      <div className="sheet-grid">
+      <div className="sheet-grid dense">
         {respond.map((p) => {
           const blocks = parseProcedure(p.body);
           const lead = blocks.find((b) => b.type === "lead");
