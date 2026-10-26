@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireMember } from "@/lib/access";
 import { CAMPUSES, clock, shortDay, todayNY } from "@/lib/campus";
+import { currentCampus } from "@/lib/campus-pref";
 import { getContacts, getProcedures, getWorkshops } from "@/lib/data";
 import { OFF_CAMPUS_URL } from "@/lib/links";
 import { Clock } from "@/components/clock";
@@ -9,8 +10,10 @@ import { ExtIcon } from "@/components/external-link";
 export default async function HomePage() {
   const me = await requireMember();
   const today = todayNY();
+  const campus = await currentCampus();
+  const here = campus ? CAMPUSES.find((c) => c.id === campus)! : null;
   const [contacts, procedures, workshops] = await Promise.all([
-    getContacts(null), getProcedures(null), getWorkshops(null, { from: today }),
+    getContacts(campus), getProcedures(campus), getWorkshops(campus, { from: today }),
   ]);
   const next = workshops[0];
   const first = me.name && !me.name.startsWith("Staff") ? me.name.split(" ")[0] : null;
@@ -22,7 +25,7 @@ export default async function HomePage() {
           <div className="stack-sm" style={{ gap: 10 }}>
             <span className="kicker" style={{ color: "#fff", opacity: 0.85 }}>Alpha Anywhere Learning Center</span>
             <h1>Staff hub <em>today</em></h1>
-            <span style={{ color: "var(--ink-2)" }}>{first ? `Hi, ${first}. ` : ""}Everything staff need for Maiden Ln and Early Years.</span>
+            <span style={{ color: "var(--ink-2)" }}>{first ? `Hi, ${first}. ` : ""}{here ? `${here.name} · ${here.blurb}` : "Everything staff need for Maiden Ln and Early Years."}</span>
           </div>
           <Clock />
         </div>
@@ -93,7 +96,7 @@ export default async function HomePage() {
         <section className="stack" aria-labelledby="campus-h">
           <h2 id="campus-h" className="label-caps">Campuses</h2>
           <div className="grid">
-            {CAMPUSES.map((c) => (
+            {CAMPUSES.filter((c) => !campus || c.id === campus).map((c) => (
               <Link key={c.id} href={`/${c.id}`} className="card card-link">
                 <span className="card-title">{c.name}</span>
                 <span className="muted">{c.blurb}</span>

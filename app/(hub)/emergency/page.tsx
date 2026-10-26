@@ -1,18 +1,18 @@
 import { requireMember } from "@/lib/access";
-import { CAMPUS_LABEL, parseCampus } from "@/lib/campus";
+import { CAMPUS_LABEL } from "@/lib/campus";
 import { getContacts, getParentContacts, getProcedures } from "@/lib/data";
 import { deleteContact, deleteProcedure, importParentContacts, saveContact, saveProcedure } from "@/lib/actions";
 import { ParentContacts } from "@/components/parent-contacts";
-import { CampusFilter } from "@/components/campus-filter";
+import { currentCampus } from "@/lib/campus-pref";
 import { CampusSelect, Field, TextArea } from "@/components/fields";
 import { Flash } from "@/components/flash";
 import type { Contact, Procedure } from "@/lib/types";
 
-type SP = Promise<{ campus?: string; msg?: string; err?: string }>;
+type SP = Promise<{ msg?: string; err?: string }>;
 
 export default async function EmergencyPage({ searchParams }: { searchParams: SP }) {
   const sp = await searchParams;
-  const campus = parseCampus(sp.campus);
+  const campus = await currentCampus();
   const me = await requireMember();
   const canEdit = me.role === "admin" || me.role === "lead";
   const [contacts, procedures, parents] = await Promise.all([getContacts(campus), getProcedures(campus), getParentContacts(campus)]);
@@ -24,7 +24,6 @@ export default async function EmergencyPage({ searchParams }: { searchParams: SP
           <h1>Emergency</h1>
           <p className="lede">Call 911 first in any life-threatening emergency. Then use the contacts and procedures below.</p>
         </div>
-        <CampusFilter base="/emergency" current={campus} />
       </div>
       <Flash msg={sp.msg} err={sp.err} />
 

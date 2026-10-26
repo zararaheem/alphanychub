@@ -1,17 +1,17 @@
 import { requireMember } from "@/lib/access";
-import { CAMPUS_LABEL, clock, parseCampus, shortDay, todayNY } from "@/lib/campus";
+import { CAMPUS_LABEL, clock, shortDay, todayNY } from "@/lib/campus";
 import { getWorkshops } from "@/lib/data";
 import { deleteWorkshop, saveWorkshop } from "@/lib/actions";
-import { CampusFilter } from "@/components/campus-filter";
+import { currentCampus } from "@/lib/campus-pref";
 import { CampusSelect, Field, TextArea } from "@/components/fields";
 import { Flash } from "@/components/flash";
 import type { Workshop } from "@/lib/types";
 
-type SP = Promise<{ campus?: string; msg?: string; err?: string }>;
+type SP = Promise<{ msg?: string; err?: string }>;
 
 export default async function WorkshopsPage({ searchParams }: { searchParams: SP }) {
   const sp = await searchParams;
-  const campus = parseCampus(sp.campus);
+  const campus = await currentCampus();
   const me = await requireMember();
   const canEdit = me.role === "admin" || me.role === "lead";
   const today = todayNY();
@@ -26,7 +26,6 @@ export default async function WorkshopsPage({ searchParams }: { searchParams: SP
           <h1>Planning workshops</h1>
           <p className="lede">All-staff workshop schedule. Off-campus trips and transportation are covered here too.</p>
         </div>
-        <CampusFilter base="/workshops" current={campus} />
       </div>
       <Flash msg={sp.msg} err={sp.err} />
 

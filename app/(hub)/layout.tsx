@@ -4,10 +4,12 @@ import { SignOut } from "@/components/sign-out";
 import { HubNav } from "@/components/hub-nav";
 import { Brand } from "@/components/brand";
 import { OFF_CAMPUS_URL, ATTENDANCE_URL } from "@/lib/links";
+import { currentCampus } from "@/lib/campus-pref";
 
 // Every page in this group requires a signed-in user who is on the access list.
 export default async function HubLayout({ children }: { children: React.ReactNode }) {
   const me = await requireMember();
+  const campus = await currentCampus();
   const tabs = [
     { href: "/", label: "Home" },
     { href: "/emergency", label: "Emergency" },
@@ -36,7 +38,7 @@ export default async function HubLayout({ children }: { children: React.ReactNod
           </div>
         </div>
       </header>
-      <HubNav tabs={tabs} external={external} />
+      <HubNav tabs={tabs} external={external} campus={campus} />
       {children}
     </>
   );
