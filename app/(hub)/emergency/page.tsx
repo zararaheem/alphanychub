@@ -8,13 +8,21 @@ import { CampusSelect, Field, TextArea } from "@/components/fields";
 import { Flash } from "@/components/flash";
 import type { Contact, Procedure } from "@/lib/types";
 
-type SP = Promise<{ msg?: string; err?: string }>;
+type SP = Promise<{ msg?: string; err?: string; edit?: string }>;
 
 export default async function EmergencyPage({ searchParams }: { searchParams: SP }) {
   const sp = await searchParams;
   const campus = await currentCampus();
   const me = await requireMember();
   const canEdit = me.role === "admin" || me.role === "lead";
+  // Edit controls stay hidden until an editor turns them on for a section.
+  const editing = (section: string) => canEdit && sp.edit === section;
+  const EditToggle = ({ section }: { section: string }) =>
+    canEdit ? (
+      <a href={editing(section) ? "/emergency" : `/emergency?edit=${section}`} className="edit-toggle" aria-pressed={editing(section)}>
+        {editing(section) ? "Done" : "Edit"}
+      </a>
+    ) : null;
   const [contacts, procedures, parents] = await Promise.all([getContacts(campus), getProcedures(campus), getParentContacts(campus)]);
 
   return (
@@ -40,10 +48,10 @@ export default async function EmergencyPage({ searchParams }: { searchParams: SP
           <section className="card" aria-labelledby="contacts-h">
             <div className="section-head">
               <h2 id="contacts-h">Immediate contacts</h2>
-              <span className="small muted">{contacts.length}</span>
+              <EditToggle section="contacts" />
             </div>
             {contacts.length === 0 ? (
-              <p className="empty">No contacts yet.{canEdit ? " Add the first one below." : " An admin or Lead Guide can add them."}</p>
+              <p className="empty">No contacts yet.{canEdit ? " Choose Edit to add the first one." : " An admin or Lead Guide can add them."}</p>
             ) : (
               <ul className="contact-list">
                 {contacts.map((c) => (
@@ -55,7 +63,7 @@ export default async function EmergencyPage({ searchParams }: { searchParams: SP
                       </strong>
                       {c.role && <span className="role">{c.role}</span>}
                       {c.notes && <span className="note">{c.notes}</span>}
-                      {canEdit && <ContactEditor contact={c} />}
+                      {editing("contacts") && <ContactEditor contact={c} />}
                     </div>
                     <div className="actions">
                       {c.phone && (
@@ -73,25 +81,28 @@ export default async function EmergencyPage({ searchParams }: { searchParams: SP
                 ))}
               </ul>
             )}
-            {canEdit && <ContactEditor />}
+            {editing("contacts") && <ContactEditor />}
           </section>
 
           <section className="card" aria-labelledby="parents-h">
             <div className="section-head">
               <h2 id="parents-h">Parent contacts</h2>
-              {parents.length > 0 && (
-                <span className="small muted">
-                  {parents.length} · updated {new Date(parents[0].imported_at).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "America/New_York" })}
-                </span>
-              )}
+              <span className="row" style={{ gap: 12 }}>
+                {parents.length > 0 && (
+                  <span className="small muted">
+                    Updated {new Date(parents[0].imported_at).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "America/New_York" })}
+                  </span>
+                )}
+                {parents.length > 0 && <EditToggle section="parents" />}
+              </span>
             </div>
             {parents.length === 0 ? (
               <p className="empty">No parent contacts yet.{canEdit ? " Import the Google Sheet below." : " An admin or Lead Guide can import them."}</p>
             ) : (
               <ParentContacts rows={parents} />
             )}
-            {canEdit && (
-              <details className="editor">
+            {canEdit && (parents.length === 0 || editing("parents")) && (
+              <details className="editor" open={editing("parents")}>
                 <summary>{parents.length ? "Re-import from Google Sheet" : "+ Import from Google Sheet"}</summary>
                 <form action={importParentContacts} className="stack" style={{ paddingBottom: 12 }}>
                   <p className="small muted">
@@ -113,10 +124,10 @@ export default async function EmergencyPage({ searchParams }: { searchParams: SP
         <section className="side card" aria-labelledby="proc-h">
           <div className="section-head">
             <h2 id="proc-h">Procedures</h2>
-            <span className="small muted">{procedures.length}</span>
+            <EditToggle section="procedures" />
           </div>
           {procedures.length === 0 && (
-            <p className="empty">No procedures yet.{canEdit ? " Add lockdown, evacuation, shelter-in-place and so on below." : ""}</p>
+            <p className="empty">No procedures yet.{canEdit ? " Choose Edit to add lockdown, evacuation and so on." : ""}</p>
           )}
           <div className="proc-list">
             {procedures.map((p) => (
@@ -129,11 +140,11 @@ export default async function EmergencyPage({ searchParams }: { searchParams: SP
                   <Chevron />
                 </summary>
                 <div className="proc-body">{p.body}</div>
-                {canEdit && <ProcedureEditor procedure={p} />}
+                {editing("procedures") && <ProcedureEditor procedure={p} />}
               </details>
             ))}
           </div>
-          {canEdit && <ProcedureEditor />}
+          {editing("procedures") && <ProcedureEditor />}
         </section>
       </div>
     </main>

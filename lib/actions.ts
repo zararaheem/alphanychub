@@ -42,14 +42,14 @@ export async function saveContact(form: FormData) {
   const res = id
     ? await supabase.from("emergency_contacts").update(row).eq("id", id)
     : await supabase.from("emergency_contacts").insert(row);
-  back("/emergency", res, id ? "Contact updated." : "Contact added.");
+  back("/emergency?edit=contacts", res, id ? "Contact updated." : "Contact added.");
 }
 
 export async function deleteContact(form: FormData) {
   await requireRole(EDITORS);
   const supabase = await createClient();
   const res = await supabase.from("emergency_contacts").delete().eq("id", num(form, "id") ?? -1);
-  back("/emergency", res, "Contact removed.");
+  back("/emergency?edit=contacts", res, "Contact removed.");
 }
 
 // Emergency procedures -------------------------------------------------------
@@ -64,14 +64,14 @@ export async function saveProcedure(form: FormData) {
   const res = id
     ? await supabase.from("emergency_procedures").update(row).eq("id", id)
     : await supabase.from("emergency_procedures").insert(row);
-  back("/emergency", res, id ? "Procedure updated." : "Procedure added.");
+  back("/emergency?edit=procedures", res, id ? "Procedure updated." : "Procedure added.");
 }
 
 export async function deleteProcedure(form: FormData) {
   await requireRole(EDITORS);
   const supabase = await createClient();
   const res = await supabase.from("emergency_procedures").delete().eq("id", num(form, "id") ?? -1);
-  back("/emergency", res, "Procedure removed.");
+  back("/emergency?edit=procedures", res, "Procedure removed.");
 }
 
 // Workshops ------------------------------------------------------------------

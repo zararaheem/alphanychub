@@ -175,7 +175,9 @@ td { padding: 10px; border-top: 1px solid rgba(255, 255, 255, .06); vertical-ali
 }
 
 /* Emergency ------------------------------------------------------------- */
-.section-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.section-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.edit-toggle { font-size: 12.5px; font-weight: 600; color: var(--muted); text-decoration: none; padding: 4px 10px; border-radius: 8px; border: 1px solid var(--line); }
+.edit-toggle:hover, .edit-toggle[aria-pressed="true"] { color: var(--on-accent); background: var(--teal); border-color: var(--teal); }
 .sos { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 28px; padding: 14px 18px; border-radius: 14px; background: var(--red-soft); border: 1px solid rgba(255, 122, 104, .3); }
 .sos-call { background: var(--red); color: #200805; min-height: 46px; font-size: 15px; padding: 0 20px; }
 .sos-call:hover { background: #ff9585; color: #200805; }
@@ -186,7 +188,7 @@ td { padding: 10px; border-top: 1px solid rgba(255, 255, 255, .06); vertical-ali
 .contact-list { list-style: none; margin: 0; padding: 0; }
 .contact { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; padding: 12px 0; border-top: 1px solid rgba(255, 255, 255, .06); }
 .contact:first-child { border-top: 0; padding-top: 4px; }
-.contact .who { flex: 1 1 280px; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.contact .who { flex: 1 1 280px; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 1px; font-size: 14px; color: var(--ink); }
 .contact .who strong { font-size: 14.5px; font-weight: 600; }
 .contact .role { color: var(--ink-2); font-size: 13px; }
 .contact .note { color: var(--muted); font-size: 12px; margin-top: 2px; }
