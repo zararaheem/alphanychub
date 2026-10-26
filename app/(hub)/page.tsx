@@ -53,7 +53,7 @@ export default async function HomePage() {
               <span className="card-title">Emergency contact list</span>
               <span className="pill red">Emergency</span>
             </span>
-            <span className="muted">Who to call, plus step-by-step procedures from the Emergency Action Plan.</span>
+            <span className="muted">Immediate contacts first, then parent contacts by campus, plus step-by-step procedures.</span>
             <span style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8 }}>
               <span className="stat"><b>{contacts.length}</b><span>contacts</span></span>
               <span className="stat"><b>{procedures.length}</b><span>procedures</span></span>

@@ -1,7 +1,8 @@
 import { requireMember } from "@/lib/access";
 import { CAMPUS_LABEL, parseCampus } from "@/lib/campus";
-import { getContacts, getProcedures } from "@/lib/data";
-import { deleteContact, deleteProcedure, saveContact, saveProcedure } from "@/lib/actions";
+import { getContacts, getParentContacts, getProcedures } from "@/lib/data";
+import { deleteContact, deleteProcedure, importParentContacts, saveContact, saveProcedure } from "@/lib/actions";
+import { ParentContacts } from "@/components/parent-contacts";
 import { CampusFilter } from "@/components/campus-filter";
 import { CampusSelect, Field, TextArea } from "@/components/fields";
 import { Flash } from "@/components/flash";
@@ -14,7 +15,7 @@ export default async function EmergencyPage({ searchParams }: { searchParams: SP
   const campus = parseCampus(sp.campus);
   const me = await requireMember();
   const canEdit = me.role === "admin" || me.role === "lead";
-  const [contacts, procedures] = await Promise.all([getContacts(campus), getProcedures(campus)]);
+  const [contacts, procedures, parents] = await Promise.all([getContacts(campus), getProcedures(campus), getParentContacts(campus)]);
 
   return (
     <main className="page">
@@ -28,8 +29,10 @@ export default async function EmergencyPage({ searchParams }: { searchParams: SP
       <Flash msg={sp.msg} err={sp.err} />
 
       <div className="split">
-        <section className="main card" aria-labelledby="contacts-h">
-          <h2 id="contacts-h">Emergency contact list</h2>
+        <div className="main stack" style={{ gap: 24 }}>
+        <section className="card" aria-labelledby="contacts-h">
+          <span className="kicker">1</span>
+          <h2 id="contacts-h">Immediate contacts</h2>
           {contacts.length === 0 ? (
             <p className="empty">No contacts yet.{canEdit ? " Add the first one below." : " An admin or Lead Guide can add them."}</p>
           ) : (
@@ -58,6 +61,39 @@ export default async function EmergencyPage({ searchParams }: { searchParams: SP
           )}
           {canEdit && <ContactEditor />}
         </section>
+
+        <section className="card" aria-labelledby="parents-h">
+          <span className="kicker">2</span>
+          <h2 id="parents-h">Parent contacts</h2>
+          {parents.length === 0 ? (
+            <p className="empty">No parent contacts yet.{canEdit ? " Import the Google Sheet below." : " An admin or Lead Guide can import them."}</p>
+          ) : (
+            <>
+              <p className="small muted">
+                {parents.length} contacts · last imported {new Date(parents[0].imported_at).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "America/New_York" })}
+              </p>
+              <ParentContacts rows={parents} />
+            </>
+          )}
+          {canEdit && (
+            <details className="editor">
+              <summary>{parents.length ? "Re-import from Google Sheet" : "+ Import from Google Sheet"}</summary>
+              <form action={importParentContacts} className="stack" style={{ paddingBottom: 12 }}>
+                <p className="small muted">
+                  In the sheet: File → Download → Comma-separated values (.csv). Needs a student column and a grade column, plus parent
+                  name / phone / email columns (&quot;Parent 1 Phone&quot;, &quot;Parent 2 Email&quot;… also work). PreK and K go under Early Years;
+                  grades 1–12 under Maiden Ln. Importing replaces the whole list.
+                </p>
+                <div className="field">
+                  <label htmlFor="pc-file">CSV file</label>
+                  <input id="pc-file" name="file" type="file" accept=".csv,text/csv" className="input" style={{ paddingTop: 10 }} required />
+                </div>
+                <button type="submit" className="btn" style={{ alignSelf: "flex-start" }}>Import parent contacts</button>
+              </form>
+            </details>
+          )}
+        </section>
+        </div>
 
         <section className="side card" aria-labelledby="proc-h">
           <h2 id="proc-h">Emergency procedures</h2>

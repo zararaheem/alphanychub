@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireMember, requireRole, type Role } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
+import { parseParentCsv } from "@/lib/parent-import";
 
 // Every write below runs as the signed-in user, so Supabase RLS is the real
 // gate; the requireMember/requireRole calls just fail fast with a clear message.
@@ -117,4 +118,23 @@ export async function removeMember(form: FormData) {
   const supabase = await createClient();
   const res = await supabase.from("allowed_users").delete().eq("email", email ?? "");
   back("/access", res, `${email} no longer has access.`);
+}
+
+// Parent contacts (CSV export of the Google Sheet) ---------------------------
+export async function importParentContacts(form: FormData) {
+  await requireRole(EDITORS);
+  const file = form.get("file");
+  const text = file instanceof File && file.size > 0 ? await file.text() : str(form, "csv");
+  if (!text) back("/emergency", { error: { message: "Choose the CSV file exported from the Google Sheet." } }, "");
+  if (text.length > 2_000_000) back("/emergency", { error: { message: "That file is too large (2 MB max)." } }, "");
+  const { rows, error } = parseParentCsv(text);
+  if (error) back("/emergency", { error: { message: error } }, "");
+
+  const supabase = await createClient();
+  // Replace the whole list so the hub always mirrors the latest sheet.
+  const del = await supabase.from("parent_contacts").delete().gte("id", 0);
+  if (del.error) back("/emergency", del, "");
+  const res = await supabase.from("parent_contacts").insert(rows);
+  const early = rows.filter((r) => r.campus === "early-years").length;
+  back("/emergency", res, `Imported ${rows.length} parent contacts (${early} Early Years, ${rows.length - early} Maiden Ln).`);
 }
