@@ -282,3 +282,37 @@ ul.proc-bullets.warn li::before { content: "✕"; color: var(--red); font-weight
   .proc-card { padding: 18px; }
   ol.proc-steps li { font-size: 15px; }
 }
+
+/* One-pagers ------------------------------------------------------------ */
+.sheet { max-width: 960px; gap: 18px; }
+.sheet-head { display: flex; flex-direction: column; gap: 4px; border-bottom: 1px solid var(--line); padding-bottom: 14px; }
+.sheet-grid { display: grid; gap: 14px; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+.sheet-sec { background: var(--surface); border: 1px solid rgba(255, 255, 255, .06); border-radius: 12px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; font-size: 13.5px; line-height: 1.5; color: var(--ink-2); break-inside: avoid; }
+.sheet-sec h2 { font-size: 13px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--teal); }
+.sheet-sec.warn { border-color: rgba(255, 122, 104, .35); background: var(--red-soft); }
+.sheet-sec.warn h2 { color: var(--red); }
+.sheet-sec.todo { border-style: dashed; }
+.sheet-sec ul, .sheet-sec ol { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
+.sheet-sec b { color: var(--ink); }
+.sheet-lead { color: var(--ink); font-weight: 500; }
+.sheet-dont { color: #ffd6cf; font-size: 12.5px; }
+.todo-note { color: var(--amber-ink); font-size: 12.5px; }
+.sheet-source { font-size: 11.5px; color: var(--muted); }
+@media (max-width: 720px) { .sheet-grid { grid-template-columns: 1fr; } }
+@media print {
+  @page { size: letter; margin: 0.45in; }
+  body { background: #fff !important; color: #111 !important; font-size: 10.5px; }
+  .hub-header, .hub-nav, .no-print { display: none !important; }
+  .page.sheet { padding: 0; max-width: none; gap: 8px; }
+  .sheet-head { border-color: #ccc; padding-bottom: 6px; }
+  .sheet-head h1 { color: #111; font-size: 20px; }
+  .sheet-head .lede, .kicker { color: #444 !important; }
+  .sheet-grid { gap: 8px; }
+  .sheet-sec { background: #fff !important; border: 1px solid #bbb !important; color: #222; padding: 8px 10px; font-size: 10px; gap: 4px; }
+  .sheet-sec h2 { color: #0a4f7a !important; font-size: 10.5px; }
+  .sheet-sec.warn { border-color: #c0392b !important; }
+  .sheet-sec.warn h2, .sheet-dont { color: #a52a1a !important; }
+  .sheet-sec b, .sheet-lead { color: #000; }
+  .todo-note { color: #8a5a00 !important; }
+  .sheet-source { color: #666; }
+}

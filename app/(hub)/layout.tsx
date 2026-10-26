@@ -14,6 +14,7 @@ export default async function HubLayout({ children }: { children: React.ReactNod
     { href: "/", label: "Home" },
     { href: "/emergency", label: "Emergency" },
     { href: "/workshops", label: "Workshops" },
+    { href: "/guides", label: "One-pagers" },
     { href: "/maiden-ln", label: "Maiden Ln" },
     { href: "/early-years", label: "Early Years" },
     ...(me.role === "admin" ? [{ href: "/access", label: "Access" }] : []),

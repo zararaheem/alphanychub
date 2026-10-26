@@ -34,7 +34,9 @@ export default async function EmergencyPage({ searchParams }: { searchParams: SP
     <main className="page">
       <div className="stack-sm">
         <h1>Emergency</h1>
-        <p className="lede">Who to call and what to do{campus ? ` · ${CAMPUS_LABEL[campus]}` : ""}.</p>
+        <p className="lede">
+          Who to call and what to do{campus ? ` · ${CAMPUS_LABEL[campus]}` : ""}. <Link href="/guides/emergency">Printable one-pager →</Link>
+        </p>
       </div>
 
       <section className="sos" aria-label="In an emergency">
