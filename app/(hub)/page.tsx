@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireMember } from "@/lib/access";
 import { CAMPUSES, clock, shortDay, todayNY } from "@/lib/campus";
 import { currentCampus } from "@/lib/campus-pref";
+import { LEVELS, SESSION, WORKSHOPS } from "@/lib/session2";
 import { getContacts, getProcedures, getWorkshops } from "@/lib/data";
 import { OFF_CAMPUS_URL } from "@/lib/links";
 import { Clock } from "@/components/clock";
@@ -16,6 +17,9 @@ export default async function HomePage() {
     getContacts(campus), getProcedures(campus), getWorkshops(campus, { from: today }),
   ]);
   const next = workshops[0];
+  const levelsHere = LEVELS.filter((l) => !campus || l.campus === campus);
+  const levelCount = levelsHere.length;
+  const sessionCount = WORKSHOPS.filter((w) => levelsHere.some((l) => l.id === w.level)).length;
   const first = me.name && !me.name.startsWith("Staff") ? me.name.split(" ")[0] : null;
 
   return (
@@ -39,7 +43,7 @@ export default async function HomePage() {
             <span className="note">Coming soon, from the Attendance app</span>
           </div>
           <div className="kpi">
-            <span className="label-caps">Next workshop</span>
+            <span className="label-caps">Next staff workshop</span>
             <b style={{ fontSize: 24 }}>{next ? `${shortDay(next.day)}${next.start_time ? ` · ${clock(next.start_time)}` : ""}` : "None scheduled"}</b>
             <span className="note">{next?.topic ?? "Add one on the Workshops tab"}</span>
           </div>
@@ -77,16 +81,12 @@ export default async function HomePage() {
           )}
 
           <Link href="/workshops" className="card card-link">
-            <span className="card-title">Planning workshops</span>
-            <span className="muted">The all-staff workshop schedule and topics.</span>
-            {next ? (
-              <span className="stat">
-                <span>Next up · {shortDay(next.day)}{next.start_time ? ` · ${clock(next.start_time)}` : ""}</span>
-                <b style={{ fontSize: 17, fontFamily: "var(--body)" }}>{next.topic}</b>
-              </span>
-            ) : (
-              <span className="stat"><span>No upcoming workshops scheduled</span></span>
-            )}
+            <span className="card-title">Workshops</span>
+            <span className="muted">{SESSION.name} student workshops by level, plus the all-staff planning schedule.</span>
+            <span style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8 }}>
+              <span className="stat"><b>{sessionCount}</b><span>{SESSION.name} workshops</span></span>
+              <span className="stat"><b>{levelCount}</b><span>levels</span></span>
+            </span>
           </Link>
         </div>
 

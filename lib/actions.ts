@@ -83,18 +83,18 @@ export async function saveWorkshop(form: FormData) {
     campus: scope(form), day: str(form, "day"), start_time: str(form, "start_time"), end_time: str(form, "end_time"),
     topic: str(form, "topic") ?? "Untitled", notes: str(form, "notes"),
   };
-  if (!row.day) back("/workshops", { error: { message: "Pick a day for the workshop." } }, "");
+  if (!row.day) back("/workshops?view=staff", { error: { message: "Pick a day for the workshop." } }, "");
   const res = id
     ? await supabase.from("workshops").update(row).eq("id", id)
     : await supabase.from("workshops").insert(row);
-  back("/workshops", res, id ? "Workshop updated." : "Workshop added.");
+  back("/workshops?view=staff", res, id ? "Workshop updated." : "Workshop added.");
 }
 
 export async function deleteWorkshop(form: FormData) {
   await requireRole(EDITORS);
   const supabase = await createClient();
   const res = await supabase.from("workshops").delete().eq("id", num(form, "id") ?? -1);
-  back("/workshops", res, "Workshop removed.");
+  back("/workshops?view=staff", res, "Workshop removed.");
 }
 
 // Access list (admins) -------------------------------------------------------

@@ -8,7 +8,7 @@ export default async function EarlyYearsPage() {
     <main className="page">
       <div className="stack-sm">
         <h1>Early Years</h1>
-        <p className="lede">WonderLab (Pre-K, ages 3–5) and Learning Lab (Kindergarten, ages 5–6).</p>
+        <p className="lede">William St · WL (PreK + K)</p>
       </div>
 
       <section className="stack" aria-labelledby="tools-h">
