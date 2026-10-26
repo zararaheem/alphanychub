@@ -2,11 +2,14 @@
 // contacts; the others are written here from the Emergency Action Plan (EAP)
 // and the Session 2 workshops deck. "todo" items are gaps to fill in.
 
+import { SHOWCASES } from "@/lib/session2";
+
 export type GuideSection = {
   heading: string;
   steps?: string[];
   bullets?: string[];
   text?: string;
+  table?: { head: string[]; rows: string[][] };
   todo?: string;
   tone?: "warn";
 };
@@ -60,23 +63,33 @@ export const GUIDES: Record<string, Guide> = {
       },
       {
         heading: "Session 2 off-campus week",
-        bullets: [
-          "Mon · L1 (William's) Tennis at HRTC, shuttle 12:30–3:00 · MS halves CrossFit / The Squadron, walk 1:00–3:00",
-          "Tue · L1 (Verena's) Tennis at HRTC, shuttle 12:30–3:00 · MS + L2 MoMA (select dates), shuttle 12:00–3:00",
-          "Wed · MS halves CrossFit / The Squadron, walk 1:00–3:00 · LL Rock Climbing (Group A) 1:00–3:00",
-          "Thu · L2 (all) Tennis at HRTC, shuttle 12:30–3:00 · LL Rock Climbing (Group B) 1:00–3:00",
-          "MoMA dates: Oct 27 · Nov 3 · Nov 6 · Nov 17 · Nov 20 · Dec 1 · Dec 8 · Dec 15",
-        ],
+        table: {
+          head: ["Day", "Group", "Where", "Time", "Travel"],
+          rows: [
+            ["Mon", "L1 (William's)", "Tennis, HRTC", "12:30–3:00", "Shuttle"],
+            ["Mon", "MS (halves)", "CrossFit / The Squadron", "1:00–3:00", "Walk"],
+            ["Tue", "L1 (Verena's)", "Tennis, HRTC", "12:30–3:00", "Shuttle"],
+            ["Tue", "MS + L2", "MoMA (select dates)", "12:00–3:00", "Shuttle"],
+            ["Wed", "MS (halves)", "CrossFit / The Squadron", "1:00–3:00", "Walk"],
+            ["Wed", "LL Group A", "Rock climbing", "1:00–3:00", "TBD"],
+            ["Thu", "L2 (all)", "Tennis, HRTC", "12:30–3:00", "Shuttle"],
+            ["Thu", "LL Group B", "Rock climbing", "1:00–3:00", "TBD"],
+          ],
+        },
+        text: "MoMA dates: Oct 27, Nov 3, Nov 6, Nov 17, Nov 20, Dec 1, Dec 8, Dec 15",
       },
       {
         heading: "Locations",
-        bullets: [
-          "HRTC (Hudson River Tennis Club), 300 Vesey St",
-          "CrossFit Wall Street, 60 New St",
-          "The Squadron, 7 WTC, 10th Floor",
-          "MoMA, 11 W 53rd St",
-          "LL climbing gym: location TBD",
-        ],
+        table: {
+          head: ["Place", "Address"],
+          rows: [
+            ["Hudson River Tennis Club (HRTC)", "300 Vesey St"],
+            ["CrossFit Wall Street", "60 New St"],
+            ["The Squadron", "7 WTC, 10th Floor"],
+            ["MoMA", "11 W 53rd St"],
+            ["LL climbing gym", "TBD"],
+          ],
+        },
       },
     ],
   },
@@ -94,7 +107,7 @@ export const GUIDES: Record<string, Guide> = {
           "Workshop blocks run 1:00–3:00 (LL 12:30–3:00); check your level's weekly schedule on the Workshops tab",
           "Take attendance at the start of the block",
           "Track progress toward the workshop's AlphaTest (attempts, streaks, scores) from week one",
-          "Radio on, Guides on Channel 1, Guards on Channel 2",
+          "Radio on: Guides on Channel 1, Guards on Channel 2",
         ],
       },
       {
@@ -111,8 +124,15 @@ export const GUIDES: Record<string, Guide> = {
         bullets: [
           "Outside guests on campus are pre-registered, met in the lobby and escorted (see Vendors & visitors)",
           "At any hosted event or showcase with outside guests, the person in charge briefs attendees on emergency procedures at the start (NY Ed Law §807 1-a)",
-          "Showcases: MS Dec 9 · L2 + L1 Dec 10 · WL Dec 11 · LL Dinner Theater Night, week of Dec 14",
         ],
+      },
+      {
+        heading: "Showcases",
+        text: "* Proposed time",
+        table: {
+          head: ["Date", "Level", "Time"],
+          rows: SHOWCASES.map((s) => [s.date, s.levels, s.time.replace(" (proposed)", "*")]),
+        },
       },
       {
         heading: "Your workshop procedures",

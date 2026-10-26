@@ -27,27 +27,47 @@ function Sheet({ title, intro, source, children }: { title: string; intro: strin
         <PrintButton />
       </div>
       <header className="sheet-head">
-        <span className="kicker">Alpha NYC · One-pager</span>
-        <h1>{title}</h1>
-        <p className="lede">{intro}</p>
+        <div className="stack-sm" style={{ gap: 4 }}>
+          <span className="kicker">Alpha NYC · Staff one-pager</span>
+          <h1>{title}</h1>
+        </div>
+        <p className="sheet-intro">{intro}</p>
       </header>
       {children}
-      <p className="sheet-source">Source: {source}</p>
+      <footer className="sheet-foot">
+        <span>Source: {source}</span>
+        <span>Printed {printed()}</span>
+      </footer>
     </main>
   );
 }
 
+const printed = () =>
+  new Date().toLocaleDateString("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", year: "numeric" });
+
 function Section({ s }: { s: GuideSection }) {
   return (
-    <section className={`sheet-sec${s.tone === "warn" ? " warn" : ""}${s.todo ? " todo" : ""}`}>
+    <section className={`sheet-sec${s.tone === "warn" ? " warn" : ""}${s.todo ? " todo" : ""}${s.table ? " wide" : ""}`}>
       <h2>{s.heading}</h2>
-      {s.text && <p>{s.text}</p>}
       {s.steps && <ol className="sheet-steps">{s.steps.map((t) => <li key={t}>{t}</li>)}</ol>}
-      {s.bullets && <ul>{s.bullets.map((t) => <li key={t}>{t}</li>)}</ul>}
-      {s.todo && <p className="todo-note">To add: {s.todo}</p>}
+      {s.bullets && <ul className="sheet-list">{s.bullets.map((t) => <li key={t}>{t}</li>)}</ul>}
+      {s.table && <Table head={s.table.head} rows={s.table.rows} />}
+      {s.text && <p className="sheet-note">{s.text}</p>}
+      {s.todo && <p className="todo-note"><b>To add</b> {s.todo}</p>}
     </section>
   );
 }
+
+function Table({ head, rows }: { head: string[]; rows: React.ReactNode[][] }) {
+  return (
+    <table className="sheet-table">
+      <thead><tr>{head.map((h) => <th key={h} scope="col">{h}</th>)}</tr></thead>
+      <tbody>{rows.map((r, i) => <tr key={i}>{r.map((c, j) => <td key={j}>{c}</td>)}</tr>)}</tbody>
+    </table>
+  );
+}
+
+const tel = (phone: string) => <a href={`tel:${phone.replace(/[^\d+]/g, "")}`}>{phone}</a>;
 
 async function EmergencySheet() {
   const [procs, contacts] = await Promise.all([getProcedures(null), getContacts(null)]);
@@ -56,14 +76,14 @@ async function EmergencySheet() {
   const leads = contacts.filter((c) => /coordinator|lead guard/i.test(c.role ?? ""));
   return (
     <Sheet title="Emergency procedures" intro="Call 911 first in any life-threatening emergency." source="Alpha NYC Emergency Action Plan · live contacts in the hub">
-      <section className="sheet-sec warn">
+      <section className="sheet-first">
         <h2>First 60 seconds</h2>
-        <ol className="sheet-steps">
-          <li>Call <b>911</b> if anyone is in danger.</li>
-          <li>Everyone switches to radio <b>Channel 2</b>.</li>
-          <li>Notify the Emergency Coordinator{leads[0] ? ` (${leads[0].name})` : ""}.</li>
+        <ol>
+          <li><b>Call 911</b> if anyone is in danger</li>
+          <li>Switch radios to <b>Channel 2</b></li>
+          <li>Notify the <b>Emergency Coordinator</b>{leads[0] ? ` (${leads[0].name})` : ""}</li>
         </ol>
-        <p><b>Lockdown code: &lsquo;Tiger, Tiger&rsquo;</b> — act immediately, no confirmation needed.</p>
+        <p><b>&lsquo;Tiger, Tiger&rsquo;</b> = lockdown. Act immediately, no confirmation needed.</p>
       </section>
       <div className="sheet-grid dense">
         {respond.map((p) => {
@@ -73,34 +93,44 @@ async function EmergencySheet() {
           const dont = blocks.findIndex((b) => b.type === "heading" && b.warn);
           const dontList = dont >= 0 ? blocks[dont + 1] : undefined;
           const bullets = !steps ? blocks.find((b) => b.type === "bullets") : undefined;
+          // Arrow-chain summaries repeat the numbered steps, so skip them when steps exist.
+          const showLead = lead?.type === "lead" && !(steps && lead.text.includes("→"));
           return (
             <section key={p.id} className="sheet-sec">
               <h2>{shortTitle(p.title)}</h2>
-              {lead && lead.type === "lead" && <p className="sheet-lead">{lead.text}</p>}
-              {steps && steps.type === "steps" && <ol className="sheet-steps">{steps.items.map((t) => <li key={t}>{t}</li>)}</ol>}
-              {bullets && bullets.type === "bullets" && <ul>{bullets.items.map((t) => <li key={t}>{t}</li>)}</ul>}
-              {dontList && dontList.type === "bullets" && (
-                <p className="sheet-dont"><b>Do NOT:</b> {dontList.items.join(" · ")}</p>
+              {showLead && lead?.type === "lead" && <p className="sheet-lead">{lead.text}</p>}
+              {steps?.type === "steps" && <ol className="sheet-steps">{steps.items.map((t) => <li key={t}>{t}</li>)}</ol>}
+              {bullets?.type === "bullets" && <ul className="sheet-list">{bullets.items.map((t) => <li key={t}>{t}</li>)}</ul>}
+              {dontList?.type === "bullets" && (
+                <div className="sheet-dont">
+                  <b>Do not</b>
+                  <ul>{dontList.items.map((t) => <li key={t}>{t}</li>)}</ul>
+                </div>
               )}
             </section>
           );
         })}
         <section className="sheet-sec">
           <h2>Assembly areas</h2>
-          <ul>
-            <li><b>Primary:</b> South Street Seaport on Fulton St (between Front St &amp; South St)</li>
-            <li><b>Secondary:</b> Louise Nevelson Plaza at William St (between Maiden Ln &amp; Liberty St)</li>
-            <li>Report headcount to the Coordinator within 3 minutes</li>
-          </ul>
+          <Table head={["", "Where"]} rows={[
+            [<b key="p">Primary</b>, "South Street Seaport, Fulton St (Front St – South St)"],
+            [<b key="s">Secondary</b>, "Louise Nevelson Plaza, William St (Maiden Ln – Liberty St)"],
+          ]} />
+          <p className="sheet-note">Report headcount to the Coordinator within 3 minutes.</p>
         </section>
         <section className="sheet-sec">
           <h2>Key numbers</h2>
-          <ul>
-            <li><b>Emergency:</b> 911</li>
-            {phones.map((c) => <li key={c.id}><b>{c.name}:</b> {c.phone}</li>)}
-            {leads.map((c) => <li key={c.id}><b>{c.name}</b> · {c.role?.split("·")[0].trim()}</li>)}
-          </ul>
+          <Table head={["Who", "Number"]} rows={[
+            [<b key="e">Emergency</b>, tel("911")],
+            ...phones.map((c) => [c.name, tel(c.phone!)]),
+          ]} />
         </section>
+        {leads.length > 0 && (
+          <section className="sheet-sec">
+            <h2>Emergency team</h2>
+            <Table head={["Name", "Role"]} rows={leads.map((c) => [<b key={c.id}>{c.name}</b>, c.role?.split("·")[0].trim() ?? ""])} />
+          </section>
+        )}
       </div>
     </Sheet>
   );
