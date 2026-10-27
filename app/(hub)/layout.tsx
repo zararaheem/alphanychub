@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { requireMember, ROLE_LABELS } from "@/lib/access";
+import { isAdmin, requireMember, ROLE_LABELS } from "@/lib/access";
 import { SignOut } from "@/components/sign-out";
 import { HubNav } from "@/components/hub-nav";
 import { Brand } from "@/components/brand";
@@ -15,9 +15,10 @@ export default async function HubLayout({ children }: { children: React.ReactNod
     { href: "/emergency", label: "Emergency" },
     { href: "/workshops", label: "Workshops" },
     { href: "/guides", label: "One-pagers" },
-    { href: "/maiden-ln", label: "Maiden Ln" },
-    { href: "/early-years", label: "Early Years" },
-    ...(me.role === "admin" ? [{ href: "/access", label: "Access" }] : []),
+    { href: "/staff", label: "Staff" },
+    // Campus pages are covered by the toggle; Early Years keeps its program tools.
+    ...(campus !== "maiden-ln" ? [{ href: "/early-years", label: "Early Years tools" }] : []),
+    ...(isAdmin(me.role) ? [{ href: "/access", label: "Access" }] : []),
   ];
   const external = [
     ...(OFF_CAMPUS_URL ? [{ href: OFF_CAMPUS_URL, label: "Off-campus board" }] : []),

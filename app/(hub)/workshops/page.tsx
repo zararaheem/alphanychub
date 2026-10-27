@@ -1,4 +1,4 @@
-import { requireMember } from "@/lib/access";
+import { requireMember, canEdit } from "@/lib/access";
 import { CAMPUS_LABEL, clock, shortDay, todayNY } from "@/lib/campus";
 import { getWorkshops } from "@/lib/data";
 import { deleteWorkshop, saveWorkshop } from "@/lib/actions";
@@ -15,7 +15,7 @@ export default async function WorkshopsPage({ searchParams }: { searchParams: SP
   const sp = await searchParams;
   const campus = await currentCampus();
   const me = await requireMember();
-  const canEdit = me.role === "admin" || me.role === "lead";
+  const editable = canEdit(me.role);
   const view = sp.view === "staff" ? "staff" : "session";
 
   return (
@@ -31,7 +31,7 @@ export default async function WorkshopsPage({ searchParams }: { searchParams: SP
         </nav>
       </div>
       <Flash msg={sp.msg} err={sp.err} />
-      {view === "session" ? <SessionView campus={campus} level={sp.level} /> : <StaffView campus={campus} canEdit={canEdit} />}
+      {view === "session" ? <SessionView campus={campus} level={sp.level} /> : <StaffView campus={campus} editable={editable} />}
     </main>
   );
 }
@@ -122,7 +122,7 @@ function SessionView({ campus, level }: { campus: Campus | null; level?: string 
   );
 }
 
-async function StaffView({ campus, canEdit }: { campus: Campus | null; canEdit: boolean }) {
+async function StaffView({ campus, editable }: { campus: Campus | null; editable: boolean }) {
   const today = todayNY();
   const all = await getWorkshops(campus);
   const upcoming = all.filter((w) => w.day >= today);
@@ -134,11 +134,11 @@ async function StaffView({ campus, canEdit }: { campus: Campus | null; canEdit: 
         {upcoming.length === 0 ? (
           <p className="empty" style={{ margin: 10 }}>Nothing scheduled.</p>
         ) : (
-          <WorkshopTable rows={upcoming} canEdit={canEdit} today={today} />
+          <WorkshopTable rows={upcoming} editable={editable} today={today} />
         )}
       </section>
 
-      {canEdit && (
+      {editable && (
         <details className="editor">
           <summary>+ Add a staff workshop</summary>
           <section className="card" style={{ marginTop: 8 }}>
@@ -150,14 +150,14 @@ async function StaffView({ campus, canEdit }: { campus: Campus | null; canEdit: 
       {past.length > 0 && (
         <details className="table-box">
           <summary style={{ cursor: "pointer", fontWeight: 600, padding: 10 }}>Past workshops ({past.length})</summary>
-          <WorkshopTable rows={past} canEdit={canEdit} today={today} />
+          <WorkshopTable rows={past} editable={editable} today={today} />
         </details>
       )}
     </>
   );
 }
 
-function WorkshopTable({ rows, canEdit, today }: { rows: Workshop[]; canEdit: boolean; today: string }) {
+function WorkshopTable({ rows, editable, today }: { rows: Workshop[]; editable: boolean; today: string }) {
   return (
     <table style={{ minWidth: 560 }}>
       <thead>
@@ -171,7 +171,7 @@ function WorkshopTable({ rows, canEdit, today }: { rows: Workshop[]; canEdit: bo
             <td>
               {w.topic}
               {w.notes && <div className="small muted" style={{ whiteSpace: "pre-line" }}>{w.notes}</div>}
-              {canEdit && (
+              {editable && (
                 <details className="editor quiet">
                   <summary>Edit</summary>
                   <WorkshopForm workshop={w} />

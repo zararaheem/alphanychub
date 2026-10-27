@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { requireMember } from "@/lib/access";
+import { requireMember, canEdit } from "@/lib/access";
 import { CAMPUS_LABEL } from "@/lib/campus";
 import { getProcedures } from "@/lib/data";
 import { isRespondNow, procKind, shortTitle } from "@/lib/procedure-meta";
@@ -13,7 +13,7 @@ export default async function ProcedurePage({ params }: { params: Promise<{ id: 
   const p = all.find((x) => String(x.id) === id);
   if (!p) notFound();
   const respond = all.filter(isRespondNow);
-  const canEdit = me.role === "admin" || me.role === "lead";
+  const editable = canEdit(me.role);
   const kind = procKind(p.title);
 
   return (
@@ -37,7 +37,7 @@ export default async function ProcedurePage({ params }: { params: Promise<{ id: 
         <ProcedureBody body={p.body} />
       </article>
 
-      {canEdit && <Link href="/emergency?edit=procedures" className="small muted">Edit procedures</Link>}
+      {editable && <Link href="/emergency?edit=procedures" className="small muted">Edit procedures</Link>}
 
       <nav aria-label="Other emergencies" className="stack-sm">
         <span className="label-caps">Other emergencies</span>

@@ -1,0 +1,60 @@
+"use client";
+
+import { useMemo, useState } from "react";
+import type { StaffMember } from "@/lib/types";
+
+const GROUPS = [
+  { campus: "all", title: "Both campuses" },
+  { campus: "maiden-ln", title: "Maiden Ln" },
+  { campus: "early-years", title: "Early Years · William St" },
+] as const;
+
+const tel = (p: string) => `tel:${p.replace(/[^\d+]/g, "")}`;
+
+export function StaffList({ rows }: { rows: StaffMember[] }) {
+  const [q, setQ] = useState("");
+  const query = q.trim().toLowerCase();
+  const shown = useMemo(
+    () => (query ? rows.filter((r) => [r.name, r.title, r.team, r.email, r.phone].some((v) => v?.toLowerCase().includes(query))) : rows),
+    [rows, query],
+  );
+  const groups = GROUPS.filter((g) => rows.some((r) => r.campus === g.campus));
+
+  return (
+    <div className="stack">
+      <div className="field" style={{ maxWidth: 360 }}>
+        <label htmlFor="staff-search">Find someone</label>
+        <input id="staff-search" type="search" className="input" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Name, role, team or phone" />
+      </div>
+      {shown.length === 0 && <p className="empty">No one matches &ldquo;{q}&rdquo;.</p>}
+      {groups.map((g) => {
+        const list = shown.filter((r) => r.campus === g.campus);
+        if (!list.length) return null;
+        return (
+          <section key={g.campus} className="stack-sm" aria-label={g.title}>
+            {groups.length > 1 && <h3 className="label-caps">{g.title} · {list.length}</h3>}
+            <ul className="staff-grid">
+              {list.map((s) => (
+                <li key={s.id} className="staff-card">
+                  <span className="avatar" aria-hidden="true">{initials(s.name)}</span>
+                  <div className="who">
+                    <strong>{s.name}</strong>
+                    {(s.title || s.team) && <span className="role">{[s.title, s.team].filter(Boolean).join(" · ")}</span>}
+                    {s.notes && <span className="note">{s.notes}</span>}
+                    <span className="staff-links">
+                      {s.phone && <a href={tel(s.phone)}>{s.phone}</a>}
+                      {s.email && <a href={`mailto:${s.email}`}>{s.email}</a>}
+                    </span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </section>
+        );
+      })}
+    </div>
+  );
+}
+
+const initials = (name: string) =>
+  name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]!.toUpperCase()).join("");

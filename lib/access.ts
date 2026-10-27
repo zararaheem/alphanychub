@@ -1,10 +1,11 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
-export type Role = "admin" | "lead" | "guide" | "staff";
+export type Role = "admin" | "coordinator" | "lead" | "guide" | "staff";
 
 export const ROLE_LABELS: Record<Role, string> = {
   admin: "Admin",
+  coordinator: "Campus Coordinator",
   lead: "Lead Guide",
   guide: "Guide",
   staff: "Staff",
@@ -37,4 +38,9 @@ export async function requireRole(roles: Role[]): Promise<Member> {
   return member;
 }
 
-export const canSeeLead = (role: Role) => role === "admin" || role === "lead";
+// Campus Coordinators can do everything Admins can except manage the access list.
+export const ADMINS: Role[] = ["admin"];
+export const EDITORS: Role[] = ["admin", "coordinator", "lead"];
+export const isAdmin = (role: Role) => ADMINS.includes(role);
+export const canEdit = (role: Role) => EDITORS.includes(role);
+export const canSeeLead = canEdit;

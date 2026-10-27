@@ -90,18 +90,20 @@ export default async function HomePage() {
           </Link>
         </div>
 
+        {!campus && (
         <section className="stack" aria-labelledby="campus-h">
-          <h2 id="campus-h" className="label-caps">Campuses</h2>
+          <h2 id="campus-h" className="label-caps">Focus on one campus</h2>
           <div className="grid">
-            {CAMPUSES.filter((c) => !campus || c.id === campus).map((c) => (
-              <Link key={c.id} href={`/${c.id}`} className="card card-link">
+            {CAMPUSES.map((c) => (
+              <a key={c.id} href={`/campus?set=${c.id}&next=/`} className="card card-link">
                 <span className="card-title">{c.name}</span>
                 <span className="muted">{c.blurb}</span>
-                <span className="small" style={{ color: "var(--teal)", fontWeight: 700 }}>Open campus page →</span>
-              </Link>
+                <span className="small" style={{ color: "var(--teal)", fontWeight: 700 }}>Show this campus →</span>
+              </a>
             ))}
           </div>
         </section>
+        )}
       </main>
     </>
   );

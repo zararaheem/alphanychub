@@ -283,6 +283,17 @@ ul.proc-bullets.warn li::before { content: "✕"; color: var(--red); font-weight
   ol.proc-steps li { font-size: 15px; }
 }
 
+/* Staff directory ------------------------------------------------------- */
+.staff-grid { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+.staff-card { display: flex; gap: 12px; align-items: flex-start; background: var(--surface); border: 1px solid var(--line-2); border-radius: 12px; padding: 12px 14px; }
+.staff-card .avatar { flex: none; width: 38px; height: 38px; border-radius: 50%; background: var(--teal-soft); color: var(--teal-ink); font-family: var(--display); font-weight: 800; font-size: 13px; display: grid; place-items: center; }
+.staff-card .who { min-width: 0; display: flex; flex-direction: column; gap: 1px; font-size: 14px; }
+.staff-card .who strong { font-size: 14.5px; font-weight: 600; }
+.staff-card .role { color: var(--ink-2); font-size: 13px; }
+.staff-card .note { color: var(--muted); font-size: 12px; }
+.staff-links { display: flex; flex-wrap: wrap; gap: 2px 12px; margin-top: 4px; font-size: 12.5px; }
+.staff-links a { text-decoration: none; overflow-wrap: anywhere; }
+
 /* One-pagers ------------------------------------------------------------ */
 .sheet { max-width: 1000px; gap: 20px; }
 .sheet-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 8px 24px; border-bottom: 2px solid var(--teal); padding-bottom: 14px; }

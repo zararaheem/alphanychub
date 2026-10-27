@@ -2,9 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { requireMember, requireRole, type Role } from "@/lib/access";
+import { ADMINS, EDITORS, ROLE_LABELS, requireMember, requireRole, type Role } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { parseParentCsv } from "@/lib/parent-import";
+import { parseStaffCsv } from "@/lib/staff-import";
 
 // Every write below runs as the signed-in user, so Supabase RLS is the real
 // gate; the requireMember/requireRole calls just fail fast with a clear message.
@@ -27,8 +28,6 @@ function back(path: string, result: { error: { message: string } | null }, ok: s
   const q = result.error ? `err=${encodeURIComponent(result.error.message)}` : `msg=${encodeURIComponent(ok)}`;
   redirect(`${path}${path.includes("?") ? "&" : "?"}${q}`);
 }
-
-const EDITORS: Role[] = ["admin", "lead"];
 
 // Emergency contacts ---------------------------------------------------------
 export async function saveContact(form: FormData) {
@@ -99,12 +98,12 @@ export async function deleteWorkshop(form: FormData) {
 
 // Access list (admins) -------------------------------------------------------
 export async function addMember(form: FormData) {
-  const me = await requireRole(["admin"]);
+  const me = await requireRole(ADMINS);
   const supabase = await createClient();
   const email = str(form, "email")?.toLowerCase();
   const role = str(form, "role");
   if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) back("/access", { error: { message: "Enter a valid email." } }, "");
-  if (!role || !["admin", "lead", "guide", "staff"].includes(role)) back("/access", { error: { message: "Pick a role." } }, "");
+  if (!role || !(role in ROLE_LABELS)) back("/access", { error: { message: "Pick a role." } }, "");
   const res = await supabase
     .from("allowed_users")
     .upsert({ email, role, name: str(form, "name"), added_by: me.email }, { onConflict: "email" });
@@ -112,7 +111,7 @@ export async function addMember(form: FormData) {
 }
 
 export async function removeMember(form: FormData) {
-  const me = await requireRole(["admin"]);
+  const me = await requireRole(ADMINS);
   const email = str(form, "email");
   if (email === me.email) back("/access", { error: { message: "You can't remove yourself." } }, "");
   const supabase = await createClient();
@@ -137,4 +136,43 @@ export async function importParentContacts(form: FormData) {
   const res = await supabase.from("parent_contacts").insert(rows);
   const early = rows.filter((r) => r.campus === "early-years").length;
   back("/emergency", res, `Imported ${rows.length} parent contacts (${early} Early Years, ${rows.length - early} Maiden Ln).`);
+}
+
+// Staff directory ------------------------------------------------------------
+export async function saveStaff(form: FormData) {
+  await requireRole(EDITORS);
+  const supabase = await createClient();
+  const id = num(form, "id");
+  const row = {
+    campus: scope(form), name: str(form, "name") ?? "Unnamed", title: str(form, "title"), team: str(form, "team"),
+    email: str(form, "email")?.toLowerCase() ?? null, phone: str(form, "phone"), notes: str(form, "notes"),
+    sort: num(form, "sort") ?? 0, updated_at: new Date().toISOString(),
+  };
+  const res = id
+    ? await supabase.from("staff_directory").update(row).eq("id", id)
+    : await supabase.from("staff_directory").insert(row);
+  back("/staff?edit=1", res, id ? "Staff member updated." : "Staff member added.");
+}
+
+export async function deleteStaff(form: FormData) {
+  await requireRole(EDITORS);
+  const supabase = await createClient();
+  const res = await supabase.from("staff_directory").delete().eq("id", num(form, "id") ?? -1);
+  back("/staff?edit=1", res, "Staff member removed.");
+}
+
+export async function importStaff(form: FormData) {
+  await requireRole(EDITORS);
+  const file = form.get("file");
+  const text = file instanceof File && file.size > 0 ? await file.text() : null;
+  if (!text) back("/staff?edit=1", { error: { message: "Choose the CSV file exported from the Google Sheet." } }, "");
+  if (text.length > 2_000_000) back("/staff?edit=1", { error: { message: "That file is too large (2 MB max)." } }, "");
+  const { rows, error } = parseStaffCsv(text);
+  if (error) back("/staff?edit=1", { error: { message: error } }, "");
+  const supabase = await createClient();
+  // Replace the whole list so the directory mirrors the latest sheet.
+  const del = await supabase.from("staff_directory").delete().gte("id", 0);
+  if (del.error) back("/staff?edit=1", del, "");
+  const res = await supabase.from("staff_directory").insert(rows);
+  back("/staff", res, `Imported ${rows.length} staff.`);
 }

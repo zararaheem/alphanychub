@@ -17,3 +17,8 @@ export type ParentContact = {
   relationship: string | null; phone: string | null; email: string | null; notes: string | null; sort: number;
   imported_at: string;
 };
+
+export type StaffMember = {
+  id: number; campus: CampusScope; name: string; title: string | null; team: string | null;
+  email: string | null; phone: string | null; notes: string | null; sort: number;
+};

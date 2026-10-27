@@ -1,4 +1,4 @@
-import { requireMember } from "@/lib/access";
+import { requireMember, canEdit } from "@/lib/access";
 import { CAMPUS_LABEL } from "@/lib/campus";
 import { getContacts, getParentContacts, getProcedures } from "@/lib/data";
 import { deleteContact, deleteProcedure, importParentContacts, saveContact, saveProcedure } from "@/lib/actions";
@@ -17,11 +17,11 @@ export default async function EmergencyPage({ searchParams }: { searchParams: SP
   const sp = await searchParams;
   const campus = await currentCampus();
   const me = await requireMember();
-  const canEdit = me.role === "admin" || me.role === "lead";
+  const editable = canEdit(me.role);
   // Edit controls stay hidden until an editor turns them on for a section.
-  const editing = (section: string) => canEdit && sp.edit === section;
+  const editing = (section: string) => editable && sp.edit === section;
   const EditToggle = ({ section }: { section: string }) =>
-    canEdit ? (
+    editable ? (
       <a href={editing(section) ? "/emergency" : `/emergency?edit=${section}`} className="edit-toggle" aria-pressed={editing(section)}>
         {editing(section) ? "Done" : "Edit"}
       </a>
@@ -75,7 +75,7 @@ export default async function EmergencyPage({ searchParams }: { searchParams: SP
               <EditToggle section="contacts" />
             </div>
             {contacts.length === 0 ? (
-              <p className="empty">No contacts yet.{canEdit ? " Choose Edit to add the first one." : " An admin or Lead Guide can add them."}</p>
+              <p className="empty">No contacts yet.{editable ? " Choose Edit to add the first one." : " An admin or Lead Guide can add them."}</p>
             ) : (
               <ul className="contact-list">
                 {contacts.map((c) => (
@@ -121,11 +121,11 @@ export default async function EmergencyPage({ searchParams }: { searchParams: SP
               </span>
             </div>
             {parents.length === 0 ? (
-              <p className="empty">No parent contacts yet.{canEdit ? " Import the Google Sheet below." : " An admin or Lead Guide can import them."}</p>
+              <p className="empty">No parent contacts yet.{editable ? " Import the Google Sheet below." : " An admin or Lead Guide can import them."}</p>
             ) : (
               <ParentContacts rows={parents} />
             )}
-            {canEdit && (parents.length === 0 || editing("parents")) && (
+            {editable && (parents.length === 0 || editing("parents")) && (
               <details className="editor" open={editing("parents")}>
                 <summary>{parents.length ? "Re-import from Google Sheet" : "+ Import from Google Sheet"}</summary>
                 <form action={importParentContacts} className="stack" style={{ paddingBottom: 12 }}>
@@ -151,7 +151,7 @@ export default async function EmergencyPage({ searchParams }: { searchParams: SP
             <EditToggle section="procedures" />
           </div>
           {procedures.length === 0 && (
-            <p className="empty">No procedures yet.{canEdit ? " Choose Edit to add lockdown, evacuation and so on." : ""}</p>
+            <p className="empty">No procedures yet.{editable ? " Choose Edit to add lockdown, evacuation and so on." : ""}</p>
           )}
           {editing("procedures") ? (
             <div className="proc-list">

@@ -1,4 +1,4 @@
-import { requireRole, ROLE_LABELS, type Member, type Role } from "@/lib/access";
+import { ADMINS, requireRole, ROLE_LABELS, type Member, type Role } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { addMember, removeMember } from "@/lib/actions";
 import { Field } from "@/components/fields";
@@ -9,6 +9,7 @@ type Row = Member & { added_by: string | null; created_at: string };
 
 const ROLE_HELP: Record<Role, string> = {
   admin: "Manages this access list and edits everything",
+  coordinator: "Edits everything and sees every dashboard; can't manage this access list",
   lead: "Edits emergency info and workshops; sees the Early Years lead dashboard",
   guide: "Pre-K / Kinder Guide: uses the hub and logs trips",
   staff: "Other staff: uses the hub and logs trips",
@@ -16,7 +17,7 @@ const ROLE_HELP: Record<Role, string> = {
 
 export default async function AccessPage({ searchParams }: { searchParams: SP }) {
   const sp = await searchParams;
-  const me = await requireRole(["admin"]);
+  const me = await requireRole(ADMINS);
   const supabase = await createClient();
   const { data } = await supabase.from("allowed_users").select("email, role, name, added_by, created_at").order("role").order("email");
   const rows = (data ?? []) as Row[];
