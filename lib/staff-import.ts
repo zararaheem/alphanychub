@@ -1,7 +1,7 @@
 import { parseCsv } from "@/lib/csv";
 
 export type StaffRow = {
-  campus: "all" | "early-years" | "maiden-ln"; name: string; title: string | null; team: string | null;
+  campus: "unassigned" | "all" | "early-years" | "maiden-ln"; name: string; title: string | null; team: string | null;
   email: string | null; phone: string | null; notes: string | null; sort: number;
 };
 
@@ -12,7 +12,9 @@ function campusOf(v: string | null): StaffRow["campus"] {
   const c = (v ?? "").toLowerCase();
   const early = /william|early/.test(c);
   const maiden = /maiden/.test(c);
-  return early && !maiden ? "early-years" : maiden && !early ? "maiden-ln" : "all";
+  if (early && !maiden) return "early-years";
+  if (maiden && !early) return "maiden-ln";
+  return early && maiden || /both|all/.test(c) ? "all" : "unassigned";
 }
 
 // Turns a Google Sheets CSV export of the staff list into directory rows.

@@ -18,7 +18,9 @@ export type ParentContact = {
   imported_at: string;
 };
 
+export type StaffCampus = CampusScope | "unassigned";
+
 export type StaffMember = {
-  id: number; campus: CampusScope; name: string; title: string | null; team: string | null;
+  id: number; campus: StaffCampus; name: string; title: string | null; team: string | null;
   email: string | null; phone: string | null; notes: string | null; sort: number;
 };

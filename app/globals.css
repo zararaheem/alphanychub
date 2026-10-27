@@ -405,3 +405,5 @@ ul.proc-bullets.warn li::before { content: "✕"; color: var(--red); font-weight
   .sheet-progress b { color: #7a5200; }
   .sheet-foot { border-color: #ddd; color: #777; font-size: 8.5px; padding-top: 6px; }
 }
+.move-form { display: flex; gap: 6px; align-items: center; }
+.move-form .input { min-height: 34px; padding: 0 8px; font-size: 13px; width: auto; }

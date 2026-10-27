@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { ADMINS, EDITORS, ROLE_LABELS, requireMember, requireRole, type Role } from "@/lib/access";
+import { ADMINS, EDITORS, STAFF_MANAGERS, ROLE_LABELS, requireMember, requireRole, type Role } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { parseParentCsv } from "@/lib/parent-import";
 import { parseStaffCsv } from "@/lib/staff-import";
@@ -138,13 +138,18 @@ export async function importParentContacts(form: FormData) {
   back("/emergency", res, `Imported ${rows.length} parent contacts (${early} Early Years, ${rows.length - early} Maiden Ln).`);
 }
 
-// Staff directory ------------------------------------------------------------
+// Staff directory (Admins and Campus Coordinators) -----------------------------
+const staffCampus = (f: FormData) => {
+  const v = str(f, "campus");
+  return v === "maiden-ln" || v === "early-years" || v === "all" ? v : "unassigned";
+};
+
 export async function saveStaff(form: FormData) {
-  await requireRole(EDITORS);
+  await requireRole(STAFF_MANAGERS);
   const supabase = await createClient();
   const id = num(form, "id");
   const row = {
-    campus: scope(form), name: str(form, "name") ?? "Unnamed", title: str(form, "title"), team: str(form, "team"),
+    campus: staffCampus(form), name: str(form, "name") ?? "Unnamed", title: str(form, "title"), team: str(form, "team"),
     email: str(form, "email")?.toLowerCase() ?? null, phone: str(form, "phone"), notes: str(form, "notes"),
     sort: num(form, "sort") ?? 0, updated_at: new Date().toISOString(),
   };
@@ -154,15 +159,23 @@ export async function saveStaff(form: FormData) {
   back("/staff?edit=1", res, id ? "Staff member updated." : "Staff member added.");
 }
 
+export async function moveStaff(form: FormData) {
+  await requireRole(STAFF_MANAGERS);
+  const supabase = await createClient();
+  const res = await supabase.from("staff_directory")
+    .update({ campus: staffCampus(form), updated_at: new Date().toISOString() }).eq("id", num(form, "id") ?? -1);
+  back("/staff?edit=1", res, "Moved.");
+}
+
 export async function deleteStaff(form: FormData) {
-  await requireRole(EDITORS);
+  await requireRole(STAFF_MANAGERS);
   const supabase = await createClient();
   const res = await supabase.from("staff_directory").delete().eq("id", num(form, "id") ?? -1);
   back("/staff?edit=1", res, "Staff member removed.");
 }
 
 export async function importStaff(form: FormData) {
-  await requireRole(EDITORS);
+  await requireRole(STAFF_MANAGERS);
   const file = form.get("file");
   const text = file instanceof File && file.size > 0 ? await file.text() : null;
   if (!text) back("/staff?edit=1", { error: { message: "Choose the CSV file exported from the Google Sheet." } }, "");

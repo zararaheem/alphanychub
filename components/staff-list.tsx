@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import type { StaffMember } from "@/lib/types";
 
 const GROUPS = [
+  { campus: "unassigned", title: "Not assigned to a campus yet" },
   { campus: "all", title: "Both campuses" },
   { campus: "maiden-ln", title: "Maiden Ln" },
   { campus: "early-years", title: "Early Years · William St" },

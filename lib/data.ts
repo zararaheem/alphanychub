@@ -37,7 +37,8 @@ export async function getParentContacts(campus: Campus | null) {
 
 export async function getStaff(campus: Campus | null) {
   const supabase = await createClient();
-  const { data } = await supabase.from("staff_directory").select("*").in("campus", scopes(campus))
+  // "Not assigned yet" people only show when both campuses are selected.
+  const { data } = await supabase.from("staff_directory").select("*").in("campus", campus ? scopes(campus) : [...scopes(null), "unassigned"])
     .order("sort").order("name");
   return (data ?? []) as StaffMember[];
 }

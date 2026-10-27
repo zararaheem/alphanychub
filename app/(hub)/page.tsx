@@ -3,7 +3,7 @@ import { requireMember } from "@/lib/access";
 import { CAMPUSES, clock, shortDay, todayNY } from "@/lib/campus";
 import { currentCampus } from "@/lib/campus-pref";
 import { LEVELS, SESSION, WORKSHOPS } from "@/lib/session2";
-import { getContacts, getProcedures, getWorkshops } from "@/lib/data";
+import { getContacts, getProcedures, getStaff, getWorkshops } from "@/lib/data";
 import { OFF_CAMPUS_URL } from "@/lib/links";
 import { Clock } from "@/components/clock";
 import { ExtIcon } from "@/components/external-link";
@@ -13,9 +13,10 @@ export default async function HomePage() {
   const today = todayNY();
   const campus = await currentCampus();
   const here = campus ? CAMPUSES.find((c) => c.id === campus)! : null;
-  const [contacts, procedures, workshops] = await Promise.all([
-    getContacts(campus), getProcedures(campus), getWorkshops(campus, { from: today }),
+  const [contacts, procedures, workshops, staff] = await Promise.all([
+    getContacts(campus), getProcedures(campus), getWorkshops(campus, { from: today }), getStaff(campus),
   ]);
+  const onSite = staff.filter((s) => s.campus !== "unassigned");
   const next = workshops[0];
   const levelsHere = LEVELS.filter((l) => !campus || l.campus === campus);
   const levelCount = levelsHere.length;
@@ -79,6 +80,15 @@ export default async function HomePage() {
               <span className="pill amber" style={{ alignSelf: "flex-start" }}>Coming soon</span>
             </div>
           )}
+
+          <Link href="/staff" className="card card-link">
+            <span className="card-title">Staff</span>
+            <span className="muted">Everyone on site{here ? ` at ${here.name}` : ""}, with phone and email.</span>
+            <span style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8 }}>
+              <span className="stat"><b>{onSite.length}</b><span>{here ? "on this campus" : "with a campus"}</span></span>
+              {!here && <span className="stat"><b>{staff.length - onSite.length}</b><span>not assigned yet</span></span>}
+            </span>
+          </Link>
 
           <Link href="/workshops" className="card card-link">
             <span className="card-title">Workshops</span>

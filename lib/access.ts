@@ -41,6 +41,9 @@ export async function requireRole(roles: Role[]): Promise<Member> {
 // Campus Coordinators can do everything Admins can except manage the access list.
 export const ADMINS: Role[] = ["admin"];
 export const EDITORS: Role[] = ["admin", "coordinator", "lead"];
+// Adding, editing and moving people in the staff directory.
+export const STAFF_MANAGERS: Role[] = ["admin", "coordinator"];
 export const isAdmin = (role: Role) => ADMINS.includes(role);
+export const canManageStaff = (role: Role) => STAFF_MANAGERS.includes(role);
 export const canEdit = (role: Role) => EDITORS.includes(role);
 export const canSeeLead = canEdit;
