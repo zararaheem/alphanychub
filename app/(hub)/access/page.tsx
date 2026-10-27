@@ -19,7 +19,7 @@ export default async function AccessPage({ searchParams }: { searchParams: SP })
   const sp = await searchParams;
   const me = await requireRole(ADMINS);
   const supabase = await createClient();
-  const { data } = await supabase.from("allowed_users").select("email, role, name, can_see_parents, added_by, created_at").order("role").order("email");
+  const { data } = await supabase.from("allowed_users").select("*").order("role").order("email");
   const rows = (data ?? []) as Row[];
 
   return (

@@ -24,12 +24,15 @@ export async function requireMember(): Promise<Member> {
 
   const { data } = await supabase
     .from("allowed_users")
-    .select("email, role, name, can_see_parents")
+    .select("*") // "*" so a column added by a later migration can't lock everyone out
     .eq("email", user.email.toLowerCase())
     .maybeSingle();
 
   if (!data) redirect("/no-access");
-  return { ...(data as Member), name: data.name ?? (user.user_metadata?.full_name as string | undefined) ?? null };
+  return {
+    email: data.email, role: data.role, can_see_parents: data.can_see_parents === true,
+    name: data.name ?? (user.user_metadata?.full_name as string | undefined) ?? null,
+  };
 }
 
 export async function requireRole(roles: Role[]): Promise<Member> {
