@@ -38,6 +38,7 @@ export const GUIDES: Record<string, Guide> = {
           "A designated activity lead (Guide or staff) plus a second adult, minimum",
           "Transport (shuttle, bus, car) is requested in the Transport request tool, for Maiden Ln and Early Years",
           "The trip is on the Off-Campus board with lead, security and headcount",
+          "Security clearance: every trip needs it. The trip lead can run it on the Off-Campus board, or request it from Zara",
           "Lead carries the student roster and the emergency contact list for every student on the trip",
           "Lead carries a charged phone and a two-way radio (or confirms cell reception)",
           "Agree the off-campus assembly point (nearest safe public space) with all staff before leaving",
@@ -116,7 +117,7 @@ export const GUIDES: Record<string, Guide> = {
         heading: "Off-campus blocks",
         bullets: [
           "Trip is on the Off-Campus board with a lead, security and kids/adults headcount",
-          "The trip shows as cleared before the week starts; fix anything missing that's safety-critical",
+          "The trip shows as cleared before the week starts: run security clearance on the Off-Campus board or request it from Zara",
           "Follow the Off campus one-pager: roster, emergency contacts, phone, radio, assembly point",
           "Shuttle trips leave at the listed time; MoMA leaves at lunch",
         ],
@@ -156,6 +157,7 @@ export const GUIDES: Record<string, Guide> = {
         bullets: [
           "Access cards, door access and vendor cards",
           "Guard coverage, schedules and event security",
+          "Security clearance for off-campus trips (or the trip lead runs it on the Off-Campus board)",
           "Visitor exceptions and anything outside normal check-in",
           "Security incidents, concerns and follow-ups",
           "Zara Raheem, Emergency Coordinator, coordinates with the Lead Guards (Derek Ghee, Maiden Ln; Sugy Castillo, Early Years) and building security",

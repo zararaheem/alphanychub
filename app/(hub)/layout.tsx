@@ -7,6 +7,7 @@ import { OFF_CAMPUS_URL, ATTENDANCE_URL, TRANSPORT_URL } from "@/lib/links";
 import { currentCampus } from "@/lib/campus-pref";
 import { currentTheme } from "@/lib/theme";
 import { ThemeSwitch } from "@/components/theme-switch";
+import { AskWidget } from "@/components/ask-widget";
 
 // Every page in this group requires a signed-in user who is on the access list.
 export default async function HubLayout({ children }: { children: React.ReactNode }) {
@@ -18,7 +19,6 @@ export default async function HubLayout({ children }: { children: React.ReactNod
     { href: "/emergency", label: "Emergency" },
     { href: "/workshops", label: "Workshops" },
     { href: "/guides", label: "One-pagers" },
-    { href: "/ask", label: "Ask" },
     { href: "/staff", label: "Staff" },
     { href: "/students", label: "Students" },
     // Campus pages are covered by the toggle; Early Years keeps its program tools.
@@ -49,6 +49,7 @@ export default async function HubLayout({ children }: { children: React.ReactNod
       </header>
       <HubNav tabs={tabs} external={external} campus={campus} />
       {children}
+      <AskWidget />
     </>
   );
 }

@@ -470,3 +470,15 @@ ul.proc-bullets.warn li::before { content: "✕"; color: var(--red); font-weight
 .ask-form { display: flex; gap: 8px; align-items: flex-end; position: sticky; bottom: 12px; background: var(--bg); padding: 8px 0; }
 .ask-form textarea { flex: 1; resize: vertical; min-height: 48px; }
 .ask-form .btn { min-height: 48px; }
+.ask-widget { position: fixed; right: 20px; bottom: 20px; z-index: 50; display: flex; flex-direction: column; align-items: flex-end; gap: 12px; }
+.ask-fab { display: inline-flex; align-items: center; gap: 8px; min-height: 52px; padding: 0 20px; border-radius: 999px; border: 0; background: var(--teal); color: var(--on-accent); font-weight: 800; font-size: 15px; cursor: pointer; box-shadow: 0 8px 24px rgba(4, 16, 46, .35); }
+.ask-fab:hover { background: var(--teal-ink); }
+.ask-panel { width: min(420px, calc(100vw - 32px)); height: min(600px, calc(100vh - 120px)); display: flex; flex-direction: column; background: var(--bg); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 16px 48px rgba(4, 16, 46, .45); overflow: hidden; }
+.ask-panel-head { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px 10px 16px; background: var(--hero); color: #fff; --ink: #fff; }
+.ask-panel-head .btn.ghost { color: #fff; }
+.ask-panel-body { flex: 1; overflow-y: auto; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+.ask-panel .ask-form { bottom: 0; }
+@media (max-width: 560px) {
+  .ask-widget { right: 12px; bottom: 12px; }
+  .ask-panel { width: calc(100vw - 24px); height: calc(100vh - 96px); }
+}

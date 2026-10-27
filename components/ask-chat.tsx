@@ -12,13 +12,17 @@ const STARTERS = [
   "Can I sign a vendor contract?",
 ];
 
-export function AskChat() {
+export function AskChat({ compact = false }: { compact?: boolean }) {
   const [turns, setTurns] = useState<Turn[]>([]);
   const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const end = useRef<HTMLDivElement>(null);
-  useEffect(() => end.current?.scrollIntoView({ behavior: "smooth", block: "end" }), [turns, busy]);
+  // Braces matter: newer browsers return a Promise from scrollIntoView, and React
+  // would treat a returned value as the effect's cleanup function.
+  useEffect(() => {
+    end.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }, [turns, busy]);
 
   async function ask(question: string) {
     const q = question.trim();
@@ -49,7 +53,7 @@ export function AskChat() {
           <div className="stack-sm">
             <p className="muted">Try one of these, or type your own:</p>
             <div className="row" style={{ gap: 6 }}>
-              {STARTERS.map((s) => (
+              {(compact ? STARTERS.slice(0, 3) : STARTERS).map((s) => (
                 <button key={s} type="button" className="chip" onClick={() => ask(s)}>{s}</button>
               ))}
             </div>
