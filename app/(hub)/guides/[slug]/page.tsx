@@ -88,14 +88,14 @@ async function EmergencySheet() {
       <section className="sheet-rules" aria-labelledby="rules-h">
         <h2 id="rules-h">Golden rules</h2>
         <ul>
-          <li><b>Never go back</b> for bags, phones or anything else.</li>
-          <li><b>Don&apos;t go looking</b> for a missing child (bathroom, another room). Leave with your group and tell the Coordinator.</li>
-          <li><b>Always know who leaves your room.</b> Account for every student who steps out.</li>
-          <li><b>Security and designated searchers</b> look for missing students. No one else.</li>
-          <li><b>Take your roster</b> (and radio) if it&apos;s in reach. Head count before you move and at the assembly area.</li>
+          <li><b>Never go back for anything.</b> Leave bags, phones and belongings behind.</li>
+          <li><b>Don&apos;t go looking for a missing child</b> (bathroom, another room). Leave with your group and report them to the Coordinator immediately.</li>
+          <li><b>Searchers find missing students.</b> Floor Wardens Derek Ghee and Sugy Castillo clear rooms; Guards sweep every room and restroom.</li>
+          <li><b>Always know who&apos;s out of your room.</b> Carry an up-to-date roster and account for every student who steps out.</li>
           <li><b>Never use the elevators.</b> Stairwells F or G only.</li>
-          <li><b>Stay with your group</b> at the assembly area. Report your headcount to the Coordinator within 3 minutes.</li>
-          <li><b>No re-entry, no dismissals</b> until the official all-clear. Students go home only through the Coordinator&apos;s sign-out.</li>
+          <li><b>Go to the nearest safe room.</b> Don&apos;t cross the floor to reach a specific one.</li>
+          <li><b>Headcount within 3 minutes</b> of reaching the assembly area. Stay with your group.</li>
+          <li><b>Wait for the official all-clear.</b> Never re-enter on your own or open a locked door without law enforcement.</li>
         </ul>
       </section>
       <div className="sheet-grid dense">
