@@ -32,12 +32,12 @@ export function AskWidget() {
             </span>
           </header>
           <div className="ask-panel-body">
-            <p className="small muted">Answers from the hub&apos;s procedures, one-pagers and resources. Emergency now? Call 911 first.</p>
+            <p className="small muted">Searches the hub<p className="small muted">Answers from the hub&apos;s procedures, one-pagers and resources. Emergency now? Call 911 first.</p>apos;s procedures, one-pagers, checklist, resources and tools. Emergency now? Call 911 first.</p>
             <AskChat compact />
           </div>
         </section>
       )}
-      <button type="button" className="ask-fab" onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-label={open ? "Close Ask the hub" : "Ask the hub a question"}>
+      <button type="button" className="ask-fab" onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-label={open ? "Close Ask the hub" : "Search the hub"}>
         {open ? <span aria-hidden="true" style={{ fontSize: 18 }}>✕</span> : <><Spark /><span>Ask</span></>}
       </button>
     </div>

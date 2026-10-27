@@ -468,7 +468,14 @@ ul.proc-bullets.warn li::before { content: "✕"; color: var(--red); font-weight
 .bubble.assistant { align-self: flex-start; background: var(--surface); border: 1px solid var(--line-2); color: var(--ink); border-bottom-left-radius: 4px; }
 .bubble ul, .bubble ol { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 4px; }
 .ask-form { display: flex; gap: 8px; align-items: flex-end; position: sticky; bottom: 12px; background: var(--bg); padding: 8px 0; }
-.ask-form textarea { flex: 1; resize: vertical; min-height: 48px; }
+.ask-form textarea, .ask-form input { flex: 1; min-height: 48px; }
+.search-hits { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.search-hit { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; }
+.search-hit.top { border-color: var(--teal); }
+.hit-title { font-weight: 700; color: var(--ink); text-decoration: none; font-size: 14.5px; }
+a.hit-title:hover { color: var(--teal); }
+.hit-where { font-size: 11.5px; color: var(--muted); white-space: nowrap; text-align: right; }
+.hit-lines { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 3px; font-size: 13.5px; line-height: 1.45; color: var(--ink-2); }
 .ask-form .btn { min-height: 48px; }
 .ask-widget { position: fixed; right: 20px; bottom: 20px; z-index: 50; display: flex; flex-direction: column; align-items: flex-end; gap: 12px; }
 .ask-fab { display: inline-flex; align-items: center; gap: 8px; min-height: 52px; padding: 0 20px; border-radius: 999px; border: 0; background: var(--teal); color: var(--on-accent); font-weight: 800; font-size: 15px; cursor: pointer; box-shadow: 0 8px 24px rgba(4, 16, 46, .35); }
