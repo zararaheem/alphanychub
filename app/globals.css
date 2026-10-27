@@ -482,3 +482,14 @@ ul.proc-bullets.warn li::before { content: "✕"; color: var(--red); font-weight
   .ask-widget { right: 12px; bottom: 12px; }
   .ask-panel { width: calc(100vw - 24px); height: calc(100vh - 96px); }
 }
+/* Activity checklist ----------------------------------------------------- */
+.checklist-grid { display: grid; gap: 16px 28px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+.check-list { list-style: none; margin: 0; padding: 0; }
+.check-list li { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px solid var(--hairline); }
+.check-list li:first-child { border-top: 0; }
+.check-list label { display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 14px; }
+.check-list input { width: 18px; height: 18px; accent-color: var(--teal); flex: none; }
+.check-list .done { color: var(--muted); text-decoration: line-through; }
+.checklist-table .box-col { width: 22px; }
+.tick-box { display: inline-block; width: 13px; height: 13px; border: 1.5px solid var(--ink-2); border-radius: 3px; vertical-align: middle; }
+@media print { .tick-box { border-color: #444; } }

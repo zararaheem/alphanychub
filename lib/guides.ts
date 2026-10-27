@@ -3,6 +3,7 @@
 // and the Session 2 workshops deck. "todo" items are gaps to fill in.
 
 import { SHOWCASES } from "@/lib/session2";
+import { ALSO_CHECK, CORE_SIX, type CheckItem } from "@/lib/checklist";
 
 export type GuideSection = {
   heading: string;
@@ -10,6 +11,7 @@ export type GuideSection = {
   bullets?: string[];
   text?: string;
   table?: { head: string[]; rows: string[][] };
+  checklist?: CheckItem[];
   todo?: string;
   tone?: "warn";
 };
@@ -17,6 +19,7 @@ export type GuideSection = {
 export type Guide = { slug: string; title: string; kicker: string; intro: string; sections: GuideSection[]; source: string };
 
 export const GUIDE_LIST = [
+  { slug: "checklist", title: "Before every activity", blurb: "The 12 checks before every workshop, mobile squad or Fun Friday, and who helps." },
   { slug: "emergency", title: "Emergency procedures", blurb: "First 60 seconds, every emergency's steps, assembly points and key numbers." },
   { slug: "off-campus", title: "Off campus", blurb: "Before you leave, while you're out, and what to do if something goes wrong." },
   { slug: "workshops", title: "Workshop procedures", blurb: "Running a Session 2 workshop block, on campus or off." },
@@ -25,6 +28,18 @@ export const GUIDE_LIST = [
 ];
 
 export const GUIDES: Record<string, Guide> = {
+  checklist: {
+    slug: "checklist",
+    title: "Before every activity",
+    kicker: "Checklist",
+    intro: "Run this before every workshop, mobile squad or Fun Friday.",
+    source: "Staff morning meetings, Oct 26–30",
+    sections: [
+      { heading: "The core six", checklist: CORE_SIX },
+      { heading: "Also check", checklist: ALSO_CHECK },
+    ],
+  },
+
   "off-campus": {
     slug: "off-campus",
     title: "Off campus",
@@ -36,6 +51,7 @@ export const GUIDES: Record<string, Guide> = {
         heading: "Before you leave",
         bullets: [
           "A designated activity lead (Guide or staff) plus a second adult, minimum",
+          "Run the 12-point \"Before every activity\" checklist (waiver, vendor, off-campus app, attendance, guard, transport…)",
           "Transport (shuttle, bus, car) is requested in the Transport request tool, for Maiden Ln and Early Years",
           "The trip is on the Off-Campus board with lead, security and headcount",
           "Security clearance: every trip needs it. The trip lead can run it on the Off-Campus board, or request it from Zara",
@@ -138,8 +154,12 @@ export const GUIDES: Record<string, Guide> = {
         },
       },
       {
-        heading: "Your workshop procedures",
-        todo: "Add the steps your team agreed at the Mon 10/26 planning workshop (\"Session 2 workshops by procedure\").",
+        heading: "Before every workshop: the core six",
+        checklist: CORE_SIX,
+      },
+      {
+        heading: "Also check",
+        checklist: ALSO_CHECK,
       },
     ],
   },

@@ -6,6 +6,7 @@ import { currentCampus } from "@/lib/campus-pref";
 import { CampusSelect, Field, TextArea } from "@/components/fields";
 import { Flash } from "@/components/flash";
 import type { Workshop } from "@/lib/types";
+import { ActivityChecklist } from "@/components/activity-checklist";
 import type { Campus } from "@/lib/campus";
 import { LEVELS, LOCATIONS, MOMA_DATES, SESSION, SHOWCASES, WEEKLY, WORKSHOPS } from "@/lib/session2";
 
@@ -31,6 +32,7 @@ export default async function WorkshopsPage({ searchParams }: { searchParams: SP
         </nav>
       </div>
       <Flash msg={sp.msg} err={sp.err} />
+      {view === "session" && <ActivityChecklist />}
       {view === "session" ? <SessionView campus={campus} level={sp.level} /> : <StaffView campus={campus} editable={editable} />}
     </main>
   );

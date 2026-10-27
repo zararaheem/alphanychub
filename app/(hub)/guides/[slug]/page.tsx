@@ -59,6 +59,16 @@ function Section({ s }: { s: GuideSection }) {
       {s.steps && <ol className="sheet-steps">{s.steps.map((t) => <li key={t}>{t}</li>)}</ol>}
       {s.bullets && <ul className="sheet-list">{s.bullets.map((t) => <li key={t}>{t}</li>)}</ul>}
       {s.table && <Table head={s.table.head} rows={s.table.rows} />}
+      {s.checklist && (
+        <table className="sheet-table checklist-table">
+          <thead><tr><th scope="col" className="box-col"><span className="sr-only">Done</span></th><th scope="col">Check</th><th scope="col">Who helps</th></tr></thead>
+          <tbody>
+            {s.checklist.map((c) => (
+              <tr key={c.n}><td className="box-col"><span className="tick-box" aria-hidden="true" /></td><td>{c.n}. {c.check}</td><td className="nowrap"><b>{c.who}</b></td></tr>
+            ))}
+          </tbody>
+        </table>
+      )}
       {s.text && <p className="sheet-note">{s.text}</p>}
       {s.todo && <p className="todo-note"><b>To add</b> {s.todo}</p>}
     </section>
