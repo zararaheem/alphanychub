@@ -3,6 +3,7 @@ import { GUIDES } from "@/lib/guides";
 import { LEVELS, SESSION, SHOWCASES, WEEKLY, WORKSHOPS, MOMA_DATES, LOCATIONS } from "@/lib/session2";
 import { ATTENDANCE_URL, OFF_CAMPUS_URL, PARENT_VIEW_URL, TRANSPORT_URL } from "@/lib/links";
 import type { Contact, Procedure, StaffMember } from "@/lib/types";
+import { WHO_TO_ASK } from "@/lib/who-to-ask";
 
 // Everything the Ask assistant may answer from, as one plain-text document.
 // Parent contact details and student names are deliberately left out.
@@ -18,6 +19,8 @@ export async function buildKnowledge(): Promise<string> {
 
   const out: string[] = [];
   const campusName = (c: string) => (c === "maiden-ln" ? "Maiden Ln" : c === "early-years" ? "Early Years / William St" : "both campuses");
+
+  out.push(`# Who to ask (quick reference)\n${WHO_TO_ASK.map((r) => `- ${r.topic}: ${r.who}`).join("\n")}`);
 
   out.push("# Resource library (added by admins)");
   for (const r of (resources.data ?? []) as { title: string; category: string | null; campus: string; body: string }[]) {

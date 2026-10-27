@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { WHO_TO_ASK } from "@/lib/who-to-ask";
 
 type Turn = { role: "user" | "assistant"; content: string };
 
@@ -51,6 +52,12 @@ export function AskChat({ compact = false }: { compact?: boolean }) {
       <div className="ask-log" aria-live="polite">
         {turns.length === 0 && (
           <div className="stack-sm">
+            <details className="who-mini">
+              <summary>Who do I ask? (quick list)</summary>
+              <ul className="who-ask compact">
+                {WHO_TO_ASK.map((r) => <li key={r.topic}><span>{r.topic}</span><b>{r.who}</b></li>)}
+              </ul>
+            </details>
             <p className="muted">Try one of these, or type your own:</p>
             <div className="row" style={{ gap: 6 }}>
               {(compact ? STARTERS.slice(0, 3) : STARTERS).map((s) => (

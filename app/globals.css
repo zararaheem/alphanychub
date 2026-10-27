@@ -493,3 +493,9 @@ ul.proc-bullets.warn li::before { content: "✕"; color: var(--red); font-weight
 .checklist-table .box-col { width: 22px; }
 .tick-box { display: inline-block; width: 13px; height: 13px; border: 1.5px solid var(--ink-2); border-radius: 3px; vertical-align: middle; }
 @media print { .tick-box { border-color: #444; } }
+.who-ask { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); column-gap: 24px; }
+.who-ask li { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--hairline); font-size: 14px; color: var(--ink-2); }
+.who-ask li b { color: var(--ink); text-align: right; white-space: nowrap; }
+.who-ask.compact { grid-template-columns: 1fr; }
+.who-ask.compact li { font-size: 13px; padding: 6px 0; }
+.who-mini summary { cursor: pointer; font-weight: 700; font-size: 13.5px; color: var(--teal); padding: 4px 0; }

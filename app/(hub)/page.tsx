@@ -7,6 +7,7 @@ import { getContacts, getProcedures, getStaff, getStudents, getWorkshops } from 
 import { OFF_CAMPUS_URL } from "@/lib/links";
 import { Clock } from "@/components/clock";
 import { ExtIcon } from "@/components/external-link";
+import { WhoToAsk } from "@/components/who-to-ask";
 
 export default async function HomePage() {
   const me = await requireMember();
@@ -99,6 +100,14 @@ export default async function HomePage() {
             </span>
           </Link>
         </div>
+
+        <section className="card" aria-labelledby="who-h">
+          <div className="between" style={{ alignItems: "baseline" }}>
+            <h2 id="who-h">Who do I ask?</h2>
+            <a href="/guides/checklist" className="small">Before-every-activity checklist →</a>
+          </div>
+          <WhoToAsk />
+        </section>
 
         {!campus && (
         <section className="stack" aria-labelledby="campus-h">
