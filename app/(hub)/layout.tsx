@@ -18,6 +18,7 @@ export default async function HubLayout({ children }: { children: React.ReactNod
     { href: "/emergency", label: "Emergency" },
     { href: "/workshops", label: "Workshops" },
     { href: "/guides", label: "One-pagers" },
+    { href: "/ask", label: "Ask" },
     { href: "/staff", label: "Staff" },
     { href: "/students", label: "Students" },
     // Campus pages are covered by the toggle; Early Years keeps its program tools.

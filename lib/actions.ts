@@ -198,3 +198,24 @@ export async function importStaff(form: FormData) {
   const res = await supabase.from("staff_directory").insert(rows);
   back("/staff", res, `Imported ${rows.length} staff.`);
 }
+
+// Resource library for the Ask assistant (Admins and Campus Coordinators) -----
+export async function saveResource(form: FormData) {
+  await requireRole(STAFF_MANAGERS);
+  const supabase = await createClient();
+  const id = num(form, "id");
+  const body = str(form, "body") ?? "";
+  if (body.length > 100_000) back("/resources", { error: { message: "That's too long for one resource (100,000 characters max). Split it up." } }, "");
+  const row = { title: str(form, "title") ?? "Untitled", category: str(form, "category"), campus: scope(form), body, updated_at: new Date().toISOString() };
+  const res = id
+    ? await supabase.from("hub_resources").update(row).eq("id", id)
+    : await supabase.from("hub_resources").insert(row);
+  back("/resources", res, id ? "Resource updated." : "Resource added.");
+}
+
+export async function deleteResource(form: FormData) {
+  await requireRole(STAFF_MANAGERS);
+  const supabase = await createClient();
+  const res = await supabase.from("hub_resources").delete().eq("id", num(form, "id") ?? -1);
+  back("/resources", res, "Resource removed.");
+}
