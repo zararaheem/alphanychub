@@ -44,7 +44,7 @@ export function StaffList({ rows }: { rows: StaffMember[] }) {
                   <span className="avatar" aria-hidden="true">{initials(s.name)}</span>
                   <div className="who">
                     <strong>{s.name}</strong>
-                    {(s.title || s.team) && <span className="role">{[s.title, s.team].filter(Boolean).join(" · ")}</span>}
+                    {(s.title || shownTeam(s.team)) && <span className="role">{[s.title, shownTeam(s.team)].filter(Boolean).join(" · ")}</span>}
                     {s.notes && <span className="note">{s.notes}</span>}
                     <span className="staff-links">
                       {s.phone && <a href={tel(s.phone)}>{s.phone}</a>}
@@ -63,3 +63,6 @@ export function StaffList({ rows }: { rows: StaffMember[] }) {
 
 const initials = (name: string) =>
   name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]!.toUpperCase()).join("");
+
+// "Alpha" is everyone's company in the source sheet, so it adds nothing on a card.
+const shownTeam = (team: string | null) => (team && team !== "Alpha" ? team : null);
