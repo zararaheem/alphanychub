@@ -5,11 +5,14 @@ import { HubNav } from "@/components/hub-nav";
 import { Brand } from "@/components/brand";
 import { OFF_CAMPUS_URL, ATTENDANCE_URL } from "@/lib/links";
 import { currentCampus } from "@/lib/campus-pref";
+import { currentTheme } from "@/lib/theme";
+import { ThemeSwitch } from "@/components/theme-switch";
 
 // Every page in this group requires a signed-in user who is on the access list.
 export default async function HubLayout({ children }: { children: React.ReactNode }) {
   const me = await requireMember();
   const campus = await currentCampus();
+  const theme = await currentTheme();
   const tabs = [
     { href: "/", label: "Home" },
     { href: "/emergency", label: "Emergency" },
@@ -36,6 +39,7 @@ export default async function HubLayout({ children }: { children: React.ReactNod
             <span>
               {me.name ?? me.email} · {ROLE_LABELS[me.role]}
             </span>
+            <ThemeSwitch theme={theme} />
             <SignOut />
           </div>
         </div>
