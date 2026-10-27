@@ -20,6 +20,7 @@ export const GUIDE_LIST = [
   { slug: "emergency", title: "Emergency procedures", blurb: "First 60 seconds, every emergency's steps, assembly points and key numbers." },
   { slug: "off-campus", title: "Off campus", blurb: "Before you leave, while you're out, and what to do if something goes wrong." },
   { slug: "workshops", title: "Workshop procedures", blurb: "Running a Session 2 workshop block, on campus or off." },
+  { slug: "security", title: "Security", blurb: "Security requests go through Zara; doors, access cards, visitors and lockdown." },
   { slug: "vendors", title: "Vendors & visitors", blurb: "Approvals for money and contracts, access cards, check-in, escorts and deliveries." },
 ];
 
@@ -138,6 +139,54 @@ export const GUIDES: Record<string, Guide> = {
       {
         heading: "Your workshop procedures",
         todo: "Add the steps your team agreed at the Mon 10/26 planning workshop (\"Session 2 workshops by procedure\").",
+      },
+    ],
+  },
+
+  security: {
+    slug: "security",
+    title: "Security",
+    kicker: "One-pager",
+    intro: "Security protocols for the 6th floor at both campuses.",
+    source: "EAP §6 Door Security & Access Control, §6.6 Lockdown Door Security, §8 · Emergency team",
+    sections: [
+      {
+        heading: "All security requests go through Zara",
+        tone: "warn",
+        bullets: [
+          "Access cards, door access and vendor cards",
+          "Guard coverage, schedules and event security",
+          "Visitor exceptions and anything outside normal check-in",
+          "Security incidents, concerns and follow-ups",
+          "Zara Raheem, Emergency Coordinator, coordinates with the Lead Guards (Derek Ghee, Maiden Ln; Sugy Castillo, Early Years) and building security",
+        ],
+      },
+      {
+        heading: "Doors and access",
+        bullets: [
+          "Main entry doors to the 6th floor stay closed and secured",
+          "Verify identity through the door viewer or intercom before opening",
+          "No unexpected visitors until identity and purpose are clear",
+          "Vendors get digital access cards with entry/exit notifications; deactivate the day the relationship ends",
+        ],
+      },
+      {
+        heading: "Visitors",
+        steps: [
+          "Pre-register the visit.",
+          "Meet the guest in the lobby; no one rides to the 6th floor alone.",
+          "Issue a visitor badge at check-in and collect it at departure.",
+          "Escort the visitor at all times.",
+          "Report any suspicious visitor or refused entry to Zara immediately.",
+        ],
+      },
+      {
+        heading: "Lockdown doors ('Tiger, Tiger')",
+        bullets: [
+          "Guards lock all exterior 6th floor entry points and hold position",
+          "Guides lock interior doors from inside; if a door won't lock, barricade it with heavy furniture",
+          "Don't open the door for anyone, whatever identity they claim, without law enforcement direction",
+        ],
       },
     ],
   },

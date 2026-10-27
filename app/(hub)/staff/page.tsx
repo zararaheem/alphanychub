@@ -62,23 +62,27 @@ export default async function StaffPage({ searchParams }: { searchParams: SP }) 
 
       {editing ? (
         <section className="card stack">
-          <p className="small muted">Pick where each person works and choose Move. Both campuses counts them at Maiden Ln and Early Years.</p>
+          <p className="small muted">For each person, set their title, phone and campus, then choose Save. Both campuses counts them at Maiden Ln and Early Years.</p>
           <StaffEditor />
           <ul className="contact-list">
             {everyone.map((s) => (
               <li key={s.id} className="contact">
                 <div className="who">
                   <strong>{s.name}</strong>
-                  {(s.title || s.team) && <span className="role">{[s.title, s.team].filter(Boolean).join(" · ")}</span>}
+                  {s.team && <span className="role">{s.team}</span>}
                   <StaffEditor member={s} />
                 </div>
                 <form action={moveStaff} className="move-form">
                   <input type="hidden" name="id" value={s.id} />
+                  <label className="sr-only" htmlFor={`ti-${s.id}`}>Title for {s.name}</label>
+                  <input id={`ti-${s.id}`} name="title" className="input" defaultValue={s.title ?? ""} placeholder="Title" />
+                  <label className="sr-only" htmlFor={`ph-${s.id}`}>Phone for {s.name}</label>
+                  <input id={`ph-${s.id}`} name="phone" type="tel" className="input" defaultValue={s.phone ?? ""} placeholder="Phone" />
                   <label className="sr-only" htmlFor={`mv-${s.id}`}>Campus for {s.name}</label>
                   <select id={`mv-${s.id}`} name="campus" className="input" defaultValue={s.campus}>
                     {PLACES.map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
                   </select>
-                  <button type="submit" className="btn sm secondary">Move</button>
+                  <button type="submit" className="btn sm secondary">Save</button>
                 </form>
               </li>
             ))}

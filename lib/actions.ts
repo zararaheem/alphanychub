@@ -171,9 +171,12 @@ export async function saveStaff(form: FormData) {
 export async function moveStaff(form: FormData) {
   await requireRole(STAFF_MANAGERS);
   const supabase = await createClient();
-  const res = await supabase.from("staff_directory")
-    .update({ campus: staffCampus(form), updated_at: new Date().toISOString() }).eq("id", num(form, "id") ?? -1);
-  back("/staff?edit=1", res, "Moved.");
+  // Quick row edit: campus, plus title and phone when those boxes are on the form.
+  const row: Record<string, string | null> = { campus: staffCampus(form), updated_at: new Date().toISOString() };
+  if (form.has("title")) row.title = str(form, "title");
+  if (form.has("phone")) row.phone = str(form, "phone");
+  const res = await supabase.from("staff_directory").update(row).eq("id", num(form, "id") ?? -1);
+  back("/staff?edit=1", res, "Saved.");
 }
 
 export async function deleteStaff(form: FormData) {

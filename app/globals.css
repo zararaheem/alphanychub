@@ -451,7 +451,8 @@ ul.proc-bullets.warn li::before { content: "✕"; color: var(--red); font-weight
   .sheet-progress b { color: #7a5200; }
   .sheet-foot { border-color: #ddd; color: #777; font-size: 8.5px; padding-top: 6px; }
 }
-.move-form { display: flex; gap: 6px; align-items: center; }
+.move-form { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; flex: 2 1 460px; justify-content: flex-end; }
+.move-form input.input { width: 170px; min-height: 34px; font-size: 13px; padding: 0 8px; }
 .move-form .input { min-height: 34px; padding: 0 8px; font-size: 13px; width: auto; }
 .bulk-email { display: inline-flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .level-grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); align-items: start; }
