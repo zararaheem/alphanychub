@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import type { Campus } from "@/lib/campus";
-import type { Contact, ParentContact, Procedure, StaffMember, Workshop } from "@/lib/types";
+import type { Contact, ParentContact, Procedure, StaffMember, Student, Workshop } from "@/lib/types";
 
 // campus=null → everything; otherwise that campus plus rows marked "all".
 const scopes = (c: Campus | null) => (c ? [c, "all"] : ["maiden-ln", "early-years", "all"]);
@@ -41,4 +41,12 @@ export async function getStaff(campus: Campus | null) {
   const { data } = await supabase.from("staff_directory").select("*").in("campus", campus ? scopes(campus) : [...scopes(null), "unassigned"])
     .order("sort").order("name");
   return (data ?? []) as StaffMember[];
+}
+
+export async function getStudents(campus: Campus | null) {
+  const supabase = await createClient();
+  let q = supabase.from("students").select("id, first_name, last_name, grade, level, campus").order("last_name").order("first_name");
+  if (campus) q = q.eq("campus", campus);
+  const { data } = await q;
+  return (data ?? []) as Student[];
 }

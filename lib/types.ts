@@ -24,3 +24,8 @@ export type StaffMember = {
   id: number; campus: StaffCampus; name: string; title: string | null; team: string | null;
   email: string | null; phone: string | null; notes: string | null; sort: number;
 };
+
+export type Student = {
+  id: number; first_name: string; last_name: string; grade: string | null; level: string | null;
+  campus: "early-years" | "maiden-ln";
+};

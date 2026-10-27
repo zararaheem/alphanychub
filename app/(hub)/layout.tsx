@@ -19,6 +19,7 @@ export default async function HubLayout({ children }: { children: React.ReactNod
     { href: "/workshops", label: "Workshops" },
     { href: "/guides", label: "One-pagers" },
     { href: "/staff", label: "Staff" },
+    { href: "/students", label: "Students" },
     // Campus pages are covered by the toggle; Early Years keeps its program tools.
     ...(campus !== "maiden-ln" ? [{ href: "/early-years", label: "Early Years tools" }] : []),
     ...(isAdmin(me.role) ? [{ href: "/access", label: "Access" }] : []),

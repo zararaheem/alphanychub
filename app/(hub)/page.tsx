@@ -3,7 +3,7 @@ import { requireMember } from "@/lib/access";
 import { CAMPUSES, clock, shortDay, todayNY } from "@/lib/campus";
 import { currentCampus } from "@/lib/campus-pref";
 import { LEVELS, SESSION, WORKSHOPS } from "@/lib/session2";
-import { getContacts, getProcedures, getStaff, getWorkshops } from "@/lib/data";
+import { getContacts, getProcedures, getStaff, getStudents, getWorkshops } from "@/lib/data";
 import { OFF_CAMPUS_URL } from "@/lib/links";
 import { Clock } from "@/components/clock";
 import { ExtIcon } from "@/components/external-link";
@@ -13,8 +13,8 @@ export default async function HomePage() {
   const today = todayNY();
   const campus = await currentCampus();
   const here = campus ? CAMPUSES.find((c) => c.id === campus)! : null;
-  const [contacts, procedures, workshops, staff] = await Promise.all([
-    getContacts(campus), getProcedures(campus), getWorkshops(campus, { from: today }), getStaff(campus),
+  const [contacts, procedures, workshops, staff, students] = await Promise.all([
+    getContacts(campus), getProcedures(campus), getWorkshops(campus, { from: today }), getStaff(campus), getStudents(campus),
   ]);
   const onSite = staff.filter((s) => s.campus !== "unassigned");
   const next = workshops[0];
@@ -39,9 +39,9 @@ export default async function HomePage() {
       <main className="page">
         <div className="kpis">
           <div className="kpi">
-            <span className="label-caps">Students on campus today</span>
-            <b style={{ color: "var(--muted)" }}>--</b>
-            <span className="note">Coming soon, from the Attendance app</span>
+            <span className="label-caps">Students enrolled</span>
+            <b>{students.length || "--"}</b>
+            <span className="note">{here ? here.name : "Both campuses"} · today&apos;s count from Attendance coming soon</span>
           </div>
           <div className="kpi">
             <span className="label-caps">Next staff workshop</span>
