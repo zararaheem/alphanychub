@@ -7,8 +7,8 @@ import { BulkEmail } from "@/components/bulk-email";
 const GROUPS = [
   { campus: "unassigned", title: "Not assigned to a campus yet" },
   { campus: "all", title: "Both campuses" },
-  { campus: "maiden-ln", title: "Maiden Ln" },
-  { campus: "early-years", title: "Early Years · William St" },
+  { campus: "maiden-ln", title: "Maiden Ln · full time on site" },
+  { campus: "early-years", title: "Early Years · William St · full time on site" },
 ] as const;
 
 const tel = (p: string) => `tel:${p.replace(/[^\d+]/g, "")}`;
@@ -77,13 +77,14 @@ const initials = (name: string) =>
 const shownTeam = (team: string | null) => (team && team !== "Alpha" ? team : null);
 
 // Headings on the Staff page, in this order.
-const ROLE_GROUPS = ["Leadership", "Guides", "Alpha High", "Security", "Admissions & operations", "Other staff"] as const;
+const ROLE_GROUPS = ["Leadership", "Guides", "Alpha High", "Campus & facilities", "Security", "Admissions & operations", "Other staff"] as const;
 function roleGroup(s: StaffMember): (typeof ROLE_GROUPS)[number] {
   const t = `${s.title ?? ""}`.toLowerCase();
   if (s.team === "Security" || /guard|security/.test(t)) return "Security";
   if (s.team === "Alpha High" || /alpha high/.test(t)) return "Alpha High";
   if (/guide|specialist|teacher/.test(t)) return "Guides";
-  if (/head|director|coordinator|dean|coo|vp|chief|officer/.test(t)) return "Leadership";
+  if (/coordinator|facilit/.test(t)) return "Campus & facilities";
+  if (/head|director|dean|coo|vp|chief|officer/.test(t)) return "Leadership";
   if (/admission|operations|ops|porter|support/.test(t) || s.team === "Support") return "Admissions & operations";
   return "Other staff";
 }
