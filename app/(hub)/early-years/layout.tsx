@@ -1,5 +1,6 @@
 import { canSeeLead, requireMember } from "@/lib/access";
 import { EarlyYearsNav } from "@/components/early-years/nav";
+import { PARENT_VIEW_URL } from "@/lib/links";
 
 export default async function EarlyYearsLayout({ children }: { children: React.ReactNode }) {
   const me = await requireMember();
@@ -11,7 +12,7 @@ export default async function EarlyYearsLayout({ children }: { children: React.R
   return (
     <>
       <div className="wrap" style={{ paddingTop: 16 }}>
-        <EarlyYearsNav items={items} />
+        <EarlyYearsNav items={items} external={[{ href: PARENT_VIEW_URL, label: "Parent view" }]} />
       </div>
       {children}
     </>
