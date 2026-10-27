@@ -59,7 +59,7 @@ export const GUIDES: Record<string, Guide> = {
           "Call 911 first if there is immediate danger.",
           "Account for every student using the roster.",
           "Notify the Coordinator by radio or phone as soon as it is safe.",
-          "Coordinator notifies parents via ParentSquare.",
+          "Terrence McMullen (Dean of Parents) notifies parents via ParentSquare.",
           "Don't return to campus until the Coordinator confirms it is safe.",
         ],
         tone: "warn",
@@ -160,7 +160,7 @@ export const GUIDES: Record<string, Guide> = {
           "Security clearance for off-campus trips (or the trip lead runs it on the Off-Campus board)",
           "Visitor exceptions and anything outside normal check-in",
           "Security incidents, concerns and follow-ups",
-          "Zara Raheem, Emergency Coordinator, coordinates with the Lead Guards (Derek Ghee, Maiden Ln; Sugy Castillo, Early Years) and building security",
+          "Zara Raheem, Emergency Coordinator, coordinates with the Lead Guards (Derek Ghee, Maiden Ln; Sugey Castillo, Early Years / William St) and building security",
         ],
       },
       {
