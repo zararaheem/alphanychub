@@ -1,15 +1,19 @@
-import { WHO_TO_ASK } from "@/lib/who-to-ask";
+import { EMERGENCY_NOW, WHO_BY_PERSON } from "@/lib/who-to-ask";
 
+// Grouped by person: who they are, then what to bring them.
 export function WhoToAsk({ compact = false }: { compact?: boolean }) {
-  const rows = compact ? WHO_TO_ASK.slice(0, 8) : WHO_TO_ASK;
   return (
-    <ul className={`who-ask${compact ? " compact" : ""}`}>
-      {rows.map((r) => (
-        <li key={r.topic}>
-          <span>{r.topic}</span>
-          <b>{r.who}</b>
-        </li>
+    <div className={`who-grid${compact ? " compact" : ""}`}>
+      {WHO_BY_PERSON.map((p) => (
+        <section key={p.who} className="who-card" aria-label={`${p.who}, ${p.role}`}>
+          <header>
+            <b>{p.who}</b>
+            <span>{p.role}</span>
+          </header>
+          <ul>{p.topics.map((t) => <li key={t}>{t}</li>)}</ul>
+        </section>
       ))}
-    </ul>
+      <p className="who-emergency"><b>Emergency now?</b> {EMERGENCY_NOW.replace(/^Emergency happening now: /, "")}</p>
+    </div>
   );
 }

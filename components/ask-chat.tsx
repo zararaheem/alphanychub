@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { WHO_TO_ASK } from "@/lib/who-to-ask";
+import { WhoToAsk } from "@/components/who-to-ask";
 
 type Hit = { title: string; where: string; href?: string; external?: boolean; lines: string[] };
 type Turn = { q: string; results: Hit[] };
@@ -55,9 +55,7 @@ export function AskChat({ compact = false }: { compact?: boolean }) {
           <div className="stack-sm">
             <details className="who-mini">
               <summary>Who do I ask? (quick list)</summary>
-              <ul className="who-ask compact">
-                {WHO_TO_ASK.map((r) => <li key={r.topic}><span>{r.topic}</span><b>{r.who}</b></li>)}
-              </ul>
+              <WhoToAsk compact />
             </details>
             <p className="muted">Search the hub. Try one of these, or type a few words:</p>
             <div className="row" style={{ gap: 6 }}>

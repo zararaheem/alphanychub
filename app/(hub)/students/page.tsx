@@ -4,7 +4,7 @@ import { currentCampus } from "@/lib/campus-pref";
 import { getStudents } from "@/lib/data";
 import { PROGRAM_LEVELS } from "@/lib/levels";
 import { StudentList } from "@/components/student-list";
-import { MEDICATIONS_URL } from "@/lib/links";
+import Link from "next/link";
 
 export default async function StudentsPage() {
   await requireMember();
@@ -18,7 +18,7 @@ export default async function StudentsPage() {
       <div className="stack-sm">
         <h1>Students</h1>
         <p className="lede">Enrolled students{campus ? ` · ${CAMPUS_LABEL[campus]}` : " at both campuses"}, by level.</p>
-        <a href={MEDICATIONS_URL} target="_blank" rel="noopener noreferrer" className="btn ghost sm" style={{ alignSelf: "flex-start" }}>Student medications ↗</a>
+        <Link href="/health" className="btn ghost sm" style={{ alignSelf: "flex-start" }}>Health &amp; safety: student medications</Link>
       </div>
 
       <div className="kpis">

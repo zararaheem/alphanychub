@@ -127,11 +127,12 @@ async function entries(): Promise<Entry[]> {
     ["Off-campus tracker", OFF_CAMPUS_URL, "Plan and clear trips, security clearance, who's out, check students out and back in.", "trip off-campus clearance board"],
     ["Attendance", ATTENDANCE_URL, "Take and check attendance.", "attendance roster headcount absent"],
     ["Transport request", TRANSPORT_URL, "Request shuttles and buses for Maiden Ln and Early Years.", "transport transportation bus shuttle car"],
-    ["Medications", MEDICATIONS_URL, "Which students take medication, when it's due, and the log.", "medication medicine meds sick nurse allergy"],
+    ["Student medications", MEDICATIONS_URL, "Which students take medication, the dose, when it's due and where it's stored.", "medication medicine meds sick nurse allergy dose"],
     ["Parent view (Families app)", PARENT_VIEW_URL, "What families see.", "parent family families app"],
   ];
   for (const [title, href, line, keywords] of tools) if (href) out.push({ title, where: "Tool", href, external: true, lines: [line], keywords });
 
+  out.push({ title: "Health & safety", where: "Hub page", href: "/health", lines: ["Student medications, medical emergency steps, first aid and what to carry on trips."], keywords: "health medical medication medicine meds first aid sick nurse allergy injury" });
   return out;
 }
 
@@ -139,28 +140,35 @@ export async function search(q: string, limit = 6): Promise<SearchHit[]> {
   const ts = terms(q);
   if (!ts.length) return [];
   const phrase = q.toLowerCase().trim();
-  const scored = (await entries()).map((e) => {
-    const title = e.title.toLowerCase();
-    const body = e.lines.join("\n").toLowerCase();
-    const extra = `${e.where} ${e.keywords ?? ""}`.toLowerCase();
+  const all = (await entries()).map((e) => ({ e, title: e.title.toLowerCase(), body: `${e.lines.join("\n")} ${e.where} ${e.keywords ?? ""}`.toLowerCase() }));
+  // Rare words count more than common ones ("student" is everywhere; "missing" isn't).
+  const weight = new Map(ts.map((t) => {
+    const df = all.filter((x) => x.title.includes(t) || x.body.includes(t)).length;
+    return [t, Math.log((all.length + 1) / (df + 1)) + 0.1];
+  }));
+  const total = ts.reduce((n, t) => n + weight.get(t)!, 0);
+  const scored = all.map(({ e, title, body }) => {
     let score = 0;
-    let matched = 0;
+    let covered = 0;
     for (const t of ts) {
+      const w = weight.get(t)!;
       const inTitle = title.includes(t);
-      const inBody = body.includes(t) || extra.includes(t);
-      if (inTitle) score += 4;
-      if (inBody) score += 1 + Math.min(2, body.split(t).length - 2) * 0.25;
-      if (inTitle || inBody) matched++;
+      const inBody = body.includes(t);
+      if (inTitle) score += 3 * w;
+      if (inBody) score += w;
+      if (inTitle || inBody) covered += w;
     }
-    if (title.includes(phrase) || body.includes(phrase)) score += 5;
-    score *= matched / ts.length + 0.5; // reward matching more of the question
+    if (phrase.length > 3 && (title.includes(phrase) || body.includes(phrase))) score += 4;
+    score *= 0.4 + covered / total; // reward covering the important words
     const hitLines = e.lines.filter((l) => ts.some((t) => l.toLowerCase().includes(t)));
     const lines = (hitLines.length ? hitLines : e.lines).slice(0, 4);
     return { e: { ...e, lines }, score };
   });
-  return scored
-    .filter((s) => s.score > 0)
-    .sort((a, b) => b.score - a.score)
+  const ranked = scored.filter((s) => s.score > 0).sort((a, b) => b.score - a.score);
+  const best = ranked[0]?.score ?? 0;
+  // Drop weak tail matches so the list stays relevant.
+  return ranked
+    .filter((s) => s.score >= best * 0.25)
     .slice(0, limit)
     .map(({ e }) => ({ title: e.title, where: e.where, href: e.href, external: e.external, lines: e.lines }));
 }

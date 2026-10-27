@@ -179,6 +179,27 @@ export async function moveStaff(form: FormData) {
   back("/staff?edit=1", res, "Saved.");
 }
 
+// "Save all changes" on the Staff page: every row's title, phone and campus in
+// one submit. Only rows that actually changed are written.
+export async function saveAllStaff(form: FormData) {
+  await requireRole(STAFF_MANAGERS);
+  const supabase = await createClient();
+  const { data: current, error } = await supabase.from("staff_directory").select("id, title, phone, campus");
+  if (error) back("/staff?edit=1", { error }, "");
+  const place = (v: FormDataEntryValue | null) => (v === "maiden-ln" || v === "early-years" || v === "all" ? v : "unassigned");
+  const clean = (v: FormDataEntryValue | null) => (typeof v === "string" && v.trim() ? v.trim() : null);
+  let changed = 0;
+  for (const row of current ?? []) {
+    if (!form.has(`campus-${row.id}`)) continue;
+    const next = { title: clean(form.get(`title-${row.id}`)), phone: clean(form.get(`phone-${row.id}`)), campus: place(form.get(`campus-${row.id}`)) };
+    if (next.title === row.title && next.phone === row.phone && next.campus === row.campus) continue;
+    const res = await supabase.from("staff_directory").update({ ...next, updated_at: new Date().toISOString() }).eq("id", row.id);
+    if (res.error) back("/staff?edit=1", res, "");
+    changed++;
+  }
+  back("/staff?edit=1", { error: null }, changed ? `Saved ${changed} ${changed === 1 ? "person" : "people"}.` : "No changes to save.");
+}
+
 export async function deleteStaff(form: FormData) {
   await requireRole(STAFF_MANAGERS);
   const supabase = await createClient();

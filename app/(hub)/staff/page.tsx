@@ -2,7 +2,7 @@ import { canManageStaff, requireMember } from "@/lib/access";
 import { CAMPUS_LABEL } from "@/lib/campus";
 import { currentCampus } from "@/lib/campus-pref";
 import { getStaff } from "@/lib/data";
-import { deleteStaff, importStaff, moveStaff, saveStaff } from "@/lib/actions";
+import { deleteStaff, importStaff, saveAllStaff, saveStaff } from "@/lib/actions";
 import { StaffList } from "@/components/staff-list";
 import { Field, TextArea } from "@/components/fields";
 import { Flash } from "@/components/flash";
@@ -62,7 +62,10 @@ export default async function StaffPage({ searchParams }: { searchParams: SP }) 
 
       {editing ? (
         <section className="card stack">
-          <p className="small muted">For each person, set their title, phone and campus, then choose Save. Both campuses counts them at Maiden Ln and Early Years.</p>
+          <form id="staff-bulk" action={saveAllStaff} className="bulk-save">
+            <p className="small muted">Change any titles, phones or campuses below, then choose <b>Save all changes</b> once. Both campuses counts them at Maiden Ln and Early Years.</p>
+            <button type="submit" className="btn">Save all changes</button>
+          </form>
           <StaffEditor />
           <ul className="contact-list">
             {everyone.map((s) => (
@@ -72,21 +75,20 @@ export default async function StaffPage({ searchParams }: { searchParams: SP }) 
                   {s.team && <span className="role">{s.team}</span>}
                   <StaffEditor member={s} />
                 </div>
-                <form action={moveStaff} className="move-form">
-                  <input type="hidden" name="id" value={s.id} />
+                <div className="move-form">
                   <label className="sr-only" htmlFor={`ti-${s.id}`}>Title for {s.name}</label>
-                  <input id={`ti-${s.id}`} name="title" className="input" defaultValue={s.title ?? ""} placeholder="Title" />
+                  <input id={`ti-${s.id}`} form="staff-bulk" name={`title-${s.id}`} className="input" defaultValue={s.title ?? ""} placeholder="Title" />
                   <label className="sr-only" htmlFor={`ph-${s.id}`}>Phone for {s.name}</label>
-                  <input id={`ph-${s.id}`} name="phone" type="tel" className="input" defaultValue={s.phone ?? ""} placeholder="Phone" />
+                  <input id={`ph-${s.id}`} form="staff-bulk" name={`phone-${s.id}`} type="tel" className="input" defaultValue={s.phone ?? ""} placeholder="Phone" />
                   <label className="sr-only" htmlFor={`mv-${s.id}`}>Campus for {s.name}</label>
-                  <select id={`mv-${s.id}`} name="campus" className="input" defaultValue={s.campus}>
+                  <select id={`mv-${s.id}`} form="staff-bulk" name={`campus-${s.id}`} className="input" defaultValue={s.campus}>
                     {PLACES.map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
                   </select>
-                  <button type="submit" className="btn sm secondary">Save</button>
-                </form>
+                </div>
               </li>
             ))}
           </ul>
+          <button type="submit" form="staff-bulk" className="btn" style={{ alignSelf: "flex-start" }}>Save all changes</button>
           <details className="editor">
             <summary>Replace the whole list from a Google Sheet</summary>
             <form action={importStaff} className="stack" style={{ paddingBottom: 12 }}>
