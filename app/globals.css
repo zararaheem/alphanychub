@@ -499,3 +499,4 @@ ul.proc-bullets.warn li::before { content: "✕"; color: var(--red); font-weight
 .who-ask.compact { grid-template-columns: 1fr; }
 .who-ask.compact li { font-size: 13px; padding: 6px 0; }
 .who-mini summary { cursor: pointer; font-weight: 700; font-size: 13.5px; color: var(--teal); padding: 4px 0; }
+.role-head { font-size: 13px; font-weight: 700; color: var(--ink-2); margin-top: 6px; }

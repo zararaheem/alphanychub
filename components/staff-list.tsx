@@ -38,8 +38,14 @@ export function StaffList({ rows }: { rows: StaffMember[] }) {
         return (
           <section key={g.campus} className="stack-sm" aria-label={g.title}>
             {groups.length > 1 && <h3 className="label-caps">{g.title} · {list.length}</h3>}
+            {ROLE_GROUPS.map((rg) => {
+              const people = list.filter((s) => roleGroup(s) === rg);
+              if (!people.length) return null;
+              return (
+                <div key={rg} className="stack-sm" style={{ gap: 8 }}>
+                  <h4 className="role-head">{rg} <span className="muted">· {people.length}</span></h4>
             <ul className="staff-grid">
-              {list.map((s) => (
+              {people.map((s) => (
                 <li key={s.id} className="staff-card">
                   <span className="avatar" aria-hidden="true">{initials(s.name)}</span>
                   <div className="who">
@@ -54,6 +60,9 @@ export function StaffList({ rows }: { rows: StaffMember[] }) {
                 </li>
               ))}
             </ul>
+                </div>
+              );
+            })}
           </section>
         );
       })}
@@ -66,3 +75,15 @@ const initials = (name: string) =>
 
 // "Alpha" is everyone's company in the source sheet, so it adds nothing on a card.
 const shownTeam = (team: string | null) => (team && team !== "Alpha" ? team : null);
+
+// Headings on the Staff page, in this order.
+const ROLE_GROUPS = ["Leadership", "Guides", "Alpha High", "Security", "Admissions & operations", "Other staff"] as const;
+function roleGroup(s: StaffMember): (typeof ROLE_GROUPS)[number] {
+  const t = `${s.title ?? ""}`.toLowerCase();
+  if (s.team === "Security" || /guard|security/.test(t)) return "Security";
+  if (s.team === "Alpha High" || /alpha high/.test(t)) return "Alpha High";
+  if (/guide|specialist|teacher/.test(t)) return "Guides";
+  if (/head|director|coordinator|dean|coo|vp|chief|officer/.test(t)) return "Leadership";
+  if (/admission|operations|ops|porter|support/.test(t) || s.team === "Support") return "Admissions & operations";
+  return "Other staff";
+}
