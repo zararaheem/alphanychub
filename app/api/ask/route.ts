@@ -68,6 +68,9 @@ export async function POST(request: Request) {
     }
     if (error instanceof Anthropic.APIError) {
       console.error("ask: Claude API error", error.status, error.message);
+      if (/credit balance/i.test(error.message)) {
+        return NextResponse.json({ error: "The assistant is out of API credits. An admin needs to top up the Anthropic account (Plans & Billing)." }, { status: 503 });
+      }
       return NextResponse.json({ error: `The assistant couldn't answer (error ${error.status}). Try again.` }, { status: 502 });
     }
     throw error;

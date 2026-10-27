@@ -491,6 +491,23 @@ ul.proc-bullets.warn li::before { content: "✕"; color: var(--red); font-weight
 .check-list input { width: 18px; height: 18px; accent-color: var(--teal); flex: none; }
 .check-list .done { color: var(--muted); text-decoration: line-through; }
 .checklist-table .box-col { width: 22px; }
+.check-q { display: block; }
+.check-how { display: block; color: var(--muted); font-size: 12.5px; line-height: 1.35; margin-top: 2px; font-weight: 400; }
+.check-link { font-size: 12.5px; font-weight: 600; color: var(--teal); white-space: nowrap; }
+.check-text { display: flex; flex-direction: column; }
+.check-list label { align-items: flex-start; }
+.check-list input { margin-top: 2px; }
+.check-list li { align-items: flex-start; }
+.check-list li > .check-link { margin-left: auto; }
+.sheet-links { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 14px; font-size: 13px; color: var(--muted); }
+.sheet-link { display: inline-flex; padding: 5px 12px; border-radius: 999px; border: 1px solid var(--hairline); background: var(--surface); color: var(--ink); font-weight: 600; text-decoration: none; }
+.sheet-link:hover { background: var(--hover-tint); }
+@media print {
+  .check-how { color: #555; font-size: 9.5px; }
+  .check-link { color: #0a6fa8; font-size: 9.5px; }
+  .sheet-links { margin-top: 6px; font-size: 9.5px; }
+  .sheet-link { padding: 1px 8px; border-color: #bbb; color: #0b0b3b; background: none; }
+}
 .tick-box { display: inline-block; width: 13px; height: 13px; border: 1.5px solid var(--ink-2); border-radius: 3px; vertical-align: middle; }
 @media print { .tick-box { border-color: #444; } }
 .who-ask { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); column-gap: 24px; }

@@ -40,7 +40,7 @@ export async function buildKnowledge(): Promise<string> {
     out.push(`## ${g.title}\n${g.intro}`);
     for (const s of g.sections) {
       const lines = [...(s.steps ?? []).map((t, i) => `${i + 1}. ${t}`), ...(s.bullets ?? []).map((t) => `- ${t}`)];
-      if (s.checklist) lines.push(...s.checklist.map((c) => `${c.n}. ${c.check} (who helps: ${c.who})`));
+      if (s.checklist) lines.push(...s.checklist.map((c) => `${c.n}. ${c.check} (who helps: ${c.who})${c.how ? ` ${c.how}` : ""}${c.link ? ` Link: ${c.link.label} ${c.link.href}` : ""}`));
       if (s.table) lines.push(`${s.table.head.join(" | ")}`, ...s.table.rows.map((r) => r.join(" | ")));
       if (s.text) lines.push(s.text);
       if (s.todo) lines.push(`(Not written yet: ${s.todo})`);

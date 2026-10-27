@@ -1,22 +1,30 @@
 // Run before every workshop, mobile squad or Fun Friday (staff morning meetings, Oct 26–30).
-export type CheckItem = { n: number; check: string; who: string };
+import { ATTENDANCE_URL, OFF_CAMPUS_URL, TRANSPORT_URL } from "@/lib/links";
+
+export type CheckLink = { label: string; href: string };
+export type CheckItem = { n: number; check: string; who: string; how?: string; link?: CheckLink | null };
+
+const offCampus = { label: "Off-campus tracker", href: OFF_CAMPUS_URL };
+const attendance = ATTENDANCE_URL ? { label: "Attendance", href: ATTENDANCE_URL } : null;
+const transport = { label: "Transport request", href: TRANSPORT_URL };
 
 export const CORE_SIX: CheckItem[] = [
-  { n: 1, check: "Waiver needed?", who: "Zara" },
-  { n: 2, check: "Vendor contract?", who: "Zara + Legal" },
-  { n: 3, check: "On the off-campus app?", who: "Emily" },
-  { n: 4, check: "Off-campus attendance?", who: "Julianne" },
-  { n: 5, check: "Guard needed?", who: "Zara" },
-  { n: 6, check: "Transportation needed / booked?", who: "Julianne" },
+  { n: 1, check: "Waiver needed?", who: "Zara", how: "Anything physical or run by an outside provider. Ask before you book." },
+  { n: 2, check: "Vendor contract?", who: "Zara + Legal", how: "Costs money or needs a signature? Don't sign or pay until you get the go-ahead." },
+  { n: 3, check: "On the off-campus app?", who: "Emily", how: "Log the trip: lead, students, leave and return times.", link: offCampus },
+  { n: 4, check: "Off-campus attendance?", who: "Julianne", how: "Mark students out when you leave and back in when you return.", link: attendance },
+  { n: 5, check: "Guard needed?", who: "Zara", how: "Every trip needs security clearance. Run it on the tracker or ask Zara.", link: offCampus },
+  { n: 6, check: "Transportation needed / booked?", who: "Julianne", how: "Shuttles and buses for both campuses.", link: transport },
 ];
 
 export const ALSO_CHECK: CheckItem[] = [
-  { n: 7, check: "Photos or video? Media release", who: "Julianne" },
-  { n: 8, check: "Change of lunch plans?", who: "Julianne" },
-  { n: 9, check: "Guests coming in?", who: "Julianne / Zara" },
-  { n: 10, check: "Room or setup change?", who: "Ops" },
-  { n: 11, check: "Chaperones, first aid bag, meds", who: "Guides" },
-  { n: 12, check: "Families told?", who: "Terrence" },
+  { n: 7, check: "Photos or video? Media release", who: "Julianne", how: "Only film or post students who have a release on file." },
+  { n: 8, check: "Change of lunch plans?", who: "Julianne", how: "Tell her early if students will miss lunch or need it packed." },
+  { n: 9, check: "Guests coming in?", who: "Julianne / Zara", how: "Send names ahead. Guests check in and stay escorted." },
+  { n: 10, check: "Room or setup change?", who: "Ops", how: "Tables, AV, a different room or floor." },
+  { n: 11, check: "Chaperones, first aid bag, meds", who: "Guides", how: "Two adults minimum, roster, first aid bag and any student meds." },
+  { n: 12, check: "Families told?", who: "Terrence", how: "Parent messages go out through Terrence." },
 ];
 
 export const CHECKLIST_TITLE = "Run this before every workshop, mobile squad or Fun Friday";
+export const CHECKLIST_LINKS: CheckLink[] = [offCampus, ...(attendance ? [attendance] : []), transport];

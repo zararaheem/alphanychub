@@ -15,6 +15,12 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
   if (!g) notFound();
   return (
     <Sheet title={g.title} intro={g.intro} source={g.source}>
+      {g.links && (
+        <nav className="sheet-links" aria-label="Tools">
+          <span>Open:</span>
+          {g.links.map((l) => <ExtLink key={l.href} l={l} />)}
+        </nav>
+      )}
       <div className="sheet-grid">
         {g.sections.map((s) => <Section key={s.heading} s={s} />)}
       </div>
@@ -64,7 +70,14 @@ function Section({ s }: { s: GuideSection }) {
           <thead><tr><th scope="col" className="box-col"><span className="sr-only">Done</span></th><th scope="col">Check</th><th scope="col">Who helps</th></tr></thead>
           <tbody>
             {s.checklist.map((c) => (
-              <tr key={c.n}><td className="box-col"><span className="tick-box" aria-hidden="true" /></td><td>{c.n}. {c.check}</td><td className="nowrap"><b>{c.who}</b></td></tr>
+              <tr key={c.n}>
+                <td className="box-col"><span className="tick-box" aria-hidden="true" /></td>
+                <td>
+                  <span className="check-q">{c.n}. {c.check}</span>
+                  {c.how && <span className="check-how">{c.how}{c.link && <> <ExtLink l={c.link} arrow /></>}</span>}
+                </td>
+                <td className="nowrap"><b>{c.who}</b></td>
+              </tr>
             ))}
           </tbody>
         </table>
@@ -81,6 +94,15 @@ function Table({ head, rows }: { head?: string[]; rows: React.ReactNode[][] }) {
       {head && <thead><tr>{head.map((h) => <th key={h} scope="col">{h}</th>)}</tr></thead>}
       <tbody>{rows.map((r, i) => <tr key={i}>{r.map((c, j) => <td key={j} className={typeof c === "string" && c.length <= 12 ? "nowrap" : undefined}>{c}</td>)}</tr>)}</tbody>
     </table>
+  );
+}
+
+function ExtLink({ l, arrow }: { l: { label: string; href: string }; arrow?: boolean }) {
+  const external = /^https?:/.test(l.href);
+  return (
+    <a href={l.href} className={arrow ? "check-link" : "sheet-link"} {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}>
+      {l.label}{arrow ? " →" : external ? " ↗" : ""}
+    </a>
   );
 }
 

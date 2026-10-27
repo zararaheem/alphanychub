@@ -3,7 +3,7 @@
 // and the Session 2 workshops deck. "todo" items are gaps to fill in.
 
 import { SHOWCASES } from "@/lib/session2";
-import { ALSO_CHECK, CORE_SIX, type CheckItem } from "@/lib/checklist";
+import { ALSO_CHECK, CHECKLIST_LINKS, CORE_SIX, type CheckItem, type CheckLink } from "@/lib/checklist";
 
 export type GuideSection = {
   heading: string;
@@ -16,7 +16,7 @@ export type GuideSection = {
   tone?: "warn";
 };
 
-export type Guide = { slug: string; title: string; kicker: string; intro: string; sections: GuideSection[]; source: string };
+export type Guide = { slug: string; title: string; kicker: string; intro: string; sections: GuideSection[]; source: string; links?: CheckLink[] };
 
 export const GUIDE_LIST = [
   { slug: "checklist", title: "Before every activity", blurb: "The 12 checks before every workshop, mobile squad or Fun Friday, and who helps." },
@@ -34,6 +34,7 @@ export const GUIDES: Record<string, Guide> = {
     kicker: "Checklist",
     intro: "Run this before every workshop, mobile squad or Fun Friday.",
     source: "Staff morning meetings, Oct 26–30",
+    links: CHECKLIST_LINKS,
     sections: [
       { heading: "The core six", checklist: CORE_SIX },
       { heading: "Also check", checklist: ALSO_CHECK },
@@ -46,6 +47,7 @@ export const GUIDES: Record<string, Guide> = {
     kicker: "One-pager",
     intro: "Every trip off campus, from a walk to CrossFit to a shuttle to MoMA.",
     source: "EAP §8 Security Protocol: Off Campus & Other Floors · Session 2 workshops deck",
+    links: [...CHECKLIST_LINKS, { label: "Before-every-activity checklist", href: "/guides/checklist" }],
     sections: [
       {
         heading: "Before you leave",

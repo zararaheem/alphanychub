@@ -18,8 +18,12 @@ export function ActivityChecklist() {
           <li key={c.n}>
             <label>
               <input type="checkbox" checked={done.has(c.n)} onChange={() => toggle(c.n)} />
-              <span className={done.has(c.n) ? "done" : ""}>{c.n}. {c.check}</span>
+              <span className="check-text">
+                <span className={done.has(c.n) ? "done" : ""}>{c.n}. {c.check}</span>
+                {c.how && <small className="check-how">{c.how}</small>}
+              </span>
             </label>
+            {c.link && <a href={c.link.href} target="_blank" rel="noopener noreferrer" className="check-link">{c.link.label} ↗</a>}
             <span className="pill mint">{c.who}</span>
           </li>
         ))}
