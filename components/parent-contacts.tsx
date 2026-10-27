@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import type { ParentContact } from "@/lib/types";
+import { BulkEmail } from "@/components/bulk-email";
 
 const GROUPS = [
   { campus: "early-years", title: "Early Years · William St" },
@@ -32,15 +33,21 @@ export function ParentContacts({ rows }: { rows: ParentContact[] }) {
 
   return (
     <div className="stack">
-      <div className="field" style={{ maxWidth: 360 }}>
-        <label htmlFor="pc-search">Find a student or parent</label>
-        <input id="pc-search" type="search" className="input" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Name, grade or phone" />
+      <div className="between" style={{ alignItems: "flex-end" }}>
+        <div className="field" style={{ maxWidth: 360, flex: "1 1 260px" }}>
+          <label htmlFor="pc-search">Find a student, parent or grade</label>
+          <input id="pc-search" type="search" className="input" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Name, grade or phone" />
+        </div>
+        <BulkEmail emails={shown.map((r) => r.email)} label={query ? "these parents" : "all parents"} />
       </div>
       {campuses.map((g) => {
         const list = shown.filter((r) => r.campus === g.campus);
         return (
           <section key={g.campus} className="stack-sm" aria-label={g.title}>
-            <h3 className="kicker" style={{ marginTop: 8, fontSize: 11 }}>{g.title} <span className="muted" style={{ letterSpacing: 0, textTransform: "none", fontWeight: 500 }}>· {new Set(list.map((r) => r.student)).size} students</span></h3>
+            <div className="between" style={{ alignItems: "center", marginTop: 8 }}>
+              <h3 className="kicker" style={{ fontSize: 11 }}>{g.title} <span className="muted" style={{ letterSpacing: 0, textTransform: "none", fontWeight: 500 }}>· {new Set(list.map((r) => r.student)).size} students</span></h3>
+              {campuses.length > 1 && <BulkEmail emails={list.map((r) => r.email)} label={g.campus === "early-years" ? "Early Years" : "Maiden Ln"} />}
+            </div>
             {list.length === 0 ? (
               <p className="muted small">No matches.</p>
             ) : (
@@ -59,10 +66,14 @@ export function ParentContacts({ rows }: { rows: ParentContact[] }) {
                             {r.guardian ?? "Parent"}{r.relationship && <span className="muted"> · {r.relationship}</span>}
                           </span>
                           <span className="actions" style={{ display: "flex", gap: 8 }}>
-                            {r.phone && <a href={tel(r.phone)} className="call-btn" aria-label={`Call ${r.guardian ?? "parent"} of ${student}: ${r.phone}`}>{r.phone}</a>}
+                            {r.phone && (
+                              <a href={tel(r.phone)} className="call-btn" aria-label={`Call ${r.guardian ?? "parent"} of ${student}: ${r.phone}`}>
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z" /></svg> {r.phone}
+                              </a>
+                            )}
                             {r.email && (
-                              <a href={`mailto:${r.email}`} className="icon-btn" title={r.email} aria-label={`Email ${r.guardian ?? "parent"} of ${student}: ${r.email}`}>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M3 7l9 6 9-6" /></svg>
+                              <a href={`mailto:${r.email}`} className="call-btn" title={r.email} aria-label={`Email ${r.guardian ?? "parent"} of ${student}: ${r.email}`}>
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M3 7l9 6 9-6" /></svg> Email
                               </a>
                             )}
                           </span>

@@ -110,6 +110,15 @@ export async function addMember(form: FormData) {
   back("/access", res, `${email} can now sign in.`);
 }
 
+export async function setParentAccess(form: FormData) {
+  await requireRole(ADMINS);
+  const supabase = await createClient();
+  const on = str(form, "on") === "1";
+  const email = str(form, "email") ?? "";
+  const res = await supabase.from("allowed_users").update({ can_see_parents: on }).eq("email", email);
+  back("/access", res, on ? `${email} can now see parent contacts.` : `${email} can no longer see parent contacts.`);
+}
+
 export async function removeMember(form: FormData) {
   const me = await requireRole(ADMINS);
   const email = str(form, "email");
@@ -121,7 +130,7 @@ export async function removeMember(form: FormData) {
 
 // Parent contacts (CSV export of the Google Sheet) ---------------------------
 export async function importParentContacts(form: FormData) {
-  await requireRole(EDITORS);
+  await requireRole(STAFF_MANAGERS);
   const file = form.get("file");
   const text = file instanceof File && file.size > 0 ? await file.text() : str(form, "csv");
   if (!text) back("/emergency", { error: { message: "Choose the CSV file exported from the Google Sheet." } }, "");

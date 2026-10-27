@@ -1,4 +1,4 @@
-import { requireMember, canEdit } from "@/lib/access";
+import { requireMember, canEdit, canManageStaff, canSeeParents } from "@/lib/access";
 import { CAMPUS_LABEL } from "@/lib/campus";
 import { getContacts, getParentContacts, getProcedures } from "@/lib/data";
 import { deleteContact, deleteProcedure, importParentContacts, saveContact, saveProcedure } from "@/lib/actions";
@@ -26,7 +26,11 @@ export default async function EmergencyPage({ searchParams }: { searchParams: SP
         {editing(section) ? "Done" : "Edit"}
       </a>
     ) : null;
-  const [contacts, procedures, parents] = await Promise.all([getContacts(campus), getProcedures(campus), getParentContacts(campus)]);
+  const parentAccess = canSeeParents(me);
+  const parentManager = canManageStaff(me.role);
+  const [contacts, procedures, parents] = await Promise.all([
+    getContacts(campus), getProcedures(campus), parentAccess ? getParentContacts(campus) : Promise.resolve([]),
+  ]);
   const respond = procedures.filter(isRespondNow);
   const reference = procedures.filter((p) => !isRespondNow(p));
 
@@ -96,8 +100,8 @@ export default async function EmergencyPage({ searchParams }: { searchParams: SP
                         </a>
                       )}
                       {c.email && (
-                        <a href={`mailto:${c.email}`} className="icon-btn" aria-label={`Email ${c.name}: ${c.email}`} title={c.email}>
-                          <MailIcon />
+                        <a href={`mailto:${c.email}`} className="call-btn" aria-label={`Email ${c.name}: ${c.email}`} title={c.email}>
+                          <MailIcon /> Email
                         </a>
                       )}
                     </div>
@@ -117,15 +121,17 @@ export default async function EmergencyPage({ searchParams }: { searchParams: SP
                     Updated {new Date(parents[0].imported_at).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "America/New_York" })}
                   </span>
                 )}
-                {parents.length > 0 && <EditToggle section="parents" />}
+                {parents.length > 0 && parentManager && <EditToggle section="parents" />}
               </span>
             </div>
-            {parents.length === 0 ? (
-              <p className="empty">No parent contacts yet.{editable ? " Import the Google Sheet below." : " An admin or Lead Guide can import them."}</p>
+            {!parentAccess ? (
+              <p className="empty">Parent contacts are limited to approved staff. Ask an admin if you need access.</p>
+            ) : parents.length === 0 ? (
+              <p className="empty">No parent contacts yet.{parentManager ? " Import the Google Sheet below." : " An admin or Campus Coordinator can import them."}</p>
             ) : (
               <ParentContacts rows={parents} />
             )}
-            {editable && (parents.length === 0 || editing("parents")) && (
+            {parentManager && (parents.length === 0 || sp.edit === "parents") && (
               <details className="editor" open={editing("parents")}>
                 <summary>{parents.length ? "Re-import from Google Sheet" : "+ Import from Google Sheet"}</summary>
                 <form action={importParentContacts} className="stack" style={{ paddingBottom: 12 }}>

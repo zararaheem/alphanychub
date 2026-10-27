@@ -3,7 +3,7 @@ import { isAdmin, requireMember, ROLE_LABELS } from "@/lib/access";
 import { SignOut } from "@/components/sign-out";
 import { HubNav } from "@/components/hub-nav";
 import { Brand } from "@/components/brand";
-import { OFF_CAMPUS_URL, ATTENDANCE_URL } from "@/lib/links";
+import { OFF_CAMPUS_URL, ATTENDANCE_URL, TRANSPORT_URL } from "@/lib/links";
 import { currentCampus } from "@/lib/campus-pref";
 import { currentTheme } from "@/lib/theme";
 import { ThemeSwitch } from "@/components/theme-switch";
@@ -26,6 +26,7 @@ export default async function HubLayout({ children }: { children: React.ReactNod
   const external = [
     ...(OFF_CAMPUS_URL ? [{ href: OFF_CAMPUS_URL, label: "Off-campus board" }] : []),
     ...(ATTENDANCE_URL ? [{ href: ATTENDANCE_URL, label: "Attendance" }] : []),
+    { href: TRANSPORT_URL, label: "Transport request" },
   ];
 
   return (

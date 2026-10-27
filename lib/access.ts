@@ -11,7 +11,7 @@ export const ROLE_LABELS: Record<Role, string> = {
   staff: "Staff",
 };
 
-export type Member = { email: string; role: Role; name: string | null };
+export type Member = { email: string; role: Role; name: string | null; can_see_parents: boolean };
 
 // Returns the signed-in member, or redirects: no session → /login,
 // signed in but not on the access list → /no-access.
@@ -24,7 +24,7 @@ export async function requireMember(): Promise<Member> {
 
   const { data } = await supabase
     .from("allowed_users")
-    .select("email, role, name")
+    .select("email, role, name, can_see_parents")
     .eq("email", user.email.toLowerCase())
     .maybeSingle();
 
@@ -45,5 +45,7 @@ export const EDITORS: Role[] = ["admin", "coordinator", "lead"];
 export const STAFF_MANAGERS: Role[] = ["admin", "coordinator"];
 export const isAdmin = (role: Role) => ADMINS.includes(role);
 export const canManageStaff = (role: Role) => STAFF_MANAGERS.includes(role);
+// Parent contacts: Admins, Campus Coordinators, and anyone an admin has approved.
+export const canSeeParents = (m: Member) => STAFF_MANAGERS.includes(m.role) || m.can_see_parents;
 export const canEdit = (role: Role) => EDITORS.includes(role);
 export const canSeeLead = canEdit;

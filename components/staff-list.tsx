@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import type { StaffMember } from "@/lib/types";
+import { BulkEmail } from "@/components/bulk-email";
 
 const GROUPS = [
   { campus: "unassigned", title: "Not assigned to a campus yet" },
@@ -23,9 +24,12 @@ export function StaffList({ rows }: { rows: StaffMember[] }) {
 
   return (
     <div className="stack">
-      <div className="field" style={{ maxWidth: 360 }}>
-        <label htmlFor="staff-search">Find someone</label>
-        <input id="staff-search" type="search" className="input" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Name, role, team or phone" />
+      <div className="between" style={{ alignItems: "flex-end" }}>
+        <div className="field" style={{ maxWidth: 360, flex: "1 1 260px" }}>
+          <label htmlFor="staff-search">Find someone</label>
+          <input id="staff-search" type="search" className="input" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Name, role, team or phone" />
+        </div>
+        <BulkEmail emails={shown.map((r) => r.email)} label={query ? "these staff" : "all staff"} />
       </div>
       {shown.length === 0 && <p className="empty">No one matches &ldquo;{q}&rdquo;.</p>}
       {groups.map((g) => {

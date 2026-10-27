@@ -1,6 +1,6 @@
 import { ADMINS, requireRole, ROLE_LABELS, type Member, type Role } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
-import { addMember, removeMember } from "@/lib/actions";
+import { addMember, removeMember, setParentAccess } from "@/lib/actions";
 import { Field } from "@/components/fields";
 import { Flash } from "@/components/flash";
 
@@ -19,7 +19,7 @@ export default async function AccessPage({ searchParams }: { searchParams: SP })
   const sp = await searchParams;
   const me = await requireRole(ADMINS);
   const supabase = await createClient();
-  const { data } = await supabase.from("allowed_users").select("email, role, name, added_by, created_at").order("role").order("email");
+  const { data } = await supabase.from("allowed_users").select("email, role, name, can_see_parents, added_by, created_at").order("role").order("email");
   const rows = (data ?? []) as Row[];
 
   return (
@@ -50,9 +50,9 @@ export default async function AccessPage({ searchParams }: { searchParams: SP })
 
       <section className="table-box" aria-labelledby="list-h">
         <h2 id="list-h" style={{ padding: "10px 10px 0" }}>{rows.length} people with access</h2>
-        <table style={{ minWidth: 640 }}>
+        <table style={{ minWidth: 760 }}>
           <thead>
-            <tr><th scope="col">Person</th><th scope="col">Role</th><th scope="col">Added by</th><th scope="col"><span className="sr-only">Actions</span></th></tr>
+            <tr><th scope="col">Person</th><th scope="col">Role</th><th scope="col">Parent contacts</th><th scope="col">Added by</th><th scope="col"><span className="sr-only">Actions</span></th></tr>
           </thead>
           <tbody>
             {rows.map((r) => (
@@ -68,6 +68,18 @@ export default async function AccessPage({ searchParams }: { searchParams: SP })
                     </select>
                     {r.email !== me.email && <button type="submit" className="btn secondary sm">Update</button>}
                   </form>
+                </td>
+                <td>
+                  {r.role === "admin" || r.role === "coordinator" ? (
+                    <span className="small muted">Always</span>
+                  ) : (
+                    <form action={setParentAccess} className="row" style={{ gap: 6 }}>
+                      <input type="hidden" name="email" value={r.email} />
+                      <input type="hidden" name="on" value={r.can_see_parents ? "0" : "1"} />
+                      <span className={`pill ${r.can_see_parents ? "mint" : ""}`}>{r.can_see_parents ? "Can see" : "No access"}</span>
+                      <button type="submit" className="btn secondary sm">{r.can_see_parents ? "Remove" : "Allow"}</button>
+                    </form>
+                  )}
                 </td>
                 <td className="small muted">{r.added_by ?? ""}</td>
                 <td>

@@ -20,7 +20,7 @@ export const GUIDE_LIST = [
   { slug: "emergency", title: "Emergency procedures", blurb: "First 60 seconds, every emergency's steps, assembly points and key numbers." },
   { slug: "off-campus", title: "Off campus", blurb: "Before you leave, while you're out, and what to do if something goes wrong." },
   { slug: "workshops", title: "Workshop procedures", blurb: "Running a Session 2 workshop block, on campus or off." },
-  { slug: "vendors", title: "Vendors & visitors", blurb: "Access cards, check-in, escorts and deliveries." },
+  { slug: "vendors", title: "Vendors & visitors", blurb: "Approvals for money and contracts, access cards, check-in, escorts and deliveries." },
 ];
 
 export const GUIDES: Record<string, Guide> = {
@@ -35,6 +35,7 @@ export const GUIDES: Record<string, Guide> = {
         heading: "Before you leave",
         bullets: [
           "A designated activity lead (Guide or staff) plus a second adult, minimum",
+          "Transport (shuttle, bus, car) is requested in the Transport request tool, for Maiden Ln and Early Years",
           "The trip is on the Off-Campus board with lead, security and headcount",
           "Lead carries the student roster and the emergency contact list for every student on the trip",
           "Lead carries a charged phone and a two-way radio (or confirms cell reception)",
@@ -149,6 +150,15 @@ export const GUIDES: Record<string, Guide> = {
     source: "EAP §5.3, §6 Door Security & Access Control, §8.3 Building Lobby",
     sections: [
       {
+        heading: "Approvals: money and contracts",
+        tone: "warn",
+        steps: [
+          "Anything that involves money changing hands or a contract to sign: run it by the team first.",
+          "Zara coordinates with Legal so everything is squared away before anyone signs or pays.",
+          "Don't sign, commit or pay a vendor until you have the go-ahead.",
+        ],
+      },
+      {
         heading: "Visitors and guests",
         steps: [
           "Pre-register the visit; no unexpected visitors are admitted until identity and purpose are clear.",
@@ -175,10 +185,6 @@ export const GUIDES: Record<string, Guide> = {
           "Freight elevator deliveries must be pre-authorized with Building Operations",
           "Visitor log is kept daily by the Security Liaison and reviewed weekly by the Coordinator",
         ],
-      },
-      {
-        heading: "Approvals: vendors, waivers, space design",
-        todo: "Add the approval steps from the Thu 10/29 planning workshop: who signs off on a new vendor, which waivers are needed, and who to ask.",
       },
     ],
   },

@@ -453,3 +453,4 @@ ul.proc-bullets.warn li::before { content: "✕"; color: var(--red); font-weight
 }
 .move-form { display: flex; gap: 6px; align-items: center; }
 .move-form .input { min-height: 34px; padding: 0 8px; font-size: 13px; width: auto; }
+.bulk-email { display: inline-flex; flex-wrap: wrap; gap: 6px; align-items: center; }
