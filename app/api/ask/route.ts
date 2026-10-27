@@ -44,12 +44,9 @@ export async function POST(request: Request) {
   const knowledge = await buildKnowledge();
   const client = new Anthropic();
   try {
-    const response = await client.beta.messages.create({
+    const response = await client.messages.create({
       model: MODEL,
-      max_tokens: 4000,
-      betas: ["server-side-fallback-2026-07-01"],
-      fallbacks: "default",
-      output_config: { effort: "low" },
+      max_tokens: 2000,
       system: [
         { type: "text", text: INSTRUCTIONS },
         // The hub documents change rarely, so cache them between questions.
@@ -70,6 +67,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "The assistant's API key isn't valid. An admin needs to update it in Vercel." }, { status: 503 });
     }
     if (error instanceof Anthropic.APIError) {
+      console.error("ask: Claude API error", error.status, error.message);
       return NextResponse.json({ error: `The assistant couldn't answer (error ${error.status}). Try again.` }, { status: 502 });
     }
     throw error;
