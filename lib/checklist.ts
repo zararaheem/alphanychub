@@ -24,7 +24,7 @@ export const ALSO_CHECK: CheckItem[] = [
   { n: 9, check: "Guests or vendors coming in?", who: "Julianne / Zara", how: "Send names ahead. Guests and vendors check in and stay escorted." },
   { n: 10, check: "Room or setup change?", who: "Ops", how: "Tables, AV, a different room or floor." },
   { n: 11, check: "Chaperones, first aid bag, meds", who: "Guides", how: "Two adults minimum, roster, first aid bag and any student meds.", link: meds },
-  { n: 12, check: "Families told?", who: "Terrence", how: "Parent messages go out through Terrence." },
+  { n: 12, check: "Families told?", who: "Terrence (DoP)", how: "The DoP sends all parent messages. Don't message families yourself." },
 ];
 
 export const CHECKLIST_TITLE = "Run this before every workshop, mobile squad or Fun Friday";

@@ -77,7 +77,7 @@ export const GUIDES: Record<string, Guide> = {
           "Call 911 first if there is immediate danger.",
           "Account for every student using the roster.",
           "Notify the Coordinator by radio or phone as soon as it is safe.",
-          "Terrence McMullen (Dean of Parents) notifies parents via ParentSquare.",
+          "The DoP (Dean of Parents, Terrence McMullen) handles all parent messages, via ParentSquare.",
           "Don't return to campus until the Coordinator confirms it is safe.",
         ],
         tone: "warn",
@@ -183,6 +183,17 @@ export const GUIDES: Record<string, Guide> = {
           "Visitor exceptions and anything outside normal check-in",
           "Security incidents, concerns and follow-ups",
           "Zara Raheem, Emergency Coordinator, coordinates with the Lead Guards (Derek Ghee, Maiden Ln; Sugey Castillo, Early Years / William St) and building security",
+        ],
+      },
+      {
+        heading: "Missing student",
+        tone: "warn",
+        steps: [
+          "Immediate danger? Call 911 first.",
+          "Check your roster to confirm who's missing. Don't leave your group to search.",
+          "Call (don't radio) your Campus Coordinator: Julianne Braime (Maiden Ln) or Emerly Campusano (Early Years). Or call the Lead Guard: Derek Ghee (Maiden Ln) or Sugey Castillo (Early Years).",
+          "Guards and searchers look for the student. Stay with the rest of your group.",
+          "The DoP (Dean of Parents, Terrence McMullen) handles all parent messages. Don't contact families yourself.",
         ],
       },
       {
