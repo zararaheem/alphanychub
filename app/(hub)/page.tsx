@@ -4,7 +4,7 @@ import { CAMPUSES, clock, shortDay, todayNY } from "@/lib/campus";
 import { currentCampus } from "@/lib/campus-pref";
 import { LEVELS, SESSION, WORKSHOPS } from "@/lib/session2";
 import { getContacts, getProcedures, getStaff, getStudents, getWorkshops } from "@/lib/data";
-import { OFF_CAMPUS_URL } from "@/lib/links";
+import { MEDICATIONS_URL, OFF_CAMPUS_URL } from "@/lib/links";
 import { Clock } from "@/components/clock";
 import { ExtIcon } from "@/components/external-link";
 import { WhoToAsk } from "@/components/who-to-ask";
@@ -81,6 +81,14 @@ export default async function HomePage() {
               <span className="pill amber" style={{ alignSelf: "flex-start" }}>Coming soon</span>
             </div>
           )}
+
+          <a href={MEDICATIONS_URL} target="_blank" rel="noopener noreferrer" className="card card-link">
+            <span className="row" style={{ justifyContent: "space-between" }}>
+              <span className="card-title">Medications</span>
+              <span className="pill mint">Opens tool <ExtIcon /></span>
+            </span>
+            <span className="muted">Which students take medication, when it&apos;s due, and the log. Check it before trips and when a student feels unwell.</span>
+          </a>
 
           <Link href="/staff" className="card card-link">
             <span className="card-title">Staff</span>

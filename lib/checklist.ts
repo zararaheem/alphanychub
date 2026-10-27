@@ -1,5 +1,5 @@
 // Run before every workshop, mobile squad or Fun Friday (staff morning meetings, Oct 26–30).
-import { ATTENDANCE_URL, OFF_CAMPUS_URL, TRANSPORT_URL } from "@/lib/links";
+import { ATTENDANCE_URL, MEDICATIONS_URL, OFF_CAMPUS_URL, TRANSPORT_URL } from "@/lib/links";
 
 export type CheckLink = { label: string; href: string };
 export type CheckItem = { n: number; check: string; who: string; how?: string; link?: CheckLink | null };
@@ -7,6 +7,7 @@ export type CheckItem = { n: number; check: string; who: string; how?: string; l
 const offCampus = { label: "Off-campus tracker", href: OFF_CAMPUS_URL };
 const attendance = ATTENDANCE_URL ? { label: "Attendance", href: ATTENDANCE_URL } : null;
 const transport = { label: "Transport request", href: TRANSPORT_URL };
+const meds = { label: "Medications", href: MEDICATIONS_URL };
 
 export const CORE_SIX: CheckItem[] = [
   { n: 1, check: "Waiver needed?", who: "Zara", how: "Anything physical or run by an outside provider. Ask before you book." },
@@ -22,9 +23,9 @@ export const ALSO_CHECK: CheckItem[] = [
   { n: 8, check: "Change of lunch plans?", who: "Julianne", how: "Tell her early if students will miss lunch or need it packed." },
   { n: 9, check: "Guests coming in?", who: "Julianne / Zara", how: "Send names ahead. Guests check in and stay escorted." },
   { n: 10, check: "Room or setup change?", who: "Ops", how: "Tables, AV, a different room or floor." },
-  { n: 11, check: "Chaperones, first aid bag, meds", who: "Guides", how: "Two adults minimum, roster, first aid bag and any student meds." },
+  { n: 11, check: "Chaperones, first aid bag, meds", who: "Guides", how: "Two adults minimum, roster, first aid bag and any student meds.", link: meds },
   { n: 12, check: "Families told?", who: "Terrence", how: "Parent messages go out through Terrence." },
 ];
 
 export const CHECKLIST_TITLE = "Run this before every workshop, mobile squad or Fun Friday";
-export const CHECKLIST_LINKS: CheckLink[] = [offCampus, ...(attendance ? [attendance] : []), transport];
+export const CHECKLIST_LINKS: CheckLink[] = [offCampus, ...(attendance ? [attendance] : []), transport, meds];

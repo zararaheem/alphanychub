@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { GUIDES } from "@/lib/guides";
 import { LEVELS, SESSION, SHOWCASES, WEEKLY, WORKSHOPS, MOMA_DATES, LOCATIONS } from "@/lib/session2";
-import { ATTENDANCE_URL, OFF_CAMPUS_URL, PARENT_VIEW_URL, TRANSPORT_URL } from "@/lib/links";
+import { ATTENDANCE_URL, MEDICATIONS_URL, OFF_CAMPUS_URL, PARENT_VIEW_URL, TRANSPORT_URL } from "@/lib/links";
 import type { Contact, Procedure, StaffMember } from "@/lib/types";
 import { WHO_TO_ASK } from "@/lib/who-to-ask";
 
@@ -66,6 +66,6 @@ export async function buildKnowledge(): Promise<string> {
   for (const s of (students.data ?? []) as { level: string | null }[]) counts[s.level ?? "Other"] = (counts[s.level ?? "Other"] ?? 0) + 1;
   out.push(`# Enrollment\n${Object.entries(counts).map(([k, v]) => `${k}: ${v}`).join(", ")} (total ${students.data?.length ?? 0})`);
 
-  out.push(`# Other tools\n- Off-campus board: ${OFF_CAMPUS_URL ?? "not linked"}\n- Attendance: ${ATTENDANCE_URL ?? "not linked"}\n- Transport request tool (both campuses): ${TRANSPORT_URL}\n- Parent view (Families app): ${PARENT_VIEW_URL}`);
+  out.push(`# Other tools\n- Off-campus board: ${OFF_CAMPUS_URL ?? "not linked"}\n- Attendance: ${ATTENDANCE_URL ?? "not linked"}\n- Transport request tool (both campuses): ${TRANSPORT_URL}\n- Medication management (which students take medication, when, and the log): ${MEDICATIONS_URL}\n- Parent view (Families app): ${PARENT_VIEW_URL}`);
   return out.join("\n\n");
 }
