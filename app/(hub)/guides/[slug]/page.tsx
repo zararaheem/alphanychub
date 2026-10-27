@@ -85,6 +85,19 @@ async function EmergencySheet() {
         </ol>
         <p><b>&lsquo;Tiger, Tiger&rsquo;</b> = lockdown. Act immediately, no confirmation needed.</p>
       </section>
+      <section className="sheet-rules" aria-labelledby="rules-h">
+        <h2 id="rules-h">Golden rules</h2>
+        <ul>
+          <li><b>Never go back</b> for bags, phones or anything else.</li>
+          <li><b>Don&apos;t go looking</b> for a missing child (bathroom, another room). Leave with your group and tell the Coordinator.</li>
+          <li><b>Always know who leaves your room.</b> Account for every student who steps out.</li>
+          <li><b>Security and designated searchers</b> look for missing students. No one else.</li>
+          <li><b>Take your roster</b> (and radio) if it&apos;s in reach. Head count before you move and at the assembly area.</li>
+          <li><b>Never use the elevators.</b> Stairwells F or G only.</li>
+          <li><b>Stay with your group</b> at the assembly area. Report your headcount to the Coordinator within 3 minutes.</li>
+          <li><b>No re-entry, no dismissals</b> until the official all-clear. Students go home only through the Coordinator&apos;s sign-out.</li>
+        </ul>
+      </section>
       <div className="sheet-grid dense">
         {respond.map((p) => {
           const blocks = parseProcedure(p.body);
