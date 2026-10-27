@@ -37,7 +37,7 @@ export function AskWidget() {
           </div>
         </section>
       )}
-      <button type="button" className="ask-fab" onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-label={open ? "Close Ask the hub" : "Search the hub"}>
+      <button type="button" className="ask-fab" onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-label={open ? "Close Ask the hub" : "Ask the hub a question"}>
         {open ? <span aria-hidden="true" style={{ fontSize: 18 }}>✕</span> : <><Spark /><span>Ask</span></>}
       </button>
     </div>
