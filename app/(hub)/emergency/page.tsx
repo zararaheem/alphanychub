@@ -43,7 +43,7 @@ export default async function EmergencyPage({ searchParams }: { searchParams: SP
         <a href="tel:911" className="btn sos-call"><PhoneIcon /> Call 911</a>
         <ol className="sos-steps">
           <li><b>1</b> Call 911 if anyone is in danger</li>
-          <li><b>2</b> Everyone to radio Channel 2</li>
+          <li><b>2</b> Alert everyone by radio (alt: Zello)</li>
           <li><b>3</b> Notify the Emergency Coordinator</li>
         </ol>
         <span className="sos-code">Lockdown code: <b>&lsquo;Tiger, Tiger&rsquo;</b></span>

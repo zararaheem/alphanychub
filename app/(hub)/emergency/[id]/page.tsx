@@ -30,7 +30,7 @@ export default async function ProcedurePage({ params }: { params: Promise<{ id: 
 
       <div className="sos sos-compact">
         <a href="tel:911" className="btn sos-call">Call 911</a>
-        <span className="sos-code">Everyone to radio <b>Channel 2</b> · Lockdown code <b>&lsquo;Tiger, Tiger&rsquo;</b></span>
+        <span className="sos-code">Radio (alt: <b>Zello</b>) · Lockdown code <b>&lsquo;Tiger, Tiger&rsquo;</b></span>
       </div>
 
       <article className="card proc-card">

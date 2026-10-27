@@ -107,7 +107,7 @@ export const GUIDES: Record<string, Guide> = {
           "Workshop blocks run 1:00–3:00 (LL 12:30–3:00); check your level's weekly schedule on the Workshops tab",
           "Take attendance at the start of the block",
           "Track progress toward the workshop's AlphaTest (attempts, streaks, scores) from week one",
-          "Radio on: Guides on Channel 1, Guards on Channel 2",
+          "Programmed radio on and with you (alt: Zello)",
         ],
       },
       {

@@ -50,7 +50,7 @@ export default async function HomePage() {
           <div className="kpi">
             <span className="label-caps">In an emergency</span>
             <b>Call 911</b>
-            <span className="note">Then everyone to radio Channel 2</span>
+            <span className="note">Then alert everyone by radio (alt: Zello)</span>
           </div>
         </div>
 
