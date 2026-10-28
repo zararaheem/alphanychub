@@ -33,9 +33,11 @@ const PEOPLE: AskPerson[] = [
   { who: "Ops", role: "Operations", topics: ["Room or setup changes"] },
 ];
 
-// Each card's topics A–Z ("Anything else" stays last).
+// Cards A–Z by name; each card's topics A–Z ("Anything else" stays last).
 const az = (a: string, b: string) => (a === "Anything else" ? 1 : b === "Anything else" ? -1 : a.localeCompare(b));
-export const WHO_BY_PERSON: AskPerson[] = PEOPLE.map((p) => ({ ...p, topics: [...p.topics].sort(az) }));
+export const WHO_BY_PERSON: AskPerson[] = PEOPLE
+  .map((p) => ({ ...p, topics: [...p.topics].sort(az) }))
+  .sort((a, b) => a.who.localeCompare(b.who));
 
 export const EMERGENCY_NOW = "Emergency happening now: call 911, then alert everyone on your radio (alt: Zello).";
 
