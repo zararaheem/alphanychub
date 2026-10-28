@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { requireMember, canEdit } from "@/lib/access";
 import { CAMPUS_LABEL } from "@/lib/campus";
 import { getProcedures } from "@/lib/data";
-import { isRespondNow, procKind, shortTitle } from "@/lib/procedure-meta";
+import { FIRST_MOVES, isRespondNow, procKind, shortTitle } from "@/lib/procedure-meta";
 import { ProcIcon, ProcedureBody } from "@/components/procedure-view";
 
 export default async function ProcedurePage({ params }: { params: Promise<{ id: string }> }) {
@@ -15,10 +15,22 @@ export default async function ProcedurePage({ params }: { params: Promise<{ id: 
   const respond = all.filter(isRespondNow);
   const editable = canEdit(me.role);
   const kind = procKind(p.title);
+  const first = FIRST_MOVES[kind];
 
   return (
     <main className="page proc-page">
-      <Link href="/emergency" className="back-link">← Emergency</Link>
+      {/* Every emergency one tap away, and it stays on screen while scrolling. */}
+      <nav aria-label="Emergencies" className="em-switch">
+        <Link href="/emergency" className="chip">← All</Link>
+        {respond.map((r) => {
+          const k = procKind(r.title);
+          return (
+            <Link key={r.id} href={`/emergency/${r.id}`} className="chip em-chip" aria-current={r.id === p.id ? "page" : undefined}>
+              <ProcIcon kind={k} size={16} /> {shortTitle(r.title)}
+            </Link>
+          );
+        })}
+      </nav>
 
       <header className="proc-head">
         <span className={`proc-icon k-${kind}`}><ProcIcon kind={kind} size={26} /></span>
@@ -30,23 +42,22 @@ export default async function ProcedurePage({ params }: { params: Promise<{ id: 
 
       <div className="sos sos-compact">
         <a href="tel:911" className="btn sos-call">Call 911</a>
-        <span className="sos-code">Radio (alt: <b>Zello</b>) · Lockdown code <b>&lsquo;Tiger, Tiger&rsquo;</b></span>
+        <span className="sos-code">Alert everyone by radio (alt: <b>Zello</b>) · Contact your <b>Campus Coordinator</b></span>
       </div>
 
+      {first && (
+        <section className="card em-first-card" aria-label="First minute">
+          <span className="label-caps">First minute</span>
+          <p>{first}</p>
+        </section>
+      )}
+
       <article className="card proc-card">
-        <ProcedureBody body={p.body} />
+        <span className="label-caps">Step by step</span>
+        <ProcedureBody body={p.body} skipSummary />
       </article>
 
       {editable && <Link href="/emergency?edit=procedures" className="small muted">Edit procedures</Link>}
-
-      <nav aria-label="Other emergencies" className="stack-sm">
-        <span className="label-caps">Other emergencies</span>
-        <div className="row" style={{ gap: 8 }}>
-          {respond.filter((r) => r.id !== p.id).map((r) => (
-            <Link key={r.id} href={`/emergency/${r.id}`} className="chip">{shortTitle(r.title)}</Link>
-          ))}
-        </div>
-      </nav>
     </main>
   );
 }

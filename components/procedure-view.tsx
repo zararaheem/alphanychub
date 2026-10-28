@@ -1,7 +1,10 @@
 import { parseProcedure, type ProcKind } from "@/lib/procedure-meta";
 
-export function ProcedureBody({ body }: { body: string }) {
-  const blocks = parseProcedure(body);
+// skipSummary drops an "a → b → c" opening line when numbered steps follow (it repeats them).
+export function ProcedureBody({ body, skipSummary = false }: { body: string; skipSummary?: boolean }) {
+  const parsed = parseProcedure(body);
+  const hasSteps = parsed.some((b) => b.type === "steps");
+  const blocks = skipSummary && hasSteps ? parsed.filter((b) => !(b.type === "lead" && b.text.includes("→"))) : parsed;
   let inWarn = false;
   return (
     <div className="proc-doc">
