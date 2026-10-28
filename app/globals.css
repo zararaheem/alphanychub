@@ -647,6 +647,7 @@ a.hit-title:hover { color: var(--teal); }
 /* Emergency page: sticky switcher and first-minute box */
 .em-switch { position: sticky; top: 0; z-index: 20; display: flex; gap: 8px; overflow-x: auto; padding: 10px 0; margin-top: -10px; background: var(--bg); scrollbar-width: none; }
 .em-switch::-webkit-scrollbar { display: none; }
+@media (min-width: 721px) { .em-switch { flex-wrap: wrap; } }
 .em-switch .chip { flex: none; gap: 6px; }
 .em-first-card { border-left: 4px solid var(--red); gap: 6px; }
 .em-first-card p { font-size: 17px; line-height: 1.5; color: var(--ink); font-weight: 600; margin: 0; }
