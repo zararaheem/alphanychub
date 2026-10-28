@@ -4,6 +4,7 @@ import { currentCampus } from "@/lib/campus-pref";
 import { getMedications, getProcedures } from "@/lib/data";
 import { parseProcedure, procKind } from "@/lib/procedure-meta";
 import { MedicationList } from "@/components/medication-list";
+import { HEALTH_RULES, INJURY_STEPS } from "@/lib/health";
 
 export default async function HealthPage() {
   const me = await requireMember();
@@ -17,6 +18,21 @@ export default async function HealthPage() {
         <h1>Health &amp; safety</h1>
         <p className="lede">Student medications, what to do in a medical emergency, and what to carry on trips. All in one place.</p>
       </div>
+
+      <section className="card card-alert" aria-labelledby="injury-h">
+        <h2 id="injury-h" className="card-title">If a student gets injured</h2>
+        <ol className="steps big">{INJURY_STEPS.map((t) => <li key={t}>{t}</li>)}</ol>
+      </section>
+
+      <section className="card" aria-labelledby="rules-h">
+        <h2 id="rules-h" className="card-title">Rules everyone follows</h2>
+        <ul className="rule-list">
+          {HEALTH_RULES.map((r) => (
+            <li key={r.rule}><b>{r.rule}.</b> <span>{r.detail}</span></li>
+          ))}
+        </ul>
+        <p className="small muted">Emergency happening now? Call 911 first, then contact your Campus Coordinator.</p>
+      </section>
 
       <div className="grid">
 
