@@ -120,7 +120,7 @@ function SheetColumns({ items, count = 3 }: { items: { weight: number; node: Rea
   return <div className="sheet-cols">{cols.map((c, i) => <div key={i} className="sheet-col">{c}</div>)}</div>;
 }
 
-const CALL_LIST = ["Derek", "Emily", "Nancy", "Tasha", "Terrence", "Zara"];
+const CALL_LIST = ["Derek", "Drew", "Emily", "Nancy", "Tasha", "Terrence", "Zara"];
 
 const tel = (phone: string) => <a href={`tel:${phone.replace(/[^\d+]/g, "")}`}>{phone}</a>;
 
@@ -133,11 +133,12 @@ async function EmergencySheet() {
     const match = (n: string) => n.toLowerCase().startsWith(first.toLowerCase() + " ");
     const s = staff.find((p) => match(p.name));
     const c = contacts.find((p) => match(p.name));
-    const phone = s?.phone ?? c?.phone;
-    if (!phone) return [];
+    const phone = s?.phone ?? c?.phone ?? null;
+    const email = s?.email ?? c?.email ?? null;
+    if (!s && !c) return [];
     // Short title: first part only ("Dean of Parents (DOP) · Parent & ..." → "Dean of Parents (DOP)").
     const title = (s?.title ?? c?.role ?? "").split("·")[0].trim();
-    return [{ key: s?.id ?? c?.id ?? first, name: s?.name ?? c!.name, title, phone }];
+    return [{ key: s?.id ?? c?.id ?? first, name: s?.name ?? c!.name, title, phone, email }];
   }).sort((a, b) => a.name.localeCompare(b.name));
   const searchers = contacts.filter((c) => /searcher/i.test(c.role ?? "")).map((c) => c.name).join(" and ");
   return (
@@ -227,7 +228,7 @@ async function EmergencySheet() {
               <h2>Who to call</h2>
               <Table rows={[
                 [<b key="e">Emergency</b>, "", tel("911")],
-                ...callList.map((p) => [<b key={p.key}>{p.name}</b>, p.title, tel(p.phone)]),
+                ...callList.map((p) => [<b key={p.key}>{p.name}</b>, p.title, p.phone ? tel(p.phone) : p.email ? <a href={`mailto:${p.email}`}>{p.email}</a> : ""]),
               ]} />
             </section>
           ),
