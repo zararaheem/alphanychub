@@ -17,7 +17,9 @@ export default async function HomePage() {
   const [workshops, staff, students] = await Promise.all([
     getWorkshops(campus, { from: today }), getStaff(campus), getStudents(campus),
   ]);
-  const onSite = staff.filter((s) => s.campus !== "unassigned");
+  // Leadership who split their time across both campuses are not counted as on site.
+  const onSite = staff.filter((s) => s.campus === "maiden-ln" || s.campus === "early-years");
+  const unassigned = staff.filter((s) => s.campus === "unassigned").length;
   const next = workshops[0];
   const levelsHere = LEVELS.filter((l) => !campus || l.campus === campus);
   const levelCount = levelsHere.length;
@@ -97,8 +99,8 @@ export default async function HomePage() {
             <span className="card-title">Staff</span>
             <span className="muted">Everyone on site{here ? ` at ${here.name}` : ""}, with phone and email.</span>
             <span style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8 }}>
-              <span className="stat"><b>{onSite.length}</b><span>{here ? "on this campus" : "with a campus"}</span></span>
-              {!here && <span className="stat"><b>{staff.length - onSite.length}</b><span>not assigned yet</span></span>}
+              <span className="stat"><b>{onSite.length}</b><span>on site full time</span></span>
+              {!here && unassigned > 0 && <span className="stat"><b>{unassigned}</b><span>not assigned yet</span></span>}
             </span>
           </Link>
 
