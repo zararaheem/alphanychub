@@ -177,7 +177,6 @@ export const GUIDES: Record<string, Guide> = {
         heading: "All security requests go through Zara",
         tone: "warn",
         bullets: [
-          "Access cards, door access and vendor cards",
           "Guard coverage, schedules and event security",
           "Security clearance for off-campus trips (or the trip lead runs it on the Off-Campus board)",
           "Visitor exceptions and anything outside normal check-in",
