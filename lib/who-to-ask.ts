@@ -2,11 +2,11 @@
 // and the emergency team roles.
 export type AskPerson = { who: string; role: string; topics: string[] };
 
-export const WHO_BY_PERSON: AskPerson[] = [
+const PEOPLE: AskPerson[] = [
   {
     who: "Zara", role: "Chief of Staff",
     topics: [
-      "Security, guards, door access",
+      "Security and guards",
       "Trip security clearance (or run it on the board)",
       "Waivers",
       "Vendor / off-site activities requiring a contract (with Legal)",
@@ -33,6 +33,10 @@ export const WHO_BY_PERSON: AskPerson[] = [
   { who: "Tasha", role: "Head of Schools", topics: ["Budget approvals and budgets", "Booking videographers and storytellers", "Media or press questions", "Anything else"] },
   { who: "Ops", role: "Operations", topics: ["Room or setup changes"] },
 ];
+
+// Each card's topics A–Z ("Anything else" stays last).
+const az = (a: string, b: string) => (a === "Anything else" ? 1 : b === "Anything else" ? -1 : a.localeCompare(b));
+export const WHO_BY_PERSON: AskPerson[] = PEOPLE.map((p) => ({ ...p, topics: [...p.topics].sort(az) }));
 
 export const EMERGENCY_NOW = "Emergency happening now: call 911, then alert everyone on your radio (alt: Zello).";
 
