@@ -6,7 +6,6 @@ const PEOPLE: AskPerson[] = [
   {
     who: "Zara", role: "Chief of Staff",
     topics: [
-      "Security and guards",
       "Trip security clearance (or run it on the board)",
       "Waivers",
       "Vendor / off-site activities requiring a contract (with Legal)",
