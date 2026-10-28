@@ -24,11 +24,10 @@ export default async function HubLayout({ children }: { children: React.ReactNod
     { href: "/health", label: "Health & safety" },
     { href: "/parent-view", label: "Parent Hub" },
     { href: "/requests", label: "Requests" },
-    // Campus pages are covered by the toggle; Early Years keeps its program tools.
-    ...(campus !== "maiden-ln" ? [{ href: "/early-years", label: "Early Years tools" }] : []),
     ...(isAdmin(me.role) ? [{ href: "/access", label: "Access" }] : []),
   ];
   const external = [
+    ...(campus !== "maiden-ln" ? [{ href: "/tracker", label: "Early Years tracker" }] : []),
     ...(OFF_CAMPUS_URL ? [{ href: OFF_CAMPUS_URL, label: "Off-campus board" }] : []),
     ...(ATTENDANCE_URL ? [{ href: ATTENDANCE_URL, label: "Attendance" }] : []),
     { href: TRANSPORT_URL, label: "Transport request" },

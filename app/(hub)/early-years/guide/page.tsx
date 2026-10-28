@@ -1,5 +1,5 @@
-import { GuideApp } from "@/components/early-years/guide-app";
+import { redirect } from "next/navigation";
 
 export default function GuidePage() {
-  return <GuideApp />;
+  redirect("/tracker");
 }

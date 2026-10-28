@@ -37,7 +37,7 @@ export async function requireMember(): Promise<Member> {
 
 export async function requireRole(roles: Role[]): Promise<Member> {
   const member = await requireMember();
-  if (!roles.includes(member.role)) redirect("/early-years");
+  if (!roles.includes(member.role)) redirect("/");
   return member;
 }
 
