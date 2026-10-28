@@ -3,7 +3,6 @@ import { redirect } from "next/navigation";
 import { currentFamily } from "@/lib/parent-session";
 import { PARENT_CONTENT } from "@/lib/parent-content";
 import { REQUEST_KINDS, kindById } from "@/lib/requests";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { parentSignOut } from "./actions";
 
@@ -19,12 +18,10 @@ export default async function ParentHome({ searchParams }: { searchParams: Promi
   if (!family) redirect("/parents/sign-in");
   const { sent, err } = await searchParams;
 
-  const db = family.preview ? await createClient() : createAdminClient();
-  const { data: mine } = db
-    ? await db.from("requests").select("id, created_at, kind, student, status, staff_note")
-      .eq("from_email", family.email).in("source", family.preview ? ["preview"] : ["parent"])
-      .order("created_at", { ascending: false }).limit(10)
-    : { data: null };
+  const supabase = await createClient();
+  const { data: mine } = await supabase.from("requests").select("id, created_at, kind, student, status, staff_note")
+    .eq("from_email", family.email).eq("source", family.preview ? "preview" : "parent")
+    .order("created_at", { ascending: false }).limit(10);
 
   const c = PARENT_CONTENT;
   const today = c.info.filter((i) => i.section === "daily");

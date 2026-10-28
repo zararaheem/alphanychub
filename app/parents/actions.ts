@@ -1,9 +1,8 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { currentFamily, sendCode, signOutParent, verifyCode } from "@/lib/parent-session";
+import { currentFamily } from "@/lib/parent-session";
 import { hubUrl, kindById, notifySlack, readDetails } from "@/lib/requests";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
 const s = (f: FormData, k: string) => {
@@ -11,24 +10,9 @@ const s = (f: FormData, k: string) => {
   return typeof v === "string" ? v.trim() : "";
 };
 
-export async function requestParentCode(form: FormData) {
-  const email = s(form, "email");
-  const result = await sendCode(email);
-  if (result === "not-ready") redirect("/parents/sign-in?err=not-ready");
-  if (result === "wait") redirect(`/parents/sign-in?step=code&email=${encodeURIComponent(email)}&err=wait`);
-  redirect(`/parents/sign-in?step=code&email=${encodeURIComponent(email)}`);
-}
-
-export async function checkParentCode(form: FormData) {
-  const email = s(form, "email");
-  if (!(await verifyCode(email, s(form, "code")))) {
-    redirect(`/parents/sign-in?step=code&email=${encodeURIComponent(email)}&err=code`);
-  }
-  redirect("/parents");
-}
-
 export async function parentSignOut() {
-  await signOutParent();
+  const supabase = await createClient();
+  await supabase.auth.signOut();
   redirect("/parents/sign-in");
 }
 
@@ -43,19 +27,19 @@ export async function submitParentRequest(form: FormData) {
   if (missing.length) redirect(`/parents/new/${kind.id}?err=${encodeURIComponent(`Please fill in: ${missing.join(", ")}`)}`);
 
   const to = kind.route(child.campus, details);
-  const row = {
-    source: family.preview ? "preview" : "parent", kind: kind.id, campus: child.campus, student: child.student,
+  const source = family.preview ? "preview" : "parent";
+  // RLS checks the sender: families only for their own children, staff previews as themselves.
+  const supabase = await createClient();
+  const res = await supabase.from("requests").insert({
+    source, kind: kind.id, campus: child.campus, student: child.student,
     from_name: family.name, from_email: family.email, details, route_to: to.map((p) => p.name).join(", "),
-  };
-  // Families have no Supabase session, so their rows go in server-side; staff previews go in as themselves.
-  const db = family.preview ? await createClient() : createAdminClient();
-  const res = db ? await db.from("requests").insert(row) : { error: { message: "The Parent Hub isn't fully set up yet." } };
+  });
   if (res.error) {
     console.error("parent request insert failed", res.error.message);
     redirect(`/parents/new/${kind.id}?err=${encodeURIComponent("That didn't send. Please try again, or contact the Campus Coordinator.")}`);
   }
   await notifySlack({
-    kind, source: family.preview ? "preview" : "parent", campus: child.campus, student: child.student,
+    kind, source, campus: child.campus, student: child.student,
     fromName: family.name, fromEmail: family.email, details, to, link: hubUrl("/requests"),
   });
   redirect(`/parents?sent=${kind.id}`);

@@ -69,13 +69,18 @@ create policy "asker rates" on public.ask_log
   using (lower(email) = lower(auth.jwt() ->> 'email'))
   with check (lower(email) = lower(auth.jwt() ->> 'email'));
 
--- One-time sign-in codes for the Parent Hub. Server-side (service role) only.
-create table if not exists public.parent_hub_codes (
-  email       text primary key,
-  code_hash   text not null,
-  expires_at  timestamptz not null,
-  attempts    int not null default 0,
-  sent_at     timestamptz not null default now()
-);
-alter table public.parent_hub_codes enable row level security;
-revoke all on public.parent_hub_codes from anon, authenticated;
+-- Parent Hub sign-in is Google; families see only their own children and
+-- can send requests only about them.
+create or replace function public.my_children()
+returns table (student text, grade text, campus text, guardian text)
+language sql stable security definer set search_path = public as $$
+  select student, grade, campus, guardian from public.parent_contacts
+  where email = lower(auth.jwt() ->> 'email') order by student
+$$;
+
+create policy "parents send their own" on public.requests
+  for insert to authenticated
+  with check (
+    source = 'parent' and lower(from_email) = lower(auth.jwt() ->> 'email')
+    and student in (select c.student from public.my_children() c)
+  );
