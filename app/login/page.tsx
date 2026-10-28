@@ -44,7 +44,6 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
             Access is limited to Alpha NYC guides and staff. Ask a hub admin for the staff access code.
           </p>
           <a href="/parents" className="btn outline" style={{ minHeight: 48 }}>I&apos;m a parent: go to the Parent Hub</a>
-          <a href="/parents/demo" className="btn ghost" style={{ minHeight: 44 }}>See the Parent Hub demo →</a>
         </div>
       </div>
     </div>
