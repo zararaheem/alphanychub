@@ -106,17 +106,16 @@ function ExtLink({ l, arrow }: { l: { label: string; href: string }; arrow?: boo
   );
 }
 
-// Three explicit columns, filled in order and balanced by rough text length.
+// Three explicit columns, balanced by rough text length.
 // CSS columns don't survive printing on iPhones (the sheet ran to 3 pages).
 function SheetColumns({ items, count = 3 }: { items: { weight: number; node: React.ReactNode }[]; count?: number }) {
-  const total = items.reduce((n, i) => n + i.weight, 0);
+  // Each section goes to the shortest column so far (keeps the sheet to one page).
   const cols: React.ReactNode[][] = Array.from({ length: count }, () => []);
-  let col = 0;
-  let filled = 0;
+  const heights = new Array<number>(count).fill(0);
   for (const item of items) {
-    if (col < count - 1 && filled > 0 && filled + item.weight / 2 > (total / count) * (col + 1)) col++;
+    const col = heights.indexOf(Math.min(...heights));
     cols[col].push(item.node);
-    filled += item.weight;
+    heights[col] += item.weight;
   }
   return <div className="sheet-cols">{cols.map((c, i) => <div key={i} className="sheet-col">{c}</div>)}</div>;
 }
@@ -193,7 +192,7 @@ async function EmergencySheet() {
           };
         }),
         {
-          weight: 200,
+          weight: 300,
           node: (
             <section key="assembly" className={`sheet-sec${campus === "early-years" ? " todo" : ""}`}>
               <h2>Assembly areas{campus === null ? " · Maiden Ln" : ""}</h2>
@@ -212,7 +211,7 @@ async function EmergencySheet() {
           ),
         },
         {
-          weight: 60 + 45 * (phones.length + 1),
+          weight: 90 + 70 * (phones.length + 1),
           node: (
             <section key="numbers" className="sheet-sec">
               <h2>Key numbers</h2>
@@ -224,7 +223,7 @@ async function EmergencySheet() {
           ),
         },
         ...(leads.length > 0 ? [{
-          weight: 60 + 45 * leads.length,
+          weight: 90 + 70 * leads.length,
           node: (
             <section key="team" className="sheet-sec">
               <h2>Emergency team</h2>
