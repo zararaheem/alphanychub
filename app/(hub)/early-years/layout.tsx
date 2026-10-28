@@ -6,7 +6,7 @@ export default async function EarlyYearsLayout({ children }: { children: React.R
   const items = [
     { href: "/early-years", label: "Campus" },
     { href: "/early-years/guide", label: "Guide tools" },
-    { href: "/parent-view", label: "Parent view (demo)" },
+    { href: "/parent-view", label: "Parent Hub preview" },
     ...(canSeeLead(me.role) ? [{ href: "/early-years/lead", label: "Lead Guide" }] : []),
   ];
   return (

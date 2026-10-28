@@ -19,8 +19,8 @@ export default async function EarlyYearsPage() {
             <span className="muted">My classes, class roster, student progress, log an observation, and scan student work.</span>
           </Link>
           <Link href="/parent-view" className="card card-link">
-            <span className="card-title">Parent view (demo)</span>
-            <span className="muted">Click through what families see in the Alpha NYC Families app.</span>
+            <span className="card-title">Parent Hub</span>
+            <span className="muted">Click through what families see in the Parent Hub, and the requests they can send.</span>
           </Link>
           {canSeeLead(me.role) && (
             <Link href="/early-years/lead" className="card card-link">

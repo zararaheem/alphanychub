@@ -1,6 +1,5 @@
 import { requireMember } from "@/lib/access";
 import { getParentDemo } from "@/lib/parent-demo";
-import { PARENT_VIEW_URL } from "@/lib/links";
 import { ParentDemo } from "@/components/parent-demo";
 
 export default async function ParentViewPage() {
@@ -9,18 +8,15 @@ export default async function ParentViewPage() {
   return (
     <main className="page">
       <div className="stack-sm">
-        <h1>Parent view</h1>
-        <p className="lede">A click-through demo of the Alpha NYC Families app, so you know what parents see. Nothing here sends anything.</p>
+        <h1>Parent Hub preview</h1>
+        <p className="lede">A click-through of what families see in the Parent Hub. Nothing here sends anything.</p>
       </div>
       <div className="pv-wrap">
         <ParentDemo data={data} />
         <aside className="stack-sm pv-notes">
-          <p className="small muted">
-            {data.live ? "Showing the Families app's current content." : "Showing a snapshot of the Families app's content."} Text marked
-            &ldquo;placeholder&rdquo; hasn&apos;t been written yet.
-          </p>
-          <a href={PARENT_VIEW_URL} target="_blank" rel="noopener noreferrer" className="btn ghost sm" style={{ alignSelf: "flex-start" }}>Open the real Families app ↗</a>
-          <p className="small muted">Families sign in there with the email on the family roster.</p>
+          <p className="small muted">Families sign in at <b>/parents</b> with the email the school has for them. Their requests land in Requests and post to Slack.</p>
+          <a href="/parents" className="btn sm" style={{ alignSelf: "flex-start" }}>Open the Parent Hub (staff preview)</a>
+          <a href="/requests" className="btn ghost sm" style={{ alignSelf: "flex-start" }}>See requests →</a>
         </aside>
       </div>
     </main>

@@ -131,7 +131,8 @@ async function entries(): Promise<Entry[]> {
     ["Off-campus tracker", OFF_CAMPUS_URL, "Plan and clear trips, security clearance, who's out, check students out and back in.", "trip off-campus clearance board"],
     ["Attendance", ATTENDANCE_URL, "Take and check attendance.", "attendance roster headcount absent"],
     ["Transport request", TRANSPORT_URL, "Request shuttles and buses for Maiden Ln and Early Years.", "transport transportation bus shuttle car"],
-    ["Parent view (demo)", "/parent-view", "Click through what families see in the Families app.", "parent family families app demo preview"],
+    ["Parent Hub", "/parents", "Families send pickup changes, absences, medication forms and questions. Staff can preview it.", "parent family families app hub pickup dismissal absence late form preview"],
+    ["Requests", "/requests", "Send a request to leadership or report something missing in the hub; see parent requests.", "request ask leadership missing wrong inbox slack"],
   ];
   for (const [title, href, line, keywords] of tools) if (href) out.push({ title, where: "Tool", href, external: /^https?:/.test(href), lines: [line], keywords });
 

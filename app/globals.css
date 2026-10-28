@@ -595,3 +595,28 @@ a.hit-title:hover { color: var(--teal); }
 .who-emergency { grid-column: 1 / -1; margin: 0; padding: 10px 14px; border-radius: 12px; background: var(--red-soft); color: var(--red-ink); font-size: 13.5px; }
 .who-mini summary { cursor: pointer; font-weight: 700; font-size: 13.5px; color: var(--teal); padding: 4px 0; }
 .role-head { font-size: 13px; font-weight: 700; color: var(--ink-2); margin-top: 6px; }
+
+/* Parent Hub and requests */
+.ph-title { font-family: var(--display); font-weight: 700; font-size: 16px; }
+.ph-page { max-width: 760px; gap: 22px; }
+.ph-narrow { max-width: 520px; width: 100%; }
+.ph-h { font-size: 18px; }
+.ph-tiles { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+.ph-tile { gap: 6px; padding: 16px 18px; }
+.ph-row { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+.ph-req { gap: 6px; padding: 14px 18px; }
+.req-form { gap: 14px; }
+.req-narrow { max-width: 560px; display: flex; flex-direction: column; gap: 8px; }
+.req-card { gap: 8px; }
+.req-details { margin: 0; display: grid; gap: 4px 16px; grid-template-columns: max-content 1fr; font-size: 14px; }
+.req-details div { display: contents; }
+.req-details dt { color: var(--muted); font-weight: 600; }
+.req-details dd { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.req-update .input { width: auto; flex: 1 1 200px; min-height: 36px; }
+.req-update select.input { flex: 0 0 auto; }
+.q-list { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; }
+.ask-rate { gap: 6px; }
+@media (max-width: 560px) {
+  .req-details { grid-template-columns: 1fr; }
+  .req-details dt { margin-top: 4px; }
+}

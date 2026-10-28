@@ -8,18 +8,18 @@ type Screen = { tab: "home" } | { tab: "section"; slug: string } | { tab: "conta
 const tidy = (v: string | null) => (v ?? "").replace(/^PLACEHOLDER\s*[—-]?\s*/i, "").trim();
 const isPlaceholder = (v: string | null) => /placeholder/i.test(v ?? "");
 
-// Phone-sized click-through of the Families app. Demo only: nothing is sent.
+// Phone-sized click-through of the Parent Hub. Demo only: nothing is sent.
 export function ParentDemo({ data }: { data: ParentDemoData }) {
   const [screen, setScreen] = useState<Screen>({ tab: "home" });
   const [sent, setSent] = useState(false);
   const today = data.info.filter((i) => i.section === "daily");
 
   return (
-    <div className="pv-phone" role="region" aria-label="Families app demo">
+    <div className="pv-phone" role="region" aria-label="Parent Hub demo">
       <header className="pv-top">
         {screen.tab === "section" ? (
           <button type="button" className="pv-back" onClick={() => setScreen({ tab: "home" })}>← Back</button>
-        ) : <span className="pv-brand">Alpha NYC · Families</span>}
+        ) : <span className="pv-brand">Alpha NYC · Parent Hub</span>}
         <span className="pv-demo">Demo</span>
       </header>
 
@@ -88,7 +88,7 @@ export function ParentDemo({ data }: { data: ParentDemoData }) {
             <h3 className="pv-h">Change today&apos;s pickup</h3>
             <p className="pv-sub">Families tell the school about a different pickup or bus here (before 11:00 AM for buses).</p>
             {sent ? (
-              <div className="pv-card"><b>Sent ✓</b><span className="pv-sub">In the real app the front desk would see this. This demo didn&apos;t send anything.</span></div>
+              <div className="pv-card"><b>Sent ✓</b><span className="pv-sub">In the real Parent Hub the Campus Coordinator would get this right away. This demo didn&apos;t send anything.</span></div>
             ) : (
               <form className="pv-form" onSubmit={(e) => { e.preventDefault(); setSent(true); }}>
                 <label>Who&apos;s picking up?<input className="input" placeholder="e.g. Grandma, Ms. Lee" /></label>
