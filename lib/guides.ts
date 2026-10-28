@@ -170,7 +170,7 @@ export const GUIDES: Record<string, Guide> = {
     slug: "security",
     title: "Security",
     kicker: "One-pager",
-    intro: "Security protocols for the 6th floor at both campuses.",
+    intro: "Security protocols for the 6th floor at Maiden Ln. Early Years / William St will follow a similar plan.",
     source: "EAP §6 Door Security & Access Control, §6.6 Lockdown Door Security, §8 · Emergency team",
     sections: [
       {
