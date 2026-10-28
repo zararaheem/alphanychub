@@ -23,7 +23,9 @@ export function ActivityChecklist() {
                 {c.how && <small className="check-how">{c.how}</small>}
               </span>
             </label>
-            {c.link && <a href={c.link.href} target="_blank" rel="noopener noreferrer" className="check-link">{c.link.label} ↗</a>}
+            {c.link && (/^https?:/.test(c.link.href)
+              ? <a href={c.link.href} target="_blank" rel="noopener noreferrer" className="check-link">{c.link.label} ↗</a>
+              : <a href={c.link.href} className="check-link">{c.link.label} →</a>)}
             <span className="pill mint">{c.who}</span>
           </li>
         ))}

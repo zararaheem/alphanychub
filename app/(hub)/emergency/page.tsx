@@ -1,7 +1,8 @@
 import { requireMember, canEdit, canManageStaff, canSeeParents } from "@/lib/access";
 import { CAMPUS_LABEL } from "@/lib/campus";
 import { getContacts, getParentContacts, getProcedures } from "@/lib/data";
-import { deleteContact, deleteProcedure, importParentContacts, saveContact, saveProcedure } from "@/lib/actions";
+import { deleteContact, deleteProcedure, importParentContacts, lockParents, saveContact, saveProcedure, unlockParents } from "@/lib/actions";
+import { isUnlocked, UNLOCK_MINUTES } from "@/lib/parent-lock";
 import { ParentContacts } from "@/components/parent-contacts";
 import Link from "next/link";
 import { isRespondNow, procKind, shortTitle } from "@/lib/procedure-meta";
@@ -27,9 +28,11 @@ export default async function EmergencyPage({ searchParams }: { searchParams: SP
       </a>
     ) : null;
   const parentAccess = canSeeParents(me);
+  // Contacts are only fetched (and sent to the browser) once the viewer has entered their code.
+  const unlocked = parentAccess && (await isUnlocked(me));
   const parentManager = canManageStaff(me.role);
   const [contacts, procedures, parents] = await Promise.all([
-    getContacts(campus), getProcedures(campus), parentAccess ? getParentContacts(campus) : Promise.resolve([]),
+    getContacts(campus), getProcedures(campus), unlocked ? getParentContacts(campus) : Promise.resolve([]),
   ]);
   const respond = procedures.filter(isRespondNow);
   const reference = procedures.filter((p) => !isRespondNow(p));
@@ -122,16 +125,33 @@ export default async function EmergencyPage({ searchParams }: { searchParams: SP
                   </span>
                 )}
                 {parents.length > 0 && parentManager && <EditToggle section="parents" />}
+                {unlocked && (
+                  <form action={lockParents}>
+                    <button type="submit" className="btn ghost sm">Hide</button>
+                  </form>
+                )}
               </span>
             </div>
             {!parentAccess ? (
               <p className="empty">Parent contacts are limited to approved staff. Ask an admin if you need access.</p>
+            ) : !unlocked ? (
+              <details className="parent-lock">
+                <summary>Show parent contacts</summary>
+                <form action={unlockParents} className="row" style={{ gap: 8, alignItems: "flex-end" }}>
+                  <div className="field" style={{ flex: "1 1 200px" }}>
+                    <label htmlFor="pc-code">Your parent-contacts code</label>
+                    <input id="pc-code" name="code" type="password" className="input" autoComplete="off" required />
+                  </div>
+                  <button type="submit" className="btn">Unlock</button>
+                </form>
+                <p className="small muted">Stays open for {UNLOCK_MINUTES} minutes on this device, then hides again.</p>
+              </details>
             ) : parents.length === 0 ? (
               <p className="empty">No parent contacts yet.{parentManager ? " Import the Google Sheet below." : " An admin or Campus Coordinator can import them."}</p>
             ) : (
               <ParentContacts rows={parents} />
             )}
-            {parentManager && (parents.length === 0 || sp.edit === "parents") && (
+            {parentManager && unlocked && (parents.length === 0 || sp.edit === "parents") && (
               <details className="editor" open={editing("parents")}>
                 <summary>{parents.length ? "Re-import from Google Sheet" : "+ Import from Google Sheet"}</summary>
                 <form action={importParentContacts} className="stack" style={{ paddingBottom: 12 }}>

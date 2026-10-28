@@ -2,9 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { ADMINS, EDITORS, STAFF_MANAGERS, ROLE_LABELS, requireMember, requireRole, type Role } from "@/lib/access";
+import { ADMINS, EDITORS, STAFF_MANAGERS, ROLE_LABELS, canSeeParents, requireMember, requireRole, type Role } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { parseParentCsv } from "@/lib/parent-import";
+import { clearUnlocked, codeMatches, setUnlocked } from "@/lib/parent-lock";
 import { parseStaffCsv } from "@/lib/staff-import";
 
 // Every write below runs as the signed-in user, so Supabase RLS is the real
@@ -145,6 +146,43 @@ export async function importParentContacts(form: FormData) {
   const res = await supabase.from("parent_contacts").insert(rows);
   const early = rows.filter((r) => r.campus === "early-years").length;
   back("/emergency", res, `Imported ${rows.length} parent contacts (${early} Early Years, ${rows.length - early} Maiden Ln).`);
+}
+
+// Student medications (Admins and Campus Coordinators) ---------------------------
+export async function saveMedication(form: FormData) {
+  await requireRole(STAFF_MANAGERS);
+  const supabase = await createClient();
+  const id = num(form, "id");
+  const row = {
+    student: str(form, "student") ?? "Unnamed", level: str(form, "level"),
+    campus: str(form, "campus") === "early-years" ? "early-years" : "maiden-ln",
+    medication: str(form, "medication") ?? "Medication", dose: str(form, "dose"), route: str(form, "route"),
+    schedule: str(form, "schedule") ?? "Every school day", times: str(form, "times"), storage: str(form, "storage"),
+    instructions: str(form, "instructions"), updated_at: new Date().toISOString(),
+  };
+  const res = id ? await supabase.from("student_medications").update(row).eq("id", id) : await supabase.from("student_medications").insert(row);
+  back("/health", res, id ? "Medication record saved." : "Medication record added.");
+}
+
+export async function deleteMedication(form: FormData) {
+  await requireRole(STAFF_MANAGERS);
+  const supabase = await createClient();
+  const res = await supabase.from("student_medications").delete().eq("id", num(form, "id") ?? -1);
+  back("/health", res, "Medication record removed.");
+}
+
+// Parent contacts are hidden until the viewer enters their personal code.
+export async function unlockParents(form: FormData) {
+  const me = await requireMember();
+  if (!canSeeParents(me)) redirect("/emergency?err=" + encodeURIComponent("Parent contacts are limited to approved staff."));
+  if (!codeMatches(me, str(form, "code") ?? "")) redirect("/emergency?err=" + encodeURIComponent("That code didn't match. Check with Zara if you've forgotten it.") + "#parents-h");
+  await setUnlocked(me);
+  redirect("/emergency#parents-h");
+}
+
+export async function lockParents() {
+  await clearUnlocked();
+  redirect("/emergency#parents-h");
 }
 
 // Staff directory (Admins and Campus Coordinators) -----------------------------

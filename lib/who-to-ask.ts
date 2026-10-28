@@ -27,9 +27,10 @@ export const WHO_BY_PERSON: AskPerson[] = [
   },
   { who: "Emerly", role: "Campus Coordinator, Early Years", topics: ["Lunch changes (Early Years)", "Missing or hurt student: call (Early Years)"] },
   { who: "Lead Guards", role: "Derek Ghee (Maiden Ln) · Sugey Castillo (Early Years)", topics: ["Missing student search", "Door and building security on the day"] },
-  { who: "Emily", role: "Director of Global Programming", topics: ["Off-campus app (trip on the board)"] },
-  { who: "Terrence", role: "DoP (Dean of Parents)", topics: ["All parent and family messages"] },
-  { who: "Tasha", role: "Head of Schools", topics: ["Media or press questions"] },
+  { who: "Emily", role: "Director of Global Programming", topics: ["Student experiences", "Off-campus app (trip on the board)"] },
+  { who: "Terrence", role: "DoP (Dean of Parents)", topics: ["All parent-facing communications"] },
+  { who: "Nancy", role: "Dean of Students", topics: ["Details to come"] },
+  { who: "Tasha", role: "Head of Schools", topics: ["Budget approvals and budgets", "Booking videographers and storytellers", "Media or press questions", "Anything else"] },
   { who: "Ops", role: "Operations", topics: ["Room or setup changes"] },
 ];
 

@@ -1,5 +1,5 @@
 // Run before every workshop, mobile squad or Fun Friday (staff morning meetings, Oct 26–30).
-import { ATTENDANCE_URL, MEDICATIONS_URL, OFF_CAMPUS_URL, TRANSPORT_URL } from "@/lib/links";
+import { ATTENDANCE_URL, OFF_CAMPUS_URL, TRANSPORT_URL } from "@/lib/links";
 
 export type CheckLink = { label: string; href: string };
 export type CheckItem = { n: number; check: string; who: string; how?: string; link?: CheckLink | null };
@@ -7,7 +7,7 @@ export type CheckItem = { n: number; check: string; who: string; how?: string; l
 const offCampus = { label: "Off-campus tracker", href: OFF_CAMPUS_URL };
 const attendance = ATTENDANCE_URL ? { label: "Attendance", href: ATTENDANCE_URL } : null;
 const transport = { label: "Transport request", href: TRANSPORT_URL };
-const meds = { label: "Medications", href: MEDICATIONS_URL };
+const meds = { label: "Student medications", href: "/health" };
 
 export const CORE_SIX: CheckItem[] = [
   { n: 1, check: "Waiver needed?", who: "Zara", how: "Anything physical or run by an outside provider. Ask before you book." },

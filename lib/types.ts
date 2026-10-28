@@ -29,3 +29,9 @@ export type Student = {
   id: number; first_name: string; last_name: string; grade: string | null; level: string | null;
   campus: "early-years" | "maiden-ln";
 };
+
+export type Medication = {
+  id: number; student: string; level: string | null; campus: "early-years" | "maiden-ln"; medication: string;
+  dose: string | null; route: string | null; schedule: string; times: string | null; storage: string | null;
+  instructions: string | null; active: boolean; updated_at: string;
+};

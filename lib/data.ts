@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import type { Campus } from "@/lib/campus";
-import type { Contact, ParentContact, Procedure, StaffMember, Student, Workshop } from "@/lib/types";
+import type { Contact, Medication, ParentContact, Procedure, StaffMember, Student, Workshop } from "@/lib/types";
 
 // campus=null → everything; otherwise that campus plus rows marked "all".
 const scopes = (c: Campus | null) => (c ? [c, "all"] : ["maiden-ln", "early-years", "all"]);
@@ -49,4 +49,14 @@ export async function getStudents(campus: Campus | null) {
   if (campus) q = q.eq("campus", campus);
   const { data } = await q;
   return (data ?? []) as Student[];
+}
+
+// null = the table isn't set up yet (migration not run).
+export async function getMedications(campus: Campus | null): Promise<Medication[] | null> {
+  const supabase = await createClient();
+  let q = supabase.from("student_medications").select("*").eq("active", true).order("student");
+  if (campus) q = q.eq("campus", campus);
+  const { data, error } = await q;
+  if (error) return null;
+  return (data ?? []) as Medication[];
 }

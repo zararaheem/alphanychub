@@ -455,6 +455,25 @@ ul.proc-bullets.warn li::before { content: "✕"; color: var(--red); font-weight
 .move-form { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; flex: 2 1 460px; justify-content: flex-end; }
 .move-form input.input { width: 170px; min-height: 34px; font-size: 13px; padding: 0 8px; }
 .move-form .input { min-height: 34px; padding: 0 8px; font-size: 13px; width: auto; }
+.wrap { min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
+.med-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.med-card { border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+.med-card > summary { cursor: pointer; list-style: none; display: grid; grid-template-columns: minmax(0, 1.2fr) auto minmax(0, 1fr); gap: 6px 14px; align-items: baseline; padding: 12px 14px; }
+.med-card > summary::-webkit-details-marker { display: none; }
+.med-card[open] > summary { border-bottom: 1px solid var(--hairline); }
+.med-when { font-weight: 700; color: var(--teal-ink); font-size: 13.5px; white-space: nowrap; }
+.med-what { font-size: 13.5px; text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.med-card > .med-details, .med-card > .stack-sm { padding: 12px 14px; }
+.med-details { margin: 0; display: flex; flex-direction: column; }
+.med-details > div { display: grid; grid-template-columns: 140px 1fr; gap: 12px; padding: 8px 0; border-top: 1px solid var(--hairline); }
+.med-details > div:first-child { border-top: 0; }
+.med-details dt { font-size: 11.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.med-details dd { margin: 0; font-size: 14px; color: var(--ink); }
+.med-details .pre { white-space: pre-wrap; }
+@media (max-width: 560px) { .med-card > summary { grid-template-columns: 1fr auto; } .med-what { grid-column: 1 / -1; text-align: left; } .med-details > div { grid-template-columns: 1fr; gap: 2px; } }
+.parent-lock { border: 1px dashed var(--line); border-radius: 12px; padding: 10px 14px; }
+.parent-lock summary { cursor: pointer; font-weight: 700; color: var(--teal); }
+.parent-lock[open] { display: flex; flex-direction: column; gap: 10px; }
 .bulk-save { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; justify-content: space-between; position: sticky; top: 8px; z-index: 5; background: var(--surface); padding: 10px 0; border-bottom: 1px solid var(--hairline); }
 .bulk-save p { margin: 0; flex: 1 1 320px; }
 .bulk-email { display: inline-flex; flex-wrap: wrap; gap: 6px; align-items: center; }

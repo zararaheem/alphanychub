@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { GUIDES } from "@/lib/guides";
 import { LEVELS, WORKSHOPS } from "@/lib/session2";
-import { ATTENDANCE_URL, MEDICATIONS_URL, OFF_CAMPUS_URL, PARENT_VIEW_URL, TRANSPORT_URL } from "@/lib/links";
+import { ATTENDANCE_URL, OFF_CAMPUS_URL, PARENT_VIEW_URL, TRANSPORT_URL } from "@/lib/links";
 import type { Contact, Procedure, StaffMember } from "@/lib/types";
 import { WHO_TO_ASK } from "@/lib/who-to-ask";
 
@@ -127,7 +127,6 @@ async function entries(): Promise<Entry[]> {
     ["Off-campus tracker", OFF_CAMPUS_URL, "Plan and clear trips, security clearance, who's out, check students out and back in.", "trip off-campus clearance board"],
     ["Attendance", ATTENDANCE_URL, "Take and check attendance.", "attendance roster headcount absent"],
     ["Transport request", TRANSPORT_URL, "Request shuttles and buses for Maiden Ln and Early Years.", "transport transportation bus shuttle car"],
-    ["Student medications", MEDICATIONS_URL, "Which students take medication, the dose, when it's due and where it's stored.", "medication medicine meds sick nurse allergy dose"],
     ["Parent view (Families app)", PARENT_VIEW_URL, "What families see.", "parent family families app"],
   ];
   for (const [title, href, line, keywords] of tools) if (href) out.push({ title, where: "Tool", href, external: true, lines: [line], keywords });
