@@ -136,8 +136,8 @@ async function EmergencySheet() {
     const phone = s?.phone ?? c?.phone ?? null;
     const email = s?.email ?? c?.email ?? null;
     if (!s && !c) return [];
-    // Short title: first part only ("Dean of Parents (DOP) · Parent & ..." → "Dean of Parents (DOP)").
-    const title = (s?.title ?? c?.role ?? "").split("·")[0].trim();
+    // Short title, no campus: "Lead Guard, Maiden Ln" → "Lead Guard"; "Dean of Parents (DOP) · …" → "Dean of Parents (DOP)".
+    const title = (s?.title ?? c?.role ?? "").split(/[·,]/)[0].trim();
     return [{ key: s?.id ?? c?.id ?? first, name: s?.name ?? c!.name, title, phone, email }];
   }).sort((a, b) => a.name.localeCompare(b.name));
   const searchers = contacts.filter((c) => /searcher/i.test(c.role ?? "")).map((c) => c.name).join(" and ");
