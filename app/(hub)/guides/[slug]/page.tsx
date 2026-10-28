@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getContacts, getProcedures } from "@/lib/data";
+import { getContacts, getProcedures, getStaff } from "@/lib/data";
 import { GUIDES, type GuideSection } from "@/lib/guides";
 import { isRespondNow, parseProcedure, shortTitle } from "@/lib/procedure-meta";
 import { PrintButton } from "@/components/print-button";
@@ -120,15 +120,19 @@ function SheetColumns({ items, count = 3 }: { items: { weight: number; node: Rea
   return <div className="sheet-cols">{cols.map((c, i) => <div key={i} className="sheet-col">{c}</div>)}</div>;
 }
 
+const CALL_LIST = ["Tasha", "Terrence", "Zara", "Nancy", "Emily"];
+
 const tel = (phone: string) => <a href={`tel:${phone.replace(/[^\d+]/g, "")}`}>{phone}</a>;
 
 async function EmergencySheet() {
   const campus = await currentCampus();
-  const [procs, contacts] = await Promise.all([getProcedures(campus), getContacts(campus)]);
+  const [procs, contacts, staff] = await Promise.all([getProcedures(campus), getContacts(campus), getStaff(null)]);
   const respond = procs.filter(isRespondNow);
-  // Zara's own number stays off the printed Key numbers list (she asked).
-  const phones = contacts.filter((c) => c.phone && c.phone !== "911" && c.name !== "Zara Raheem").slice(0, 6);
-  const leads = contacts.filter((c) => /coordinator|lead guard|dean of parents|head of school/i.test(c.role ?? ""));
+  // Who to call, by phone, in this order (from the staff directory).
+  const callList = CALL_LIST.flatMap((first) => {
+    const s = staff.find((p) => p.name.toLowerCase().startsWith(first.toLowerCase() + " "));
+    return s?.phone ? [s] : [];
+  });
   const searchers = contacts.filter((c) => /searcher/i.test(c.role ?? "")).map((c) => c.name).join(" and ");
   return (
     <Sheet campus={campus} title="Emergency procedures" intro="Call 911 first in any life-threatening emergency." source="Alpha NYC Emergency Action Plan · live contacts in the hub">
@@ -211,26 +215,17 @@ async function EmergencySheet() {
           ),
         },
         {
-          weight: 90 + 70 * (phones.length + 1),
+          weight: 90 + 70 * (callList.length + 1),
           node: (
-            <section key="numbers" className="sheet-sec">
-              <h2>Key numbers</h2>
-              <Table head={["Who", "Number"]} rows={[
+            <section key="call" className="sheet-sec">
+              <h2>Who to call</h2>
+              <Table rows={[
                 [<b key="e">Emergency</b>, tel("911")],
-                ...phones.map((c) => [c.name, tel(c.phone!)]),
+                ...callList.map((p) => [<b key={p.id}>{p.name}</b>, tel(p.phone!)]),
               ]} />
             </section>
           ),
         },
-        ...(leads.length > 0 ? [{
-          weight: 90 + 70 * leads.length,
-          node: (
-            <section key="team" className="sheet-sec">
-              <h2>Emergency team</h2>
-              <Table head={["Name", "Role"]} rows={leads.map((c) => [<b key={c.id}>{c.name}</b>, c.role?.split("·")[0].trim() ?? ""])} />
-            </section>
-          ),
-        }] : []),
       ]} />
     </Sheet>
   );

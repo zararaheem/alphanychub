@@ -656,3 +656,5 @@ a.hit-title:hover { color: var(--teal); }
 /* Health & safety: one column, jump bar, anchors land below the sticky bar */
 .health-page .h-sec { scroll-margin-top: 64px; }
 .h-first { margin: 0; padding: 10px 14px; border-radius: 10px; background: var(--red-soft); color: var(--ink); font-size: 15px; line-height: 1.45; }
+/* iPhone prints at a larger scale than desktop; shrink the emergency sheet a little so it stays on one page. */
+@media print { .page.sheet:has(.sheet-cols) { zoom: 0.88; } }
