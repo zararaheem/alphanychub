@@ -106,6 +106,21 @@ function ExtLink({ l, arrow }: { l: { label: string; href: string }; arrow?: boo
   );
 }
 
+// Three explicit columns, filled in order and balanced by rough text length.
+// CSS columns don't survive printing on iPhones (the sheet ran to 3 pages).
+function SheetColumns({ items, count = 3 }: { items: { weight: number; node: React.ReactNode }[]; count?: number }) {
+  const total = items.reduce((n, i) => n + i.weight, 0);
+  const cols: React.ReactNode[][] = Array.from({ length: count }, () => []);
+  let col = 0;
+  let filled = 0;
+  for (const item of items) {
+    if (col < count - 1 && filled > 0 && filled + item.weight / 2 > (total / count) * (col + 1)) col++;
+    cols[col].push(item.node);
+    filled += item.weight;
+  }
+  return <div className="sheet-cols">{cols.map((c, i) => <div key={i} className="sheet-col">{c}</div>)}</div>;
+}
+
 const tel = (phone: string) => <a href={`tel:${phone.replace(/[^\d+]/g, "")}`}>{phone}</a>;
 
 async function EmergencySheet() {
@@ -143,8 +158,8 @@ async function EmergencySheet() {
           <li><b>Wait for the official all-clear.</b> Never re-enter on your own or open a locked door without law enforcement.</li>
         </ul>
       </section>
-      <div className="sheet-grid dense">
-        {respond.map((p) => {
+      <SheetColumns items={[
+        ...respond.map((p) => {
           const blocks = parseProcedure(p.body);
           const lead = blocks.find((b) => b.type === "lead");
           const steps = blocks.find((b) => b.type === "steps");
@@ -153,49 +168,71 @@ async function EmergencySheet() {
           const bullets = !steps ? blocks.find((b) => b.type === "bullets") : undefined;
           // Arrow-chain summaries repeat the numbered steps, so skip them when steps exist.
           const showLead = lead?.type === "lead" && !(steps && lead.text.includes("→"));
-          return (
-            <section key={p.id} className="sheet-sec">
-              <h2>{shortTitle(p.title)}</h2>
-              {showLead && lead?.type === "lead" && <p className="sheet-lead">{lead.text}</p>}
-              {steps?.type === "steps" && <ol className="sheet-steps">{steps.items.map((t) => <li key={t}>{t}</li>)}</ol>}
-              {bullets?.type === "bullets" && <ul className="sheet-list">{bullets.items.map((t) => <li key={t}>{t}</li>)}</ul>}
-              {dontList?.type === "bullets" && (
-                <div className="sheet-dont">
-                  <b>Do not</b>
-                  <ul>{dontList.items.map((t) => <li key={t}>{t}</li>)}</ul>
-                </div>
+          const lines = [
+            ...(showLead && lead?.type === "lead" ? [lead.text] : []),
+            ...(steps?.type === "steps" ? steps.items : []),
+            ...(bullets?.type === "bullets" ? bullets.items : []),
+            ...(dontList?.type === "bullets" ? dontList.items : []),
+          ];
+          return {
+            weight: 40 + lines.reduce((n, t) => n + 20 + t.length, 0),
+            node: (
+              <section key={p.id} className="sheet-sec">
+                <h2>{shortTitle(p.title)}</h2>
+                {showLead && lead?.type === "lead" && <p className="sheet-lead">{lead.text}</p>}
+                {steps?.type === "steps" && <ol className="sheet-steps">{steps.items.map((t) => <li key={t}>{t}</li>)}</ol>}
+                {bullets?.type === "bullets" && <ul className="sheet-list">{bullets.items.map((t) => <li key={t}>{t}</li>)}</ul>}
+                {dontList?.type === "bullets" && (
+                  <div className="sheet-dont">
+                    <b>Do not</b>
+                    <ul>{dontList.items.map((t) => <li key={t}>{t}</li>)}</ul>
+                  </div>
+                )}
+              </section>
+            ),
+          };
+        }),
+        {
+          weight: 200,
+          node: (
+            <section key="assembly" className={`sheet-sec${campus === "early-years" ? " todo" : ""}`}>
+              <h2>Assembly areas{campus === null ? " · Maiden Ln" : ""}</h2>
+              {campus === "early-years" ? (
+                <p className="todo-note"><b>In progress</b> William St assembly areas are being confirmed.</p>
+              ) : (
+                <>
+                  <Table rows={[
+                    [<b key="p">Primary</b>, "South Street Seaport, Fulton St (Front St – South St)"],
+                    [<b key="s">Secondary</b>, "Louise Nevelson Plaza, William St (Maiden Ln – Liberty St)"],
+                  ]} />
+                  <p className="sheet-note">Report headcount to the Coordinator within 3 minutes.</p>
+                </>
               )}
             </section>
-          );
-        })}
-        <section className={`sheet-sec${campus === "early-years" ? " todo" : ""}`}>
-          <h2>Assembly areas{campus === null ? " · Maiden Ln" : ""}</h2>
-          {campus === "early-years" ? (
-            <p className="todo-note"><b>In progress</b> William St assembly areas are being confirmed.</p>
-          ) : (
-            <>
-              <Table rows={[
-                [<b key="p">Primary</b>, "South Street Seaport, Fulton St (Front St – South St)"],
-                [<b key="s">Secondary</b>, "Louise Nevelson Plaza, William St (Maiden Ln – Liberty St)"],
+          ),
+        },
+        {
+          weight: 60 + 45 * (phones.length + 1),
+          node: (
+            <section key="numbers" className="sheet-sec">
+              <h2>Key numbers</h2>
+              <Table head={["Who", "Number"]} rows={[
+                [<b key="e">Emergency</b>, tel("911")],
+                ...phones.map((c) => [c.name, tel(c.phone!)]),
               ]} />
-              <p className="sheet-note">Report headcount to the Coordinator within 3 minutes.</p>
-            </>
-          )}
-        </section>
-        <section className="sheet-sec">
-          <h2>Key numbers</h2>
-          <Table head={["Who", "Number"]} rows={[
-            [<b key="e">Emergency</b>, tel("911")],
-            ...phones.map((c) => [c.name, tel(c.phone!)]),
-          ]} />
-        </section>
-        {leads.length > 0 && (
-          <section className="sheet-sec">
-            <h2>Emergency team</h2>
-            <Table head={["Name", "Role"]} rows={leads.map((c) => [<b key={c.id}>{c.name}</b>, c.role?.split("·")[0].trim() ?? ""])} />
-          </section>
-        )}
-      </div>
+            </section>
+          ),
+        },
+        ...(leads.length > 0 ? [{
+          weight: 60 + 45 * leads.length,
+          node: (
+            <section key="team" className="sheet-sec">
+              <h2>Emergency team</h2>
+              <Table head={["Name", "Role"]} rows={leads.map((c) => [<b key={c.id}>{c.name}</b>, c.role?.split("·")[0].trim() ?? ""])} />
+            </section>
+          ),
+        }] : []),
+      ]} />
     </Sheet>
   );
 }

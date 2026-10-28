@@ -622,3 +622,20 @@ a.hit-title:hover { color: var(--teal); }
   .req-details { grid-template-columns: 1fr; }
   .req-details dt { margin-top: 4px; }
 }
+
+/* Emergency one-pager: explicit columns so it prints on one page from a phone too */
+.sheet-cols { display: flex; gap: 16px; align-items: flex-start; }
+.sheet-col { flex: 1 1 0; min-width: 0; }
+@media (max-width: 720px) { .sheet-cols { display: block; } }
+@media print {
+  .sheet-cols { display: flex !important; gap: 8px; }
+  .sheet-cols .sheet-sec { font-size: 8.4px; line-height: 1.3; padding: 6px 8px; gap: 3px; margin-bottom: 6px; }
+  .sheet-cols .sheet-sec h2, .sheet-cols .sheet-dont > b { font-size: 9px; }
+  .sheet-cols .sheet-steps li::before { width: 13px; height: 13px; font-size: 8px; top: 0; }
+  .sheet-cols .sheet-steps li { padding-left: 18px; }
+  .sheet-cols .sheet-list, .sheet-cols .sheet-steps { gap: 2px; }
+  .sheet-cols .sheet-dont, .sheet-cols .sheet-note, .sheet-cols .sheet-table { font-size: 8.5px; }
+  .sheet-cols .sheet-table th { font-size: 7.5px; }
+  .sheet-cols .sheet-table td { padding: 2px 6px 2px 0; }
+  .sheet-first ol, .sheet-rules ul { display: grid !important; }
+}

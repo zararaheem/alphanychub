@@ -26,9 +26,8 @@ export const PARENT_CONTENT: ParentContent = {
     { section_slug: "busing", label: "Same-day bus change", value: "Send a pickup change before 11:00 AM" },
   ],
   cards: [
-    { when_to_use: "Dismissal & attendance", who: "Campus Coordinator", role: "Julianne Braime (Maiden Ln) · Emerly Campusano (Early Years)", phone: null, email: null, note: null },
+    { when_to_use: "Dismissal, late arrival, lunch & logistics", who: "Campus Coordinator", role: "Julianne Braime (Maiden Ln) · Emerly Campusano (Early Years)", phone: null, email: null, note: null },
     { when_to_use: "Academics & progress", who: "Your child's Guide, or the DoP", role: "During school hours · Terrence McMullen, Dean of Parents", phone: null, email: null, note: null },
-    { when_to_use: "Health & medication", who: "Health lead", role: "Health", phone: null, email: null, note: null },
     { when_to_use: "Something urgent right now", who: "Head of School", role: "Tasha Arnold", phone: null, email: null, note: null },
   ],
 };
