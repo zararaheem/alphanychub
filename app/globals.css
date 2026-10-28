@@ -652,3 +652,7 @@ a.hit-title:hover { color: var(--teal); }
 .em-first-card { border-left: 4px solid var(--red); gap: 6px; }
 .em-first-card p { font-size: 17px; line-height: 1.5; color: var(--ink); font-weight: 600; margin: 0; }
 @media print { .em-switch { display: none; } }
+
+/* Health & safety: one column, jump bar, anchors land below the sticky bar */
+.health-page .h-sec { scroll-margin-top: 64px; }
+.h-first { margin: 0; padding: 10px 14px; border-radius: 10px; background: var(--red-soft); color: var(--ink); font-size: 15px; line-height: 1.45; }

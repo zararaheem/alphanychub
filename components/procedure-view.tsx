@@ -28,8 +28,11 @@ export function ProcedureBody({ body, skipSummary = false }: { body: string; ski
                 {b.items.map((t, j) => <li key={j}>{t}</li>)}
               </ul>
             );
-          default:
-            return <p key={i} className="proc-para">{b.text}</p>;
+          default: {
+            // "AED: …" / "First aid kits: …" lines get a bold label so they stand out.
+            const m = b.text.match(/^([^:]{2,30}):\s*(.*)$/);
+            return <p key={i} className="proc-para">{m ? <><b>{m[1]}:</b> {m[2]}</> : b.text}</p>;
+          }
         }
       })}
     </div>
