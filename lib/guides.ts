@@ -190,7 +190,7 @@ export const GUIDES: Record<string, Guide> = {
         steps: [
           "Immediate danger? Call 911 first.",
           "Check your roster to confirm who's missing. Don't leave your group to search.",
-          "Call (don't radio) your Campus Coordinator: Julianne Braime (Maiden Ln) or Emerly Campusano (Early Years). Or call the Lead Guard: Derek Ghee (Maiden Ln) or Sugey Castillo (Early Years).",
+          "Contact your Campus Coordinator: Julianne Braime (Maiden Ln) or Emerly Campusano (Early Years). Or contact the Lead Guard: Derek Ghee (Maiden Ln) or Sugey Castillo (Early Years).",
           "Guards and searchers look for the student. Stay with the rest of your group.",
           "The DoP (Dean of Parents, Terrence McMullen) handles all parent messages. Don't contact families yourself.",
         ],
