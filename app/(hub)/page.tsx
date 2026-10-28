@@ -3,19 +3,21 @@ import { requireMember } from "@/lib/access";
 import { CAMPUSES, clock, shortDay, todayNY } from "@/lib/campus";
 import { currentCampus } from "@/lib/campus-pref";
 import { LEVELS, SESSION, WORKSHOPS } from "@/lib/session2";
-import { getContacts, getProcedures, getWorkshops } from "@/lib/data";
+import { getContacts, getProcedures, getStaff, getStudents, getWorkshops } from "@/lib/data";
 import { OFF_CAMPUS_URL } from "@/lib/links";
 import { Clock } from "@/components/clock";
 import { ExtIcon } from "@/components/external-link";
+import { WhoToAsk } from "@/components/who-to-ask";
 
 export default async function HomePage() {
   const me = await requireMember();
   const today = todayNY();
   const campus = await currentCampus();
   const here = campus ? CAMPUSES.find((c) => c.id === campus)! : null;
-  const [contacts, procedures, workshops] = await Promise.all([
-    getContacts(campus), getProcedures(campus), getWorkshops(campus, { from: today }),
+  const [contacts, procedures, workshops, staff, students] = await Promise.all([
+    getContacts(campus), getProcedures(campus), getWorkshops(campus, { from: today }), getStaff(campus), getStudents(campus),
   ]);
+  const onSite = staff.filter((s) => s.campus !== "unassigned");
   const next = workshops[0];
   const levelsHere = LEVELS.filter((l) => !campus || l.campus === campus);
   const levelCount = levelsHere.length;
@@ -38,9 +40,9 @@ export default async function HomePage() {
       <main className="page">
         <div className="kpis">
           <div className="kpi">
-            <span className="label-caps">Students on campus today</span>
-            <b style={{ color: "var(--muted)" }}>--</b>
-            <span className="note">Coming soon, from the Attendance app</span>
+            <span className="label-caps">Students enrolled</span>
+            <b>{students.length || "--"}</b>
+            <span className="note">{here ? here.name : "Both campuses"} · today&apos;s count from Attendance coming soon</span>
           </div>
           <div className="kpi">
             <span className="label-caps">Next staff workshop</span>
@@ -50,7 +52,7 @@ export default async function HomePage() {
           <div className="kpi">
             <span className="label-caps">In an emergency</span>
             <b>Call 911</b>
-            <span className="note">Then everyone to radio Channel 2</span>
+            <span className="note">Then alert everyone by radio (alt: Zello)</span>
           </div>
         </div>
 
@@ -80,6 +82,20 @@ export default async function HomePage() {
             </div>
           )}
 
+          <Link href="/health" className="card card-link">
+            <span className="card-title">Health &amp; safety</span>
+            <span className="muted">Student medications (who, when, dose, where stored), the medical emergency steps, and what to carry on trips.</span>
+          </Link>
+
+          <Link href="/staff" className="card card-link">
+            <span className="card-title">Staff</span>
+            <span className="muted">Everyone on site{here ? ` at ${here.name}` : ""}, with phone and email.</span>
+            <span style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8 }}>
+              <span className="stat"><b>{onSite.length}</b><span>{here ? "on this campus" : "with a campus"}</span></span>
+              {!here && <span className="stat"><b>{staff.length - onSite.length}</b><span>not assigned yet</span></span>}
+            </span>
+          </Link>
+
           <Link href="/workshops" className="card card-link">
             <span className="card-title">Workshops</span>
             <span className="muted">{SESSION.name} student workshops by level, plus the all-staff planning schedule.</span>
@@ -90,18 +106,28 @@ export default async function HomePage() {
           </Link>
         </div>
 
+        <section className="card" aria-labelledby="who-h">
+          <div className="between" style={{ alignItems: "baseline" }}>
+            <h2 id="who-h">Who do I ask?</h2>
+            <a href="/guides/checklist" className="small">Before-every-activity checklist →</a>
+          </div>
+          <WhoToAsk />
+        </section>
+
+        {!campus && (
         <section className="stack" aria-labelledby="campus-h">
-          <h2 id="campus-h" className="label-caps">Campuses</h2>
+          <h2 id="campus-h" className="label-caps">Focus on one campus</h2>
           <div className="grid">
-            {CAMPUSES.filter((c) => !campus || c.id === campus).map((c) => (
-              <Link key={c.id} href={`/${c.id}`} className="card card-link">
+            {CAMPUSES.map((c) => (
+              <a key={c.id} href={`/campus?set=${c.id}&next=/`} className="card card-link">
                 <span className="card-title">{c.name}</span>
                 <span className="muted">{c.blurb}</span>
-                <span className="small" style={{ color: "var(--teal)", fontWeight: 700 }}>Open campus page →</span>
-              </Link>
+                <span className="small" style={{ color: "var(--teal)", fontWeight: 700 }}>Show this campus →</span>
+              </a>
             ))}
           </div>
         </section>
+        )}
       </main>
     </>
   );

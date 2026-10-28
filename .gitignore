@@ -7,3 +7,7 @@ out/
 next-env.d.ts
 .vercel
 staff-hub-setup.sql
+staff-hub-update.sql
+staff-update-2.sql
+parent-contacts.sql
+run-this.sql

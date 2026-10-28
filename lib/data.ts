@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import type { Campus } from "@/lib/campus";
-import type { Contact, ParentContact, Procedure, Workshop } from "@/lib/types";
+import type { Contact, Medication, ParentContact, Procedure, StaffMember, Student, Workshop } from "@/lib/types";
 
 // campus=null → everything; otherwise that campus plus rows marked "all".
 const scopes = (c: Campus | null) => (c ? [c, "all"] : ["maiden-ln", "early-years", "all"]);
@@ -33,4 +33,30 @@ export async function getParentContacts(campus: Campus | null) {
   if (campus) q = q.eq("campus", campus);
   const { data } = await q.order("sort").order("student").order("id");
   return (data ?? []) as ParentContact[];
+}
+
+export async function getStaff(campus: Campus | null) {
+  const supabase = await createClient();
+  // "Not assigned yet" people only show when both campuses are selected.
+  const { data } = await supabase.from("staff_directory").select("*").in("campus", campus ? scopes(campus) : [...scopes(null), "unassigned"])
+    .order("sort").order("name");
+  return (data ?? []) as StaffMember[];
+}
+
+export async function getStudents(campus: Campus | null) {
+  const supabase = await createClient();
+  let q = supabase.from("students").select("id, first_name, last_name, grade, level, campus").order("last_name").order("first_name");
+  if (campus) q = q.eq("campus", campus);
+  const { data } = await q;
+  return (data ?? []) as Student[];
+}
+
+// null = the table isn't set up yet (migration not run).
+export async function getMedications(campus: Campus | null): Promise<Medication[] | null> {
+  const supabase = await createClient();
+  let q = supabase.from("student_medications").select("*").eq("active", true).order("student");
+  if (campus) q = q.eq("campus", campus);
+  const { data, error } = await q;
+  if (error) return null;
+  return (data ?? []) as Medication[];
 }

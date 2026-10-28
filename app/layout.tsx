@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { HUB_NAME } from "@/lib/campus";
+import { currentTheme } from "@/lib/theme";
 
 export const metadata: Metadata = {
   title: HUB_NAME,
@@ -8,9 +9,10 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const theme = await currentTheme();
   return (
-    <html lang="en">
+    <html lang="en" data-theme={theme}>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />

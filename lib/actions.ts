@@ -2,9 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { requireMember, requireRole, type Role } from "@/lib/access";
+import { ADMINS, EDITORS, STAFF_MANAGERS, ROLE_LABELS, canSeeParents, requireMember, requireRole, type Role } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { parseParentCsv } from "@/lib/parent-import";
+import { clearUnlocked, codeMatches, setUnlocked } from "@/lib/parent-lock";
+import { parseStaffCsv } from "@/lib/staff-import";
 
 // Every write below runs as the signed-in user, so Supabase RLS is the real
 // gate; the requireMember/requireRole calls just fail fast with a clear message.
@@ -27,8 +29,6 @@ function back(path: string, result: { error: { message: string } | null }, ok: s
   const q = result.error ? `err=${encodeURIComponent(result.error.message)}` : `msg=${encodeURIComponent(ok)}`;
   redirect(`${path}${path.includes("?") ? "&" : "?"}${q}`);
 }
-
-const EDITORS: Role[] = ["admin", "lead"];
 
 // Emergency contacts ---------------------------------------------------------
 export async function saveContact(form: FormData) {
@@ -99,20 +99,29 @@ export async function deleteWorkshop(form: FormData) {
 
 // Access list (admins) -------------------------------------------------------
 export async function addMember(form: FormData) {
-  const me = await requireRole(["admin"]);
+  const me = await requireRole(ADMINS);
   const supabase = await createClient();
   const email = str(form, "email")?.toLowerCase();
   const role = str(form, "role");
   if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) back("/access", { error: { message: "Enter a valid email." } }, "");
-  if (!role || !["admin", "lead", "guide", "staff"].includes(role)) back("/access", { error: { message: "Pick a role." } }, "");
+  if (!role || !(role in ROLE_LABELS)) back("/access", { error: { message: "Pick a role." } }, "");
   const res = await supabase
     .from("allowed_users")
     .upsert({ email, role, name: str(form, "name"), added_by: me.email }, { onConflict: "email" });
   back("/access", res, `${email} can now sign in.`);
 }
 
+export async function setParentAccess(form: FormData) {
+  await requireRole(ADMINS);
+  const supabase = await createClient();
+  const on = str(form, "on") === "1";
+  const email = str(form, "email") ?? "";
+  const res = await supabase.from("allowed_users").update({ can_see_parents: on }).eq("email", email);
+  back("/access", res, on ? `${email} can now see parent contacts.` : `${email} can no longer see parent contacts.`);
+}
+
 export async function removeMember(form: FormData) {
-  const me = await requireRole(["admin"]);
+  const me = await requireRole(ADMINS);
   const email = str(form, "email");
   if (email === me.email) back("/access", { error: { message: "You can't remove yourself." } }, "");
   const supabase = await createClient();
@@ -122,7 +131,7 @@ export async function removeMember(form: FormData) {
 
 // Parent contacts (CSV export of the Google Sheet) ---------------------------
 export async function importParentContacts(form: FormData) {
-  await requireRole(EDITORS);
+  await requireRole(STAFF_MANAGERS);
   const file = form.get("file");
   const text = file instanceof File && file.size > 0 ? await file.text() : str(form, "csv");
   if (!text) back("/emergency", { error: { message: "Choose the CSV file exported from the Google Sheet." } }, "");
@@ -137,4 +146,138 @@ export async function importParentContacts(form: FormData) {
   const res = await supabase.from("parent_contacts").insert(rows);
   const early = rows.filter((r) => r.campus === "early-years").length;
   back("/emergency", res, `Imported ${rows.length} parent contacts (${early} Early Years, ${rows.length - early} Maiden Ln).`);
+}
+
+// Student medications (Admins and Campus Coordinators) ---------------------------
+export async function saveMedication(form: FormData) {
+  await requireRole(STAFF_MANAGERS);
+  const supabase = await createClient();
+  const id = num(form, "id");
+  const row = {
+    student: str(form, "student") ?? "Unnamed", level: str(form, "level"),
+    campus: str(form, "campus") === "early-years" ? "early-years" : "maiden-ln",
+    medication: str(form, "medication") ?? "Medication", dose: str(form, "dose"), route: str(form, "route"),
+    schedule: str(form, "schedule") ?? "Every school day", times: str(form, "times"), storage: str(form, "storage"),
+    instructions: str(form, "instructions"), updated_at: new Date().toISOString(),
+  };
+  const res = id ? await supabase.from("student_medications").update(row).eq("id", id) : await supabase.from("student_medications").insert(row);
+  back("/health", res, id ? "Medication record saved." : "Medication record added.");
+}
+
+export async function deleteMedication(form: FormData) {
+  await requireRole(STAFF_MANAGERS);
+  const supabase = await createClient();
+  const res = await supabase.from("student_medications").delete().eq("id", num(form, "id") ?? -1);
+  back("/health", res, "Medication record removed.");
+}
+
+// Parent contacts are hidden until the viewer enters their personal code.
+export async function unlockParents(form: FormData) {
+  const me = await requireMember();
+  if (!canSeeParents(me)) redirect("/emergency?err=" + encodeURIComponent("Parent contacts are limited to approved staff."));
+  if (!codeMatches(me, str(form, "code") ?? "")) redirect("/emergency?err=" + encodeURIComponent("That code didn't match. Check with Zara if you've forgotten it.") + "#parents-h");
+  await setUnlocked(me);
+  redirect("/emergency#parents-h");
+}
+
+export async function lockParents() {
+  await clearUnlocked();
+  redirect("/emergency#parents-h");
+}
+
+// Staff directory (Admins and Campus Coordinators) -----------------------------
+const staffCampus = (f: FormData) => {
+  const v = str(f, "campus");
+  return v === "maiden-ln" || v === "early-years" || v === "all" ? v : "unassigned";
+};
+
+export async function saveStaff(form: FormData) {
+  await requireRole(STAFF_MANAGERS);
+  const supabase = await createClient();
+  const id = num(form, "id");
+  const row = {
+    campus: staffCampus(form), name: str(form, "name") ?? "Unnamed", title: str(form, "title"), team: str(form, "team"),
+    email: str(form, "email")?.toLowerCase() ?? null, phone: str(form, "phone"), notes: str(form, "notes"),
+    sort: num(form, "sort") ?? 0, updated_at: new Date().toISOString(),
+  };
+  const res = id
+    ? await supabase.from("staff_directory").update(row).eq("id", id)
+    : await supabase.from("staff_directory").insert(row);
+  back("/staff?edit=1", res, id ? "Staff member updated." : "Staff member added.");
+}
+
+export async function moveStaff(form: FormData) {
+  await requireRole(STAFF_MANAGERS);
+  const supabase = await createClient();
+  // Quick row edit: campus, plus title and phone when those boxes are on the form.
+  const row: Record<string, string | null> = { campus: staffCampus(form), updated_at: new Date().toISOString() };
+  if (form.has("title")) row.title = str(form, "title");
+  if (form.has("phone")) row.phone = str(form, "phone");
+  const res = await supabase.from("staff_directory").update(row).eq("id", num(form, "id") ?? -1);
+  back("/staff?edit=1", res, "Saved.");
+}
+
+// "Save all changes" on the Staff page: every row's title, phone and campus in
+// one submit. Only rows that actually changed are written.
+export async function saveAllStaff(form: FormData) {
+  await requireRole(STAFF_MANAGERS);
+  const supabase = await createClient();
+  const { data: current, error } = await supabase.from("staff_directory").select("id, title, phone, campus");
+  if (error) back("/staff?edit=1", { error }, "");
+  const place = (v: FormDataEntryValue | null) => (v === "maiden-ln" || v === "early-years" || v === "all" ? v : "unassigned");
+  const clean = (v: FormDataEntryValue | null) => (typeof v === "string" && v.trim() ? v.trim() : null);
+  let changed = 0;
+  for (const row of current ?? []) {
+    if (!form.has(`campus-${row.id}`)) continue;
+    const next = { title: clean(form.get(`title-${row.id}`)), phone: clean(form.get(`phone-${row.id}`)), campus: place(form.get(`campus-${row.id}`)) };
+    if (next.title === row.title && next.phone === row.phone && next.campus === row.campus) continue;
+    const res = await supabase.from("staff_directory").update({ ...next, updated_at: new Date().toISOString() }).eq("id", row.id);
+    if (res.error) back("/staff?edit=1", res, "");
+    changed++;
+  }
+  back("/staff?edit=1", { error: null }, changed ? `Saved ${changed} ${changed === 1 ? "person" : "people"}.` : "No changes to save.");
+}
+
+export async function deleteStaff(form: FormData) {
+  await requireRole(STAFF_MANAGERS);
+  const supabase = await createClient();
+  const res = await supabase.from("staff_directory").delete().eq("id", num(form, "id") ?? -1);
+  back("/staff?edit=1", res, "Staff member removed.");
+}
+
+export async function importStaff(form: FormData) {
+  await requireRole(STAFF_MANAGERS);
+  const file = form.get("file");
+  const text = file instanceof File && file.size > 0 ? await file.text() : null;
+  if (!text) back("/staff?edit=1", { error: { message: "Choose the CSV file exported from the Google Sheet." } }, "");
+  if (text.length > 2_000_000) back("/staff?edit=1", { error: { message: "That file is too large (2 MB max)." } }, "");
+  const { rows, error } = parseStaffCsv(text);
+  if (error) back("/staff?edit=1", { error: { message: error } }, "");
+  const supabase = await createClient();
+  // Replace the whole list so the directory mirrors the latest sheet.
+  const del = await supabase.from("staff_directory").delete().gte("id", 0);
+  if (del.error) back("/staff?edit=1", del, "");
+  const res = await supabase.from("staff_directory").insert(rows);
+  back("/staff", res, `Imported ${rows.length} staff.`);
+}
+
+// Resource library for the Ask assistant (Admins and Campus Coordinators) -----
+export async function saveResource(form: FormData) {
+  await requireRole(STAFF_MANAGERS);
+  const supabase = await createClient();
+  const id = num(form, "id");
+  const body = str(form, "body") ?? "";
+  if (body.length > 100_000) back("/resources", { error: { message: "That's too long for one resource (100,000 characters max). Split it up." } }, "");
+  const row = { title: str(form, "title") ?? "Untitled", category: str(form, "category"), campus: scope(form), body, updated_at: new Date().toISOString() };
+  const res = id
+    ? await supabase.from("hub_resources").update(row).eq("id", id)
+    : await supabase.from("hub_resources").insert(row);
+  back("/resources", res, id ? "Resource updated." : "Resource added.");
+}
+
+export async function deleteResource(form: FormData) {
+  await requireRole(STAFF_MANAGERS);
+  const supabase = await createClient();
+  const res = await supabase.from("hub_resources").delete().eq("id", num(form, "id") ?? -1);
+  back("/resources", res, "Resource removed.");
 }

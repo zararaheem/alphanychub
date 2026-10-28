@@ -1,8 +1,12 @@
-import { requireMember } from "@/lib/access";
+import { requireMember, canEdit, canManageStaff, canSeeParents } from "@/lib/access";
 import { CAMPUS_LABEL } from "@/lib/campus";
 import { getContacts, getParentContacts, getProcedures } from "@/lib/data";
-import { deleteContact, deleteProcedure, importParentContacts, saveContact, saveProcedure } from "@/lib/actions";
+import { deleteContact, deleteProcedure, importParentContacts, lockParents, saveContact, saveProcedure, unlockParents } from "@/lib/actions";
+import { isUnlocked, UNLOCK_MINUTES } from "@/lib/parent-lock";
 import { ParentContacts } from "@/components/parent-contacts";
+import Link from "next/link";
+import { isRespondNow, procKind, shortTitle } from "@/lib/procedure-meta";
+import { ProcIcon } from "@/components/procedure-view";
 import { currentCampus } from "@/lib/campus-pref";
 import { CampusSelect, Field, TextArea } from "@/components/fields";
 import { Flash } from "@/components/flash";
@@ -14,34 +18,61 @@ export default async function EmergencyPage({ searchParams }: { searchParams: SP
   const sp = await searchParams;
   const campus = await currentCampus();
   const me = await requireMember();
-  const canEdit = me.role === "admin" || me.role === "lead";
+  const editable = canEdit(me.role);
   // Edit controls stay hidden until an editor turns them on for a section.
-  const editing = (section: string) => canEdit && sp.edit === section;
+  const editing = (section: string) => editable && sp.edit === section;
   const EditToggle = ({ section }: { section: string }) =>
-    canEdit ? (
+    editable ? (
       <a href={editing(section) ? "/emergency" : `/emergency?edit=${section}`} className="edit-toggle" aria-pressed={editing(section)}>
         {editing(section) ? "Done" : "Edit"}
       </a>
     ) : null;
-  const [contacts, procedures, parents] = await Promise.all([getContacts(campus), getProcedures(campus), getParentContacts(campus)]);
+  const parentAccess = canSeeParents(me);
+  // Contacts are only fetched (and sent to the browser) once the viewer has entered their code.
+  const unlocked = parentAccess && (await isUnlocked(me));
+  const parentManager = canManageStaff(me.role);
+  const [contacts, procedures, parents] = await Promise.all([
+    getContacts(campus), getProcedures(campus), unlocked ? getParentContacts(campus) : Promise.resolve([]),
+  ]);
+  const respond = procedures.filter(isRespondNow);
+  const reference = procedures.filter((p) => !isRespondNow(p));
 
   return (
     <main className="page">
       <div className="stack-sm">
         <h1>Emergency</h1>
-        <p className="lede">Who to call and what to do{campus ? ` · ${CAMPUS_LABEL[campus]}` : ""}.</p>
+        <p className="lede">
+          Who to call and what to do{campus ? ` · ${CAMPUS_LABEL[campus]}` : ""}. <Link href="/guides/emergency">Printable one-pager →</Link>
+        </p>
       </div>
 
       <section className="sos" aria-label="In an emergency">
         <a href="tel:911" className="btn sos-call"><PhoneIcon /> Call 911</a>
         <ol className="sos-steps">
           <li><b>1</b> Call 911 if anyone is in danger</li>
-          <li><b>2</b> Everyone to radio Channel 2</li>
+          <li><b>2</b> Alert everyone by radio (alt: Zello)</li>
           <li><b>3</b> Notify the Emergency Coordinator</li>
         </ol>
         <span className="sos-code">Lockdown code: <b>&lsquo;Tiger, Tiger&rsquo;</b></span>
       </section>
       <Flash msg={sp.msg} err={sp.err} />
+
+      {respond.length > 0 && (
+        <section aria-labelledby="now-h" className="stack-sm" style={{ gap: 10 }}>
+          <h2 id="now-h" className="label-caps">What&rsquo;s happening?</h2>
+          <div className="em-tiles">
+            {respond.map((p) => {
+              const kind = procKind(p.title);
+              return (
+                <Link key={p.id} href={`/emergency/${p.id}`} className={`em-tile k-${kind}`}>
+                  <span className={`proc-icon k-${kind}`}><ProcIcon kind={kind} /></span>
+                  <span>{shortTitle(p.title)}</span>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       <div className="split">
         <div className="main stack" style={{ gap: 28 }}>
@@ -51,7 +82,7 @@ export default async function EmergencyPage({ searchParams }: { searchParams: SP
               <EditToggle section="contacts" />
             </div>
             {contacts.length === 0 ? (
-              <p className="empty">No contacts yet.{canEdit ? " Choose Edit to add the first one." : " An admin or Lead Guide can add them."}</p>
+              <p className="empty">No contacts yet.{editable ? " Choose Edit to add the first one." : " An admin or Lead Guide can add them."}</p>
             ) : (
               <ul className="contact-list">
                 {contacts.map((c) => (
@@ -72,8 +103,8 @@ export default async function EmergencyPage({ searchParams }: { searchParams: SP
                         </a>
                       )}
                       {c.email && (
-                        <a href={`mailto:${c.email}`} className="icon-btn" aria-label={`Email ${c.name}: ${c.email}`} title={c.email}>
-                          <MailIcon />
+                        <a href={`mailto:${c.email}`} className="call-btn" aria-label={`Email ${c.name}: ${c.email}`} title={c.email}>
+                          <MailIcon /> Email
                         </a>
                       )}
                     </div>
@@ -93,15 +124,34 @@ export default async function EmergencyPage({ searchParams }: { searchParams: SP
                     Updated {new Date(parents[0].imported_at).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "America/New_York" })}
                   </span>
                 )}
-                {parents.length > 0 && <EditToggle section="parents" />}
+                {parents.length > 0 && parentManager && <EditToggle section="parents" />}
+                {unlocked && (
+                  <form action={lockParents}>
+                    <button type="submit" className="btn ghost sm">Hide</button>
+                  </form>
+                )}
               </span>
             </div>
-            {parents.length === 0 ? (
-              <p className="empty">No parent contacts yet.{canEdit ? " Import the Google Sheet below." : " An admin or Lead Guide can import them."}</p>
+            {!parentAccess ? (
+              <p className="empty">Parent contacts are limited to approved staff. Ask an admin if you need access.</p>
+            ) : !unlocked ? (
+              <details className="parent-lock">
+                <summary>Show parent contacts</summary>
+                <form action={unlockParents} className="row" style={{ gap: 8, alignItems: "flex-end" }}>
+                  <div className="field" style={{ flex: "1 1 200px" }}>
+                    <label htmlFor="pc-code">Your parent-contacts code</label>
+                    <input id="pc-code" name="code" type="password" className="input" autoComplete="off" required />
+                  </div>
+                  <button type="submit" className="btn">Unlock</button>
+                </form>
+                <p className="small muted">Stays open for {UNLOCK_MINUTES} minutes on this device, then hides again.</p>
+              </details>
+            ) : parents.length === 0 ? (
+              <p className="empty">No parent contacts yet.{parentManager ? " Import the Google Sheet below." : " An admin or Campus Coordinator can import them."}</p>
             ) : (
               <ParentContacts rows={parents} />
             )}
-            {canEdit && (parents.length === 0 || editing("parents")) && (
+            {parentManager && unlocked && (parents.length === 0 || sp.edit === "parents") && (
               <details className="editor" open={editing("parents")}>
                 <summary>{parents.length ? "Re-import from Google Sheet" : "+ Import from Google Sheet"}</summary>
                 <form action={importParentContacts} className="stack" style={{ paddingBottom: 12 }}>
@@ -127,23 +177,43 @@ export default async function EmergencyPage({ searchParams }: { searchParams: SP
             <EditToggle section="procedures" />
           </div>
           {procedures.length === 0 && (
-            <p className="empty">No procedures yet.{canEdit ? " Choose Edit to add lockdown, evacuation and so on." : ""}</p>
+            <p className="empty">No procedures yet.{editable ? " Choose Edit to add lockdown, evacuation and so on." : ""}</p>
           )}
-          <div className="proc-list">
-            {procedures.map((p) => (
-              <details key={p.id}>
-                <summary>
-                  <span>
-                    {p.title}
-                    {!campus && p.campus !== "all" && <span className="tag">{CAMPUS_LABEL[p.campus]}</span>}
-                  </span>
-                  <Chevron />
-                </summary>
-                <div className="proc-body">{p.body}</div>
-                {editing("procedures") && <ProcedureEditor procedure={p} />}
-              </details>
-            ))}
-          </div>
+          {editing("procedures") ? (
+            <div className="proc-list">
+              {procedures.map((p) => (
+                <details key={p.id}>
+                  <summary>
+                    <span>{p.title}</span>
+                    <Chevron />
+                  </summary>
+                  <ProcedureEditor procedure={p} />
+                </details>
+              ))}
+            </div>
+          ) : (
+            [["Respond now", respond], ["Reference", reference]].map(([label, list]) =>
+              (list as typeof procedures).length > 0 && (
+                <div key={label as string} className="stack-sm" style={{ gap: 0 }}>
+                  <span className="label-caps" style={{ margin: "10px 0 2px" }}>{label as string}</span>
+                  <ul className="proc-links">
+                    {(list as typeof procedures).map((p) => (
+                      <li key={p.id}>
+                        <Link href={`/emergency/${p.id}`}>
+                          <span className={`proc-icon sm k-${procKind(p.title)}`}><ProcIcon kind={procKind(p.title)} size={16} /></span>
+                          <span className="t">
+                            {p.title}
+                            {!campus && p.campus !== "all" && <span className="tag">{CAMPUS_LABEL[p.campus]}</span>}
+                          </span>
+                          <span aria-hidden="true" className="muted">›</span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ),
+            )
+          )}
           {editing("procedures") && <ProcedureEditor />}
         </section>
       </div>
@@ -210,7 +280,7 @@ function ProcedureEditor({ procedure }: { procedure?: Procedure }) {
         {procedure && <input type="hidden" name="id" value={procedure.id} />}
         <Field id={`p-title-${k}`} label="Title" name="title" defaultValue={procedure?.title} placeholder="e.g. Lockdown" required />
         <CampusSelect id={`p-campus-${k}`} defaultValue={procedure?.campus} />
-        <Field id={`p-sort-${k}`} label="Order" name="sort" type="number" defaultValue={procedure?.sort ?? 0} />
+        <Field id={`p-sort-${k}`} label="Order (10–19 = Respond now)" name="sort" type="number" defaultValue={procedure?.sort ?? 0} />
         <TextArea id={`p-body-${k}`} label="Steps (one per line)" name="body" defaultValue={procedure?.body ?? ""} rows={6} />
         <button type="submit" className="btn">{procedure ? "Save procedure" : "Add procedure"}</button>
       </form>

@@ -17,3 +17,21 @@ export type ParentContact = {
   relationship: string | null; phone: string | null; email: string | null; notes: string | null; sort: number;
   imported_at: string;
 };
+
+export type StaffCampus = CampusScope | "unassigned";
+
+export type StaffMember = {
+  id: number; campus: StaffCampus; name: string; title: string | null; team: string | null;
+  email: string | null; phone: string | null; notes: string | null; sort: number;
+};
+
+export type Student = {
+  id: number; first_name: string; last_name: string; grade: string | null; level: string | null;
+  campus: "early-years" | "maiden-ln";
+};
+
+export type Medication = {
+  id: number; student: string; level: string | null; campus: "early-years" | "maiden-ln"; medication: string;
+  dose: string | null; route: string | null; schedule: string; times: string | null; storage: string | null;
+  instructions: string | null; active: boolean; updated_at: string;
+};
