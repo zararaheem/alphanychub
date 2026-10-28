@@ -33,7 +33,7 @@ function Sheet({ title, intro, source, children, campus }: { title: string; intr
   return (
     <main className="page sheet">
       <div className="between no-print" style={{ alignItems: "center" }}>
-        <Link href="/guides" className="back-link">← One-pagers</Link>
+        <Link href="/guides" className="back-link">← Resources</Link>
         <div className="row" style={{ gap: 10 }}>
           {campus !== undefined && <CampusToggle current={campus} />}
           <PrintButton />
@@ -112,8 +112,9 @@ async function EmergencySheet() {
   const campus = await currentCampus();
   const [procs, contacts] = await Promise.all([getProcedures(campus), getContacts(campus)]);
   const respond = procs.filter(isRespondNow);
-  const phones = contacts.filter((c) => c.phone && c.phone !== "911").slice(0, 6);
-  const leads = contacts.filter((c) => /coordinator|lead guard/i.test(c.role ?? ""));
+  // Zara's own number stays off the printed Key numbers list (she asked).
+  const phones = contacts.filter((c) => c.phone && c.phone !== "911" && c.name !== "Zara Raheem").slice(0, 6);
+  const leads = contacts.filter((c) => /coordinator|lead guard|dean of parents|head of school/i.test(c.role ?? ""));
   const searchers = contacts.filter((c) => /searcher/i.test(c.role ?? "")).map((c) => c.name).join(" and ");
   return (
     <Sheet campus={campus} title="Emergency procedures" intro="Call 911 first in any life-threatening emergency." source="Alpha NYC Emergency Action Plan · live contacts in the hub">
@@ -133,9 +134,9 @@ async function EmergencySheet() {
         <h2 id="rules-h">Golden rules</h2>
         <ul>
           <li><b>Never go back for anything.</b> Leave bags, phones and belongings behind.</li>
-          <li><b>Don&apos;t go looking for a missing child</b> (bathroom, another room). Leave with your group and report them to the Coordinator immediately.</li>
+          <li><b>Don&apos;t go looking for a missing child</b> (bathroom, another room). Leave with your group and report them to the Coordinator or security immediately.</li>
           <li><b>Searchers find missing students.</b> {searchers ? `Floor Wardens ${searchers} clear rooms; ` : "Floor Wardens clear rooms; "}Guards sweep every room and restroom.</li>
-          <li><b>Always know who&apos;s out of your room.</b> Carry an up-to-date roster and account for every student who steps out.</li>
+          <li><b>Always know who&apos;s out of your room.</b> Account for any student who steps out.</li>
           <li><b>Never use the elevators.</b> {campus === "early-years" ? "Stairwells only." : "Stairwells F or G only."}</li>
           <li><b>Go to the nearest safe room.</b> Don&apos;t cross the floor to reach a specific one.</li>
           <li><b>Headcount within 3 minutes</b> of reaching the assembly area. Stay with your group.</li>

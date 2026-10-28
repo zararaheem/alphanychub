@@ -5,7 +5,7 @@ export default function GuidesPage() {
   return (
     <main className="page">
       <div className="stack-sm">
-        <h1>One-pagers</h1>
+        <h1>Resources</h1>
         <p className="lede">Quick, printable summaries. Open one on your phone or print it for the wall.</p>
       </div>
       <div className="grid">

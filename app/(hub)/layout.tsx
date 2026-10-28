@@ -16,9 +16,9 @@ export default async function HubLayout({ children }: { children: React.ReactNod
   const theme = await currentTheme();
   const tabs = [
     { href: "/", label: "Home" },
+    { href: "/guides", label: "Resources" },
     { href: "/emergency", label: "Emergency" },
     { href: "/workshops", label: "Workshops" },
-    { href: "/guides", label: "One-pagers" },
     { href: "/staff", label: "Staff" },
     { href: "/students", label: "Students" },
     { href: "/health", label: "Health & safety" },
