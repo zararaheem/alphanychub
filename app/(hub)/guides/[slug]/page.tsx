@@ -120,7 +120,7 @@ function SheetColumns({ items, count = 3 }: { items: { weight: number; node: Rea
   return <div className="sheet-cols">{cols.map((c, i) => <div key={i} className="sheet-col">{c}</div>)}</div>;
 }
 
-const CALL_LIST = ["Derek", "Drew", "Emily", "Nancy", "Tasha", "Terrence", "Zara"];
+const CALL_LIST = ["Derek", "Drew", "Emily", "Julianne", "Nancy", "Tasha", "Terrence", "Zara"];
 
 const tel = (phone: string) => <a href={`tel:${phone.replace(/[^\d+]/g, "")}`}>{phone}</a>;
 
