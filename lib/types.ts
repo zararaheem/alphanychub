@@ -27,7 +27,7 @@ export type StaffMember = {
 
 export type Student = {
   id: number; first_name: string; last_name: string; grade: string | null; level: string | null;
-  campus: "early-years" | "maiden-ln";
+  campus: "early-years" | "maiden-ln"; group_name?: string | null;
 };
 
 export type Medication = {

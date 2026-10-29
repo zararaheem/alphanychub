@@ -3,7 +3,7 @@ import { requireMember } from "@/lib/access";
 import { CAMPUS_LABEL } from "@/lib/campus";
 import { currentCampus } from "@/lib/campus-pref";
 import { getStudents } from "@/lib/data";
-import { PROGRAM_LEVELS, gradeRank } from "@/lib/levels";
+import { PROGRAM_LEVELS } from "@/lib/levels";
 import { PrintButton } from "@/components/print-button";
 
 // One printed page per level: a numbered class list with blank columns to fill in by hand.
@@ -11,13 +11,15 @@ export default async function StudentListsPrint() {
   await requireMember();
   const campus = await currentCampus();
   const students = await getStudents(campus);
-  const levels = PROGRAM_LEVELS.filter((l) => !campus || l.campus === campus)
-    .map((l) => ({
-      ...l,
-      rows: students.filter((s) => s.level === l.name)
-        .sort((a, b) => a.last_name.localeCompare(b.last_name) || a.first_name.localeCompare(b.first_name)),
-    }))
-    .filter((l) => l.rows.length > 0);
+  // A level split into groups (Level 1 A and B) prints one page per group.
+  const byName = (a: (typeof students)[number], b: (typeof students)[number]) =>
+    a.last_name.localeCompare(b.last_name) || a.first_name.localeCompare(b.first_name);
+  const levels = PROGRAM_LEVELS.filter((l) => !campus || l.campus === campus).flatMap((l) => {
+    const rows = students.filter((s) => s.level === l.name).sort(byName);
+    const groups = [...new Set(rows.map((s) => s.group_name).filter((g): g is string => !!g))].sort();
+    if (!groups.length) return rows.length ? [{ ...l, key: l.name, title: l.name, rows }] : [];
+    return groups.map((g) => ({ ...l, key: `${l.name}-${g}`, title: `${l.name} ${g}`, rows: rows.filter((s) => s.group_name === g) }));
+  });
   const printed = new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "America/New_York" });
 
   return (
@@ -32,11 +34,11 @@ export default async function StudentListsPrint() {
       </div>
 
       {levels.map((l) => (
-        <section key={l.name} className="class-list">
+        <section key={l.key} className="class-list">
           <header className="class-list-head">
             <div>
               <span className="kicker">Alpha NYC · {l.campus === "early-years" ? "Early Years" : "Maiden Ln"}</span>
-              <h2>{l.name} <span className="muted">· {l.grades}</span></h2>
+              <h2>{l.title} <span className="muted">· {l.grades}</span></h2>
             </div>
             <span className="small muted">{l.rows.length} students · {printed}</span>
           </header>
