@@ -7,7 +7,7 @@ import { PROGRAM_LEVELS } from "@/lib/levels";
 import { PrintButton } from "@/components/print-button";
 
 // One printed page per level: a numbered class list with blank columns to fill in by hand.
-export default async function StudentListsPrint() {
+export default async function StudentListsPrint({ searchParams }: { searchParams: Promise<{ list?: string }> }) {
   await requireMember();
   const campus = await currentCampus();
   const students = await getStudents(campus);
@@ -20,6 +20,8 @@ export default async function StudentListsPrint() {
     if (!groups.length) return rows.length ? [{ ...l, key: l.name, title: l.name, rows }] : [];
     return groups.map((g) => ({ ...l, key: `${l.name}-${g}`, title: `${l.name} ${g}`, rows: rows.filter((s) => s.group_name === g) }));
   });
+  const { list } = await searchParams;
+  const shown = list ? levels.filter((l) => l.key === list) : levels;
   const printed = new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "America/New_York" });
 
   return (
@@ -28,12 +30,19 @@ export default async function StudentListsPrint() {
         <div className="stack-sm">
           <Link href="/students" className="small">← Students</Link>
           <h1>Class lists</h1>
-          <p className="lede">One page per level{campus ? ` · ${CAMPUS_LABEL[campus]}` : ""}. Print, or save as PDF.</p>
+          <p className="lede">Pick one list to print on its own, or print all (each starts on a new page){campus ? ` · ${CAMPUS_LABEL[campus]}` : ""}.</p>
         </div>
         <PrintButton />
       </div>
 
-      {levels.map((l) => (
+      <nav className="row no-print" aria-label="Choose a list" style={{ gap: 6 }}>
+        <Link href="/students/print" className="chip" aria-current={!list ? "page" : undefined}>All lists</Link>
+        {levels.map((l) => (
+          <Link key={l.key} href={`/students/print?list=${encodeURIComponent(l.key)}`} className="chip" aria-current={list === l.key ? "page" : undefined}>{l.title}</Link>
+        ))}
+      </nav>
+
+      {shown.map((l) => (
         <section key={l.key} className="class-list">
           <header className="class-list-head">
             <div>
