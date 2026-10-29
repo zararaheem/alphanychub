@@ -658,3 +658,25 @@ a.hit-title:hover { color: var(--teal); }
 .h-first { margin: 0; padding: 10px 14px; border-radius: 10px; background: var(--red-soft); color: var(--ink); font-size: 15px; line-height: 1.45; }
 /* iPhone prints at a larger scale than desktop; shrink the emergency sheet a little so it stays on one page. */
 @media print { .page.sheet:has(.sheet-cols) { zoom: 0.88; } }
+
+/* Printable class lists: one level per page */
+.class-list { display: flex; flex-direction: column; gap: 10px; background: var(--surface); border: 1px solid var(--hairline); border-radius: 14px; padding: 18px 20px; }
+.class-list-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; border-bottom: 2px solid var(--teal); padding-bottom: 8px; }
+.class-list-head h2 { font-family: var(--display); font-size: 22px; }
+.class-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.class-table th { text-align: left; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); padding: 4px 8px; border-bottom: 1px solid var(--line); }
+.class-table td { padding: 7px 8px; border-bottom: 1px solid var(--line-2); }
+.class-table .n { width: 32px; color: var(--muted); }
+.class-table .g { width: 60px; }
+.class-table .box { width: 52px; text-align: center; }
+.class-table .notes { width: 40%; }
+@media print {
+  .class-lists { gap: 0; }
+  .class-list { break-after: page; page-break-after: always; border: 0; border-radius: 0; padding: 0; background: #fff !important; color: #111; }
+  .class-list:last-child { break-after: auto; page-break-after: auto; }
+  .class-list-head { border-color: #12b5f6; }
+  .class-list-head h2 { color: #0b0b3b; font-size: 20px; }
+  .class-table { font-size: 12.5px; }
+  .class-table th { color: #555; border-color: #bbb; }
+  .class-table td { border-color: #ddd; padding: 6px 8px; color: #111; }
+}
