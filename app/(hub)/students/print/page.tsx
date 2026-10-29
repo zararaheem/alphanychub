@@ -47,20 +47,19 @@ export default async function StudentListsPrint({ searchParams }: { searchParams
           <header className="class-list-head">
             <div>
               <span className="kicker">Alpha NYC · {l.campus === "early-years" ? "Early Years" : "Maiden Ln"}</span>
-              <h2>{l.title} <span className="muted">· {l.grades}</span></h2>
+              <h2>{l.title}</h2>
             </div>
             <span className="small muted">{l.rows.length} students · {printed}</span>
           </header>
           <table className="class-table">
             <thead>
-              <tr><th className="n">#</th><th>Student</th><th className="g">Grade</th><th className="box">Here</th><th className="notes">Notes</th></tr>
+              <tr><th className="n">#</th><th>Student</th><th className="box">Here</th><th className="notes">Notes</th></tr>
             </thead>
             <tbody>
               {l.rows.map((s, i) => (
                 <tr key={s.id}>
                   <td className="n">{i + 1}</td>
                   <td><b>{s.last_name}</b>, {s.first_name}</td>
-                  <td className="g">{s.grade ?? ""}</td>
                   <td className="box"><span className="tick-box" /></td>
                   <td className="notes" />
                 </tr>
