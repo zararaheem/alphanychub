@@ -5,8 +5,9 @@ import { currentCampus } from "@/lib/campus-pref";
 import { getStudents } from "@/lib/data";
 import { PROGRAM_LEVELS } from "@/lib/levels";
 import { PrintButton } from "@/components/print-button";
+import { RollCall } from "@/components/roll-call";
 
-// One printed page per level: a numbered class list with blank columns to fill in by hand.
+// One printed page per level: a numbered class list to fill in by hand, or tap to take roll on a phone.
 export default async function StudentListsPrint({ searchParams }: { searchParams: Promise<{ list?: string }> }) {
   await requireMember();
   const campus = await currentCampus();
@@ -30,7 +31,7 @@ export default async function StudentListsPrint({ searchParams }: { searchParams
         <div className="stack-sm">
           <Link href="/students" className="small">← Students</Link>
           <h1>Class lists</h1>
-          <p className="lede">Pick one list to print on its own, or print all (each starts on a new page){campus ? ` · ${CAMPUS_LABEL[campus]}` : ""}.</p>
+          <p className="lede">Tap a student to mark them here (tap again for absent today). Pick one list to print on its own, or print all{campus ? ` · ${CAMPUS_LABEL[campus]}` : ""}.</p>
         </div>
         <PrintButton />
       </div>
@@ -51,21 +52,7 @@ export default async function StudentListsPrint({ searchParams }: { searchParams
             </div>
             <span className="small muted">{l.rows.length} students · {printed}</span>
           </header>
-          <table className="class-table">
-            <thead>
-              <tr><th className="n">#</th><th>Student</th><th className="box">Here</th><th className="notes">Notes</th></tr>
-            </thead>
-            <tbody>
-              {l.rows.map((s, i) => (
-                <tr key={s.id}>
-                  <td className="n">{i + 1}</td>
-                  <td><b>{s.last_name}</b>, {s.first_name}</td>
-                  <td className="box"><span className="tick-box" /></td>
-                  <td className="notes" />
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <RollCall listKey={l.key} title={l.title} rows={l.rows.map((s) => ({ id: s.id, first: s.first_name, last: s.last_name }))} />
         </section>
       ))}
     </main>
