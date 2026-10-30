@@ -1,7 +1,7 @@
 import { createClient as createSupabase } from "@supabase/supabase-js";
 import {
-  AFTERSCHOOL_DAYS, MODE_LABEL, dayLabel, daysLabel, modeFor, nyDate, studentName, weekdayOf,
-  type DayMode, type Mode, type Parsed, type RosterRow,
+  AFTERSCHOOL_DAYS, MODE_LABEL, dayLabel, daysLabel, label, modeFor, morningModeFor, nyDate, studentName, weekdayOf,
+  type DayMode, type Mode, type Parsed, type Part, type RosterRow,
 } from "@/lib/ey";
 
 // Slack and the Parent Hub have no staff session, so they go through two
@@ -19,9 +19,9 @@ export async function eyRoster(day: string): Promise<RosterRow[]> {
   return (data ?? []) as RosterRow[];
 }
 
-async function set(ids: number[], mode: string, day: string | null, by: string, note: string | null, days?: number[]) {
+async function set(ids: number[], mode: string, day: string | null, by: string, note: string | null, days?: number[], part: Part | null = "pm") {
   const { error } = await db().rpc("ey_slack_set", {
-    p_token: token(), p_ids: ids, p_mode: mode, p_day: day, p_by: by, p_note: note, p_days: days ?? null,
+    p_token: token(), p_ids: ids, p_mode: mode, p_day: day, p_by: by, p_note: note, p_days: days ?? null, p_part: part,
   });
   if (error) throw new Error(error.message);
 }
@@ -40,10 +40,11 @@ export async function applyUpdate(p: Extract<Parsed, { kind: "set" }>, roster: R
     await set(p.ids, p.mode, null, by, null);
     return `✅ ${names}: usually *${MODE_LABEL[p.mode as Mode]}* from now on.`;
   }
+  const when = (part: Part | null | undefined) => (part === "am" ? " (morning)" : part === "pm" ? " (dismissal)" : "");
   if (p.mode === "usual") {
-    await set(p.ids, "usual", p.day, by, null);
+    await set(p.ids, "usual", p.day, by, null, undefined, p.part ?? null);
     const back = rows.map((r) => `${studentName(r)}: ${MODE_LABEL[modeFor({ ...r, today: null }, p.day!) ?? "parent"]}`).join(", ");
-    return `↩️ Change cleared for ${dayLabel(p.day, today)}. Back to usual: ${back}.`;
+    return `↩️ Change cleared for ${dayLabel(p.day, today)}${when(p.part)}. Back to usual: ${back}.`;
   }
   if (p.mode === "home") {
     // Their usual way home, skipping afterschool.
@@ -53,10 +54,11 @@ export async function applyUpdate(p: Extract<Parsed, { kind: "set" }>, roster: R
     return `✅ ${names}: no afterschool ${dayLabel(p.day, today)}. Going home as usual (${rows.map((r) => MODE_LABEL[r.usual ?? "parent"]).join(", ")}).`;
   }
 
-  await set(p.ids, p.mode, p.day, by, p.note);
-  const was = rows.map((r) => modeFor({ ...r, today: null }, p.day!)).filter(Boolean) as DayMode[];
-  const usual = was.length && was.every((m) => m === was[0]) ? ` · usually ${MODE_LABEL[was[0]]}` : "";
-  let line = `✅ ${names}: *${MODE_LABEL[p.mode]}* ${dayLabel(p.day, today)}${usual}`;
+  const part: Part = p.part === "am" ? "am" : "pm";
+  await set(p.ids, p.mode, p.day, by, p.note, undefined, p.part === undefined ? "pm" : p.mode === "absent" ? null : part);
+  const was = rows.map((r) => (part === "am" ? r.usual : modeFor({ ...r, today: null }, p.day!))).filter(Boolean) as DayMode[];
+  const usual = p.mode !== "absent" && was.length && was.every((m) => m === was[0]) ? ` · usually ${label(was[0], part)}` : "";
+  let line = `✅ ${names}: *${label(p.mode, part)}* ${dayLabel(p.day, today)}${p.mode === "absent" ? " (all day)" : when(part)}${usual}`;
   if (p.mode === "afterschool" && !AFTERSCHOOL_DAYS.includes(weekdayOf(p.day))) line += "\n⚠️ Afterschool only runs Mon–Thu.";
   if (p.day === today && nowMinutes() >= 15 * 60) line += "\n⚠️ Dismissal has started. Tell the team by radio too.";
   return line;
@@ -69,10 +71,11 @@ function nowMinutes() {
 
 // The day at a glance, grouped by how each child goes home.
 export function summary(roster: RosterRow[], day: string): string {
-  const groups: Record<string, string[]> = { walker: [], bus: [], parent: [], afterschool: [], absent: [], unset: [] };
+  const groups: Record<string, string[]> = { walker: [], bus: [], parent: [], early: [], afterschool: [], absent: [], unset: [], late: [] };
   for (const r of roster) {
     const m = modeFor(r, day) ?? "unset";
-    groups[m].push(`${studentName(r)}${r.today ? " _(change)_" : ""}`);
+    groups[m]?.push(`${studentName(r)}${r.today ? " _(change)_" : ""}`);
+    if (morningModeFor(r) === "late") groups.late.push(studentName(r));
   }
   const line = (k: string, label: string) => (groups[k].length ? `*${label} (${groups[k].length}):* ${groups[k].join(", ")}` : null);
   return [
@@ -80,21 +83,25 @@ export function summary(roster: RosterRow[], day: string): string {
     line("walker", "Walkers · leave 3:15 for Maiden Ln"),
     line("bus", "Bus"),
     line("parent", "Parent pickup"),
+    line("early", "Early pickup"),
     line("afterschool", "Afterschool · 3:45–4:45"),
     line("absent", "Absent"),
+    line("late", "Arrived late"),
     line("unset", "Not set yet"),
   ].filter(Boolean).join("\n");
 }
 
 export const HELP = [
   "*Early Years attendance in Slack.* Type `/ey` and then a message:",
-  "• `/ey Ada parent pickup today`  ·  `/ey Mila bus tomorrow`  ·  `/ey Simon absent`",
-  "• `/ey Ruby afterschool today`  ·  `/ey Ruby not staying for afterschool`",
-  "• `/ey Ada is a walker` or `/ey Ada bus always` sets how they usually go home",
-  "• `/ey Ruby afterschool every Mon Wed` sets their afterschool days",
-  "• `/ey Ada back to usual` clears today's change",
+  "• `/ey Luna parent pickup today`  ·  `/ey Zen bus tomorrow`  ·  `/ey Molly absent`",
+  "• Mornings: `/ey Gia mom dropping her off`  ·  `/ey Sasha arriving late 9:30`",
+  "• `/ey Chloe early pickup 1:30`",
+  "• `/ey Ella afterschool today`  ·  `/ey Ella not staying for afterschool`",
+  "• `/ey Armie is a walker` or `/ey Armie bus always` sets how they usually go home",
+  "• `/ey Ella afterschool every Mon Wed` sets their afterschool days",
+  "• `/ey Luna back to usual` clears today's change",
   "• `/ey today` (or `tomorrow`) lists everyone",
-  "Got a WhatsApp from a parent? Paste it straight in: `/ey Hi! Ada's aunt Maria will pick her up today`",
+  "Got a WhatsApp from a parent? Paste it straight in: `/ey Hi! Luna's aunt Maria will pick her up today`",
 ].join("\n");
 
 // A Parent Hub pickup form for an Early Years child updates that day's dismissal.
@@ -112,7 +119,7 @@ export async function applyParentHubPickup(student: string, details: Record<stri
     .filter(Boolean).join(" · ");
   const map: Record<string, DayMode | "home"> = {
     "Someone else is picking up": "parent",
-    "Early pickup": "parent",
+    "Early pickup": "early",
     "Riding a different bus": "bus",
     "Not taking the bus today": "parent",
     "Staying for afterschool": "afterschool",

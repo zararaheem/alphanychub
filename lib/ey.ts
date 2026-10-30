@@ -3,7 +3,9 @@
 // today", a pasted WhatsApp) into an update.
 
 export type Mode = "walker" | "bus" | "parent" | "afterschool";
-export type DayMode = Mode | "absent";
+// A change for one morning ("late") or one dismissal ("early" = early pickup).
+export type DayMode = Mode | "absent" | "late" | "early";
+export type Part = "am" | "pm";
 export type Step = "am_maiden" | "am_here" | "pm_left" | "pm_done";
 
 export const MODE_LABEL: Record<DayMode, string> = {
@@ -12,7 +14,14 @@ export const MODE_LABEL: Record<DayMode, string> = {
   parent: "Parent pickup",
   afterschool: "Afterschool",
   absent: "Absent",
+  late: "Arriving late",
+  early: "Early pickup",
 };
+// The same choice reads differently in the morning.
+export const AM_LABEL: Partial<Record<DayMode, string>> = { parent: "Parent drop-off" };
+export const label = (m: DayMode, part: Part) => (part === "am" ? AM_LABEL[m] : undefined) ?? MODE_LABEL[m];
+export const AM_CHOICES: DayMode[] = ["walker", "bus", "parent", "late", "absent"];
+export const PM_CHOICES: DayMode[] = ["walker", "bus", "parent", "afterschool", "early", "absent"];
 export const BASE_MODES: Mode[] = ["walker", "bus", "parent"];
 // Afterschool runs Mon–Thu, 3:45–4:45 PM.
 export const AFTERSCHOOL_DAYS = [1, 2, 3, 4];
@@ -24,7 +33,8 @@ export type RosterRow = {
   last_name: string;
   usual: Mode | null; // walker / bus / parent
   afterschool_days: number[];
-  today: DayMode | null; // one-day change for the day asked about
+  today: DayMode | null; // that day's dismissal change
+  today_am?: DayMode | null; // that day's morning change
   note?: string | null;
 };
 
@@ -55,11 +65,9 @@ export function modeFor(r: Pick<RosterRow, "usual" | "afterschool_days" | "today
   if (AFTERSCHOOL_DAYS.includes(wd) && r.afterschool_days.includes(wd)) return "afterschool";
   return r.usual;
 }
-// How they arrive: same as the usual way in, unless today's change is a different way to travel.
-export function morningModeFor(r: Pick<RosterRow, "usual" | "today">): DayMode | null {
-  if (r.today === "absent") return "absent";
-  if (r.today && r.today !== "afterschool") return r.today;
-  return r.usual;
+// How they arrive: a morning change, or their usual way in.
+export function morningModeFor(r: Pick<RosterRow, "usual" | "today_am">): DayMode | null {
+  return r.today_am ?? r.usual;
 }
 
 export const studentName = (r: { first_name: string; last_name: string }) => `${r.first_name} ${r.last_name}`;
@@ -71,7 +79,8 @@ export type Parsed =
   | { kind: "list"; day: string }
   | { kind: "error"; message: string }
   // "usual" undoes a one-day change; "home" is their usual way home (not afterschool) for that day.
-  | { kind: "set"; ids: number[]; mode: DayMode | "usual" | "home"; day: string | null; days?: number[]; note: string };
+  // part: the morning or dismissal (absent and "usual" with no part cover both).
+  | { kind: "set"; ids: number[]; mode: DayMode | "usual" | "home"; day: string | null; days?: number[]; note: string; part?: Part | null };
 
 // First names that are also everyday words only count when capitalized.
 const WORDY = new Set(["will", "may", "june", "april", "august", "rose", "hope", "joy", "grace", "faith", "art", "bill", "sunny", "summer", "river", "sky", "mark", "pat", "ray", "dawn", "eve", "page", "chase"]);
@@ -83,10 +92,12 @@ const NEG = /\b(no|not|isn'?t|aren'?t|won'?t|wont|doesn'?t|don'?t|skip|skipping|
 
 const MODE_PATTERNS: [DayMode, RegExp][] = [
   ["absent", /\b(absent|sick|unwell|fever|not (coming|in)|staying home|home today|out today|off today|won'?t be (in|at school)|vacation|holiday)\b/g],
+  ["late", /\b(late|running behind|arriv(e|es|ing) at|coming in at|in by)\b/g],
+  ["early", /\b(early pick[\s-]?up|pick(ing|ed)? (her|him|them) up early|leav(e|es|ing) early|early dismissal|pick(ing)? up at (1|2|12|1[01])\b|out early)\b/g],
   ["afterschool", /\b(after[\s-]?school|aftercare|after[\s-]?care|extended day)\b/g],
   ["bus", /\bbus\b/g],
   ["walker", /\b(walker|walkers|walk|walking|walks|walk(ed)? over|maiden)\b/g],
-  ["parent", /\b(pick(s|ing|ed)?[\s-]?(her|him|them)?[\s-]?up|pickup|parent|mom|mommy|mum|dad|daddy|mother|father|grandma|grandpa|grandmother|grandfather|nanny|aunt|uncle|babysitter|sitter|collect(s|ing|ed)?|early dismissal|leaving early)\b/g],
+  ["parent", /\b(pick(s|ing|ed)?[\s-]?(her|him|them)?[\s-]?up|pickup|parent|mom|mommy|mum|dad|daddy|mother|father|grandma|grandpa|grandmother|grandfather|nanny|aunt|uncle|babysitter|sitter|collect(s|ing|ed)?|drop(s|ping|ped)?[\s-]?(her|him|them)?[\s-]?off)\b/g],
 ];
 
 function wordsOf(s: string) {
@@ -143,7 +154,7 @@ export function findMode(text: string): { mode: DayMode | null; negated: DayMode
       else found.push(mode);
     }
   }
-  const order: DayMode[] = ["absent", "afterschool", "bus", "walker", "parent"];
+  const order: DayMode[] = ["absent", "late", "early", "afterschool", "bus", "walker", "parent"];
   const mode = order.find((m) => found.includes(m) && !negated.includes(m)) ?? null;
   return { mode, negated };
 }
@@ -183,11 +194,14 @@ export function parseMessage(text: string, roster: RosterRow[], today = nyDate()
     // "/ey today", "/ey who's walking tomorrow", "/ey friday": the list for that day.
     const listy = wordsOf(t).every((w) => LIST_WORDS.has(w) || DAY_WORDS[w] !== undefined || /^\d{1,2}\/\d{1,2}$/.test(w));
     if (listy) return { kind: "list", day: day ?? today };
-    return { kind: "error", message: "I couldn't find a child's name in that. Try `/ey Ada bus today`." };
+    return { kind: "error", message: "I couldn't find a child's name in that. Try `/ey Luna bus today`." };
   }
 
   const note = raw.slice(0, 300);
-  if (back && !mode) return { kind: "set", ids, mode: "usual", day: day ?? today, note };
+  // Morning or dismissal: drop-off, arriving, late and "this morning" mean the morning.
+  const amWords = /\b(morning|drop(s|ping|ped)?[\s-]?(her|him|them)?[\s-]?off|arriv\w*|coming in|bringing (her|him|them) in|in by)\b/.test(t);
+  const part: Part | null = mode === "late" || (amWords && mode !== "early" && mode !== "afterschool") ? "am" : mode === "absent" ? null : "pm";
+  if (back && !mode) return { kind: "set", ids, mode: "usual", day: day ?? today, note, part: amWords ? "am" : /\b(dismissal|pick|home)\b/.test(t) ? "pm" : null };
 
   // Afterschool on set weekdays ("every Mon and Wed"), or off altogether.
   if ((mode === "afterschool" || negated.includes("afterschool")) && every && !explicitDay) {
@@ -198,17 +212,17 @@ export function parseMessage(text: string, roster: RosterRow[], today = nyDate()
   let chosen: DayMode | "usual" | "home" | null = mode;
   // "Not staying for afterschool" with no other way given: their usual way home.
   if (!chosen && negated.includes("afterschool")) chosen = "home";
-  else if (!chosen && negated.length) chosen = "usual";
-  if (!chosen) return { kind: "error", message: "Walker, bus, parent pickup, afterschool or absent? Try `/ey Ada parent pickup today`." };
+  else if (!chosen && negated.length) return { kind: "set", ids, mode: "usual", day: day ?? today, note, part };
+  if (!chosen) return { kind: "error", message: "Walker, bus, parent pickup, afterschool, late, early pickup or absent? Try `/ey Luna parent pickup today`." };
 
   // Usual vs one day: "always"/"is a walker" set the usual; no day given and
   // no usual yet sets the usual; otherwise it's a change for today.
   const isA = /\b(is|are) (a |now a )?(walker|walkers|bus rider|bus kid)\b/.test(t);
   const usualWanted = (every || (isA && !explicitDay)) && (chosen === "walker" || chosen === "bus" || chosen === "parent");
   if (usualWanted) return { kind: "set", ids, mode: chosen, day: null, note };
-  if (!explicitDay && (chosen === "walker" || chosen === "bus" || chosen === "parent")) {
+  if (!explicitDay && part !== "am" && (chosen === "walker" || chosen === "bus" || chosen === "parent")) {
     const rows = roster.filter((r) => ids.includes(r.id));
     if (rows.length && rows.every((r) => !r.usual)) return { kind: "set", ids, mode: chosen, day: null, note };
   }
-  return { kind: "set", ids, mode: chosen, day: day ?? today, note };
+  return { kind: "set", ids, mode: chosen, day: day ?? today, note, part };
 }
