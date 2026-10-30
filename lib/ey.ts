@@ -23,6 +23,8 @@ export const label = (m: DayMode, part: Part) => (part === "am" ? AM_LABEL[m] : 
 export const AM_CHOICES: DayMode[] = ["walker", "bus", "parent", "late", "absent"];
 export const PM_CHOICES: DayMode[] = ["walker", "bus", "parent", "afterschool", "early", "absent"];
 export const BASE_MODES: Mode[] = ["walker", "bus", "parent"];
+export const BUS_ROUTES = ["East & Midtown", "West Side", "Downtown & Village", "Separate (attendant pickup)"];
+export const GRADE_LABEL: Record<string, string> = { PK: "PreK", K: "K" };
 // Afterschool runs Mon–Thu, 3:45–4:45 PM.
 export const AFTERSCHOOL_DAYS = [1, 2, 3, 4];
 export const WEEKDAY = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -36,6 +38,8 @@ export type RosterRow = {
   today: DayMode | null; // that day's dismissal change
   today_am?: DayMode | null; // that day's morning change
   note?: string | null;
+  grade?: string | null;
+  bus_route?: string | null;
 };
 
 // Dates are New York dates, as YYYY-MM-DD.

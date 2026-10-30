@@ -1,6 +1,6 @@
 import { createClient as createSupabase } from "@supabase/supabase-js";
 import {
-  AFTERSCHOOL_DAYS, MODE_LABEL, dayLabel, daysLabel, label, modeFor, morningModeFor, nyDate, studentName, weekdayOf,
+  AFTERSCHOOL_DAYS, BUS_ROUTES, MODE_LABEL, dayLabel, daysLabel, label, modeFor, morningModeFor, nyDate, studentName, weekdayOf,
   type DayMode, type Mode, type Parsed, type Part, type RosterRow,
 } from "@/lib/ey";
 
@@ -14,7 +14,7 @@ function db() {
 const token = () => process.env.EY_SLACK_TOKEN ?? "";
 
 export async function eyRoster(day: string): Promise<RosterRow[]> {
-  const { data, error } = await db().rpc("ey_slack_roster", { p_token: token(), p_day: day });
+  const { data, error } = await db().rpc("ey_roster", { p_token: token(), p_day: day });
   if (error) throw new Error(error.message);
   return (data ?? []) as RosterRow[];
 }
@@ -74,14 +74,16 @@ export function summary(roster: RosterRow[], day: string): string {
   const groups: Record<string, string[]> = { walker: [], bus: [], parent: [], early: [], afterschool: [], absent: [], unset: [], late: [] };
   for (const r of roster) {
     const m = modeFor(r, day) ?? "unset";
-    groups[m]?.push(`${studentName(r)}${r.today ? " _(change)_" : ""}`);
+    const key = m === "bus" ? `bus:${r.bus_route && BUS_ROUTES.includes(r.bus_route) ? r.bus_route : ""}` : m;
+    (groups[key] ??= []).push(`${studentName(r)}${r.today ? " _(change)_" : ""}`);
     if (morningModeFor(r) === "late") groups.late.push(studentName(r));
   }
-  const line = (k: string, label: string) => (groups[k].length ? `*${label} (${groups[k].length}):* ${groups[k].join(", ")}` : null);
+  const line = (k: string, label: string) => (groups[k]?.length ? `*${label} (${groups[k].length}):* ${groups[k].join(", ")}` : null);
   return [
     `*Early Years dismissal · ${dayLabel(day)}*`,
     line("walker", "Walkers · leave 3:15 for Maiden Ln"),
-    line("bus", "Bus"),
+    ...BUS_ROUTES.map((r) => line(`bus:${r}`, `Bus · ${r}`)),
+    line("bus:", "Bus · route not set"),
     line("parent", "Parent pickup"),
     line("early", "Early pickup"),
     line("afterschool", "Afterschool · 3:45–4:45"),
