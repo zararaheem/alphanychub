@@ -265,7 +265,7 @@ export function EyApp({ me }: { me: string }) {
           {byRoute(pm("bus"), STEPS["pm-bus"])}
           {section("Parent pickup", pm("parent"), () => STEPS["pm-parent"], "Dismissal 3:30.")}
           {section("Early pickup", pm("early"), () => STEPS["pm-early"])}
-          {section("Afterschool", pm("afterschool"), () => STEPS["pm-afterschool"], "3:45–4:45 PM, Mon–Thu.", (k) => (k.usual ? `Then ${MODE_LABEL[k.usual].toLowerCase()}` : undefined))}
+          {section("Afterschool", pm("afterschool"), () => STEPS["pm-afterschool"], "3:45–4:45 PM, Mon–Thu.", (k) => (k.usual ? `Then ${label(k.usual, "pm").toLowerCase()}` : undefined))}
           {section("Not set yet", pm(null), () => STEPS["pm-unset"], "Set how they travel in Usual.")}
           {section("Absent", pm("absent"), () => [])}
         </>

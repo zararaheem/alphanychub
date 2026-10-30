@@ -11,7 +11,7 @@ export type Step = "am_maiden" | "am_here" | "pm_left" | "pm_done";
 export const MODE_LABEL: Record<DayMode, string> = {
   walker: "Walker",
   bus: "Bus",
-  parent: "Parent pickup",
+  parent: "Parent pickup/drop-off",
   afterschool: "Afterschool",
   absent: "Absent",
   late: "Arriving late",
@@ -19,7 +19,8 @@ export const MODE_LABEL: Record<DayMode, string> = {
 };
 // The same choice reads differently in the morning.
 export const AM_LABEL: Partial<Record<DayMode, string>> = { parent: "Parent drop-off" };
-export const label = (m: DayMode, part: Part) => (part === "am" ? AM_LABEL[m] : undefined) ?? MODE_LABEL[m];
+export const PM_LABEL: Partial<Record<DayMode, string>> = { parent: "Parent pickup" };
+export const label = (m: DayMode, part: Part) => (part === "am" ? AM_LABEL[m] : PM_LABEL[m]) ?? MODE_LABEL[m];
 export const AM_CHOICES: DayMode[] = ["walker", "bus", "parent", "late", "absent"];
 export const PM_CHOICES: DayMode[] = ["walker", "bus", "parent", "afterschool", "early", "absent"];
 export const BASE_MODES: Mode[] = ["walker", "bus", "parent"];
