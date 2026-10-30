@@ -1,42 +1,5 @@
-import Link from "next/link";
-import { canSeeLead, requireMember } from "@/lib/access";
-import { CampusOverview } from "@/components/campus-overview";
-import { ExtIcon } from "@/components/external-link";
-import { PARENT_VIEW_URL } from "@/lib/links";
+import { redirect } from "next/navigation";
 
-export default async function EarlyYearsPage() {
-  const me = await requireMember();
-  return (
-    <main className="page">
-      <div className="stack-sm">
-        <h1>Early Years</h1>
-        <p className="lede">William St · WL (PreK + K)</p>
-      </div>
-
-      <section className="stack" aria-labelledby="tools-h">
-        <h2 id="tools-h">Program tools</h2>
-        <div className="grid">
-          <Link href="/early-years/guide" className="card card-link">
-            <span className="card-title">Guide tools</span>
-            <span className="muted">My classes, class roster, student progress, log an observation, and scan student work.</span>
-          </Link>
-          <a href={PARENT_VIEW_URL} target="_blank" rel="noopener noreferrer" className="card card-link">
-            <span className="row" style={{ justifyContent: "space-between" }}>
-              <span className="card-title">Parent view</span>
-              <span className="pill mint">Opens site <ExtIcon /></span>
-            </span>
-            <span className="muted">See what families see in the Alpha NYC Families app.</span>
-          </a>
-          {canSeeLead(me.role) && (
-            <Link href="/early-years/lead" className="card card-link">
-              <span className="card-title">Lead Guide dashboard</span>
-              <span className="muted">Early Years at a glance: coverage by class, students not observed in 6+ days, and progress by area.</span>
-            </Link>
-          )}
-        </div>
-      </section>
-
-      <CampusOverview campus="early-years" />
-    </main>
-  );
+export default function EarlyYearsPage() {
+  redirect("/tracker");
 }

@@ -1,7 +1,10 @@
 import { parseProcedure, type ProcKind } from "@/lib/procedure-meta";
 
-export function ProcedureBody({ body }: { body: string }) {
-  const blocks = parseProcedure(body);
+// skipSummary drops an "a → b → c" opening line when numbered steps follow (it repeats them).
+export function ProcedureBody({ body, skipSummary = false }: { body: string; skipSummary?: boolean }) {
+  const parsed = parseProcedure(body);
+  const hasSteps = parsed.some((b) => b.type === "steps");
+  const blocks = skipSummary && hasSteps ? parsed.filter((b) => !(b.type === "lead" && b.text.includes("→"))) : parsed;
   let inWarn = false;
   return (
     <div className="proc-doc">
@@ -25,8 +28,11 @@ export function ProcedureBody({ body }: { body: string }) {
                 {b.items.map((t, j) => <li key={j}>{t}</li>)}
               </ul>
             );
-          default:
-            return <p key={i} className="proc-para">{b.text}</p>;
+          default: {
+            // "AED: …" / "First aid kits: …" lines get a bold label so they stand out.
+            const m = b.text.match(/^([^:]{2,30}):\s*(.*)$/);
+            return <p key={i} className="proc-para">{m ? <><b>{m[1]}:</b> {m[2]}</> : b.text}</p>;
+          }
         }
       })}
     </div>

@@ -1,10 +1,12 @@
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/";
+  const remembered = (await cookies()).get("after_login")?.value;
+  const next = searchParams.get("next") ?? (remembered ? decodeURIComponent(remembered) : "/");
   const safeNext = next.startsWith("/") && !next.startsWith("//") ? next : "/";
 
   if (code) {
@@ -12,5 +14,5 @@ export async function GET(request: Request) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) return NextResponse.redirect(`${origin}${safeNext}`);
   }
-  return NextResponse.redirect(`${origin}/login?error=1`);
+  return NextResponse.redirect(`${origin}${safeNext.startsWith("/parents") ? "/parents/sign-in?err=google" : "/login?error=1"}`);
 }

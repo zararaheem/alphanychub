@@ -45,7 +45,7 @@ export async function getStaff(campus: Campus | null) {
 
 export async function getStudents(campus: Campus | null) {
   const supabase = await createClient();
-  let q = supabase.from("students").select("id, first_name, last_name, grade, level, campus").order("last_name").order("first_name");
+  let q = supabase.from("students").select("*").order("last_name").order("first_name");
   if (campus) q = q.eq("campus", campus);
   const { data } = await q;
   return (data ?? []) as Student[];

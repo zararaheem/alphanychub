@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { WhoToAsk } from "@/components/who-to-ask";
 
 type Hit = { title: string; where: string; href?: string; external?: boolean; lines: string[] };
-type Turn = { q: string; answer: string | null; results: Hit[] };
+type Turn = { q: string; answer: string | null; results: Hit[]; logId?: number | null; rated?: boolean };
 
 const STARTERS = [
   "What do I do in a lockdown?",
@@ -47,12 +47,24 @@ export function AskChat({ compact = false }: { compact?: boolean }) {
       ]);
       if (!ai && !found.results) throw new Error(found.error ?? "Something went wrong. Try again.");
       setTurns((t) => [...t, { q, answer: ai, results: (found.results ?? []).slice(0, ai ? 3 : 6) }].slice(-6));
+      // Log the question so admins can see what staff need (never blocks the answer).
+      fetch("/api/ask/log", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ q, answer: ai, hits: found.results?.length ?? 0 }) })
+        .then(async (r) => ((await r.json()) as { id?: number | null }).id ?? null)
+        .then((logId) => setTurns((ts) => ts.map((x) => (x.q === q && x.logId === undefined ? { ...x, logId } : x))))
+        .catch(() => {});
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went wrong. Try again.");
       setDraft(q);
     } finally {
       setBusy(false);
     }
+  }
+
+  function rate(i: number, helpful: boolean) {
+    const t = turns[i];
+    if (!t?.logId) return;
+    setTurns((ts) => ts.map((x, j) => (j === i ? { ...x, rated: true } : x)));
+    fetch("/api/ask/log", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: t.logId, helpful }) }).catch(() => {});
   }
 
   return (
@@ -102,6 +114,14 @@ export function AskChat({ compact = false }: { compact?: boolean }) {
                 <p>Nothing in the hub matches that yet. Try different words (e.g. &ldquo;fire&rdquo;, &ldquo;visitor&rdquo;, &ldquo;bus&rdquo;), or check <b>Who do I ask?</b> above.</p>
               </div>
             )}
+            {t.logId && (t.rated ? <p className="hit-label">Thanks, noted.</p> : (
+              <div className="row ask-rate">
+                <span className="small muted">Did this help?</span>
+                <button type="button" className="chip" onClick={() => rate(i, true)} aria-label="Yes, this helped">👍</button>
+                <button type="button" className="chip" onClick={() => rate(i, false)} aria-label="No, this didn't help">👎</button>
+                <a href="/requests?new=content#form" className="small">Tell us what&apos;s missing</a>
+              </div>
+            ))}
           </div>
         ))}
         {busy && <div className="bubble assistant muted">Looking through the hub…</div>}

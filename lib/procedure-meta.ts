@@ -57,3 +57,14 @@ export function parseProcedure(body: string): Block[] {
   });
   return blocks;
 }
+
+// What to do in the first minute, shown on each "What's happening?" tile.
+export const FIRST_MOVES: Record<ProcKind, string | null> = {
+  fire: "Shout “Fire!” and pull the alarm. Take your group to the 6th floor elevator lobby. Stairs F or G only, never the elevator.",
+  medical: "Call 911 if it's serious. Give first aid; get the AED (3 on site). Contact your Campus Coordinator.",
+  lockdown: "Say “Tiger, Tiger.” Nearest safe room: lock, lights off, silent. Open only for police.",
+  weather: "Move to an interior hallway. Power out: gather near the pantry and count heads.",
+  bomb: "Don't touch it. Call 911. Don't pull the fire alarm; wait for police on whether to leave.",
+  gas: "Don't touch any switches. Leave by the stairs. Call 911 from outside.",
+  info: null,
+};

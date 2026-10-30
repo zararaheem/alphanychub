@@ -6,7 +6,7 @@ import { BulkEmail } from "@/components/bulk-email";
 
 const GROUPS = [
   { campus: "unassigned", title: "Not assigned to a campus yet" },
-  { campus: "all", title: "Both campuses" },
+  { campus: "all", title: "Both campuses · not counted on site" },
   { campus: "maiden-ln", title: "Maiden Ln · full time on site" },
   { campus: "early-years", title: "Early Years · William St · full time on site" },
 ] as const;
@@ -82,6 +82,7 @@ function roleGroup(s: StaffMember): (typeof ROLE_GROUPS)[number] {
   const t = `${s.title ?? ""}`.toLowerCase();
   if (s.team === "Security" || /guard|security/.test(t)) return "Security";
   if (s.team === "Alpha High" || /alpha high/.test(t)) return "Alpha High";
+  if (/head guide|head of|director|dean|coo|vp|chief|officer/.test(t)) return "Leadership";
   if (/guide|specialist|teacher/.test(t)) return "Guides";
   if (/coordinator|facilit/.test(t)) return "Campus & facilities";
   if (/head|director|dean|coo|vp|chief|officer/.test(t)) return "Leadership";
