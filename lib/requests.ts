@@ -42,7 +42,7 @@ export const REQUEST_KINDS: RequestKind[] = [
     note: "Bus changes by 11:00 AM. Dismissal is at 3:30 PM.",
     fields: [
       { name: "date", label: "Date", type: "date", required: true },
-      { name: "change", label: "What's changing?", type: "select", required: true, options: ["Someone else is picking up", "Early pickup", "Riding a different bus", "Not taking the bus today", "Afterschool change"] },
+      { name: "change", label: "What's changing?", type: "select", required: true, options: ["Someone else is picking up", "Early pickup", "Riding a different bus", "Not taking the bus today", "Staying for afterschool", "Not staying for afterschool"] },
       { name: "pickup_person", label: "Who's picking up? (name and relationship)", placeholder: "e.g. Maria Lopez, aunt" },
       { name: "pickup_phone", label: "Their phone", type: "tel" },
       { name: "time", label: "Pickup time (early pickup)", type: "time" },
@@ -139,8 +139,6 @@ export async function notifySlack(r: {
   kind: RequestKind; source: "parent" | "staff" | "preview"; campus: Campus | null; student: string | null;
   fromName: string | null; fromEmail: string; details: Record<string, string>; to: Person[]; link: string;
 }): Promise<boolean> {
-  const url = process.env.SLACK_WEBHOOK_URL;
-  if (!url) return false;
   const who = r.to.map((p) => (p.slack ? `<@${p.slack}>` : p.name)).join(" ");
   const from = r.source === "staff" ? "Staff" : "Parent";
   const lines = r.kind.fields
@@ -154,6 +152,13 @@ export async function notifySlack(r: {
     ...(sensitive ? ["_Details are in the hub._"] : lines),
     `<${r.link}|Open in the hub>`,
   ].join("\n");
+  return postSlack(text);
+}
+
+// Posts plain text to the shared channel. Never throws.
+export async function postSlack(text: string): Promise<boolean> {
+  const url = process.env.SLACK_WEBHOOK_URL;
+  if (!url) return false;
   try {
     const res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text }) });
     if (!res.ok) console.error("slack: webhook returned", res.status);
@@ -163,6 +168,8 @@ export async function notifySlack(r: {
     return false;
   }
 }
+
+export const escSlack = esc;
 
 export function hubUrl(path: string) {
   const base = process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : "http://localhost:3000");

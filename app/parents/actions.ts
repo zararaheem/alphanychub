@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { currentFamily } from "@/lib/parent-session";
+import { applyParentHubPickup } from "@/lib/ey-server";
 import { hubUrl, kindById, notifySlack, readDetails } from "@/lib/requests";
 import { createClient } from "@/lib/supabase/server";
 
@@ -37,6 +38,11 @@ export async function submitParentRequest(form: FormData) {
   if (res.error) {
     console.error("parent request insert failed", res.error.message);
     redirect(`/parents/new/${kind.id}?err=${encodeURIComponent("That didn't send. Please try again, or contact the Campus Coordinator.")}`);
+  }
+  // Early Years pickup changes go straight onto that day's dismissal list.
+  if (kind.id === "pickup" && child.campus === "early-years" && !family.preview) {
+    try { await applyParentHubPickup(child.student, details, family.name ?? family.email); }
+    catch (e) { console.error("ey: parent hub pickup not applied", e); }
   }
   await notifySlack({
     kind, source, campus: child.campus, student: child.student,

@@ -2,7 +2,8 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 // The Parent Hub has its own sign-in (lib/parent-session.ts).
-const PUBLIC_PATHS = ["/login", "/auth", "/parents"];
+// /api/slack is called by Slack itself and checks Slack's signature instead.
+const PUBLIC_PATHS = ["/login", "/auth", "/parents", "/api/slack"];
 
 // Refreshes the Supabase session cookie and sends signed-out visitors to /login.
 // The allowlist itself is checked server-side in lib/access.ts (and by RLS).

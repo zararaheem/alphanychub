@@ -28,6 +28,8 @@ export default async function HubLayout({ children }: { children: React.ReactNod
   ];
   const external = [
     ...(campus !== "maiden-ln" ? [{ href: "/tracker", label: "Early Years tracker" }] : []),
+    // Walkers start and end at Maiden Ln, so both campuses need this one.
+    { href: "/ey", label: "EY attendance" },
     ...(OFF_CAMPUS_URL ? [{ href: OFF_CAMPUS_URL, label: "Off-campus board" }] : []),
     ...(ATTENDANCE_URL ? [{ href: ATTENDANCE_URL, label: "Attendance" }] : []),
     { href: TRANSPORT_URL, label: "Transport request" },

@@ -696,3 +696,28 @@ tr.is-absent .roll-mark { border-style: dashed; color: var(--muted); }
   .roll-mark { width: 14px; height: 14px; border-radius: 3px; border-width: 1.5px; border-color: #444; font-size: 10px; color: #111; padding: 0; }
   tr.is-here .roll-mark { background: none; color: #111; }
 }
+
+/* EY attendance (/ey): big tap targets for the door and the sidewalk. */
+.ey { padding-top: 16px; padding-bottom: 48px; max-width: 760px; }
+.ey-top { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; flex-wrap: wrap; }
+.ey-top h1 { font-family: var(--display); }
+.ey-sec { display: flex; flex-direction: column; gap: 6px; }
+.ey-sec h2 { font-size: 17px; }
+.ey-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.ey-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; padding: 10px 12px; border-radius: 12px; background: var(--surface); border: 1px solid var(--hairline); }
+.ey-row.changed { border-color: var(--amber); box-shadow: inset 3px 0 0 var(--amber); }
+.ey-row.usual { flex-direction: column; align-items: stretch; }
+.ey-who { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1 1 160px; }
+.ey-name { font-size: 16px; }
+.ey-change { color: var(--amber); font-weight: 600; }
+.ey-steps { display: flex; gap: 6px; align-items: center; }
+.ey-step { min-height: 44px; padding: 0 14px; border-radius: 10px; border: 1.5px solid var(--field); background: transparent; color: var(--ink); font-weight: 700; font-size: 14px; cursor: pointer; }
+.ey-step[aria-pressed="true"] { background: var(--teal); border-color: var(--teal); color: var(--on-accent); }
+.ey-more { min-width: 40px; min-height: 44px; border-radius: 10px; border: 0; background: transparent; color: var(--ink-2); font-size: 20px; cursor: pointer; }
+.ey-chooser { flex-basis: 100%; display: flex; flex-direction: column; gap: 8px; padding-top: 8px; border-top: 1px solid var(--line-2); }
+.ey-days { gap: 6px; align-items: center; flex-wrap: wrap; }
+.ey-changes { border: 1px solid var(--amber); border-radius: 12px; padding: 10px 14px; background: var(--surface); }
+.ey-changes h2 { font-size: 15px; margin-bottom: 4px; }
+.ey-changes ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; font-size: 14px; }
+.ey-changes li.new::before { content: "NEW "; color: var(--amber); font-weight: 800; font-size: 11px; letter-spacing: .06em; }
+.ey-toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: var(--ink); color: var(--bg, #fff); padding: 10px 16px; border-radius: 10px; font-size: 14px; z-index: 50; }
