@@ -14,7 +14,7 @@ function db() {
 const token = () => process.env.EY_SLACK_TOKEN ?? "";
 
 export async function eyRoster(day: string): Promise<RosterRow[]> {
-  const { data, error } = await db().rpc("ey_roster", { p_token: token(), p_day: day });
+  const { data, error } = await db().rpc("ey_roster2", { p_token: token(), p_day: day });
   if (error) throw new Error(error.message);
   return (data ?? []) as RosterRow[];
 }
@@ -35,6 +35,13 @@ export async function applyUpdate(p: Extract<Parsed, { kind: "set" }>, roster: R
   if (p.day === null && p.mode === "afterschool") {
     await set(p.ids, "afterschool", null, by, null, p.days);
     return `✅ ${names}: afterschool on ${daysLabel(p.days ?? [])} from now on.`;
+  }
+  if (p.day === null && p.mode === "walker" && p.days) {
+    const { error } = await db().rpc("ey_set_walker_days", { p_token: token(), p_ids: p.ids, p_days: p.days, p_by: by });
+    if (error) throw new Error(error.message);
+    return p.days.length
+      ? `✅ ${names}: walks on ${daysLabel(p.days)}. Other days: ${rows.map((r) => MODE_LABEL[r.usual ?? "parent"]).join(", ")}.`
+      : `✅ ${names}: no set walking days.`;
   }
   if (p.day === null) {
     await set(p.ids, p.mode, null, by, null);
@@ -76,7 +83,7 @@ export function summary(roster: RosterRow[], day: string): string {
     const m = modeFor(r, day) ?? "unset";
     const key = m === "bus" ? `bus:${r.bus_route && BUS_ROUTES.includes(r.bus_route) ? r.bus_route : ""}` : m;
     (groups[key] ??= []).push(`${studentName(r)}${r.today ? " _(change)_" : ""}`);
-    if (morningModeFor(r) === "late") groups.late.push(studentName(r));
+    if (morningModeFor(r, day) === "late") groups.late.push(studentName(r));
   }
   const line = (k: string, label: string) => (groups[k]?.length ? `*${label} (${groups[k].length}):* ${groups[k].join(", ")}` : null);
   return [
@@ -101,6 +108,7 @@ export const HELP = [
   "• `/ey Ella afterschool today`  ·  `/ey Ella not staying for afterschool`",
   "• `/ey Armie is a walker` or `/ey Armie bus always` sets how they usually go home",
   "• `/ey Ella afterschool every Mon Wed` sets their afterschool days",
+  "• `/ey Sasha walks Mon and Wed` sets the days they walk via Maiden Ln",
   "• `/ey Luna back to usual` clears today's change",
   "• `/ey today` (or `tomorrow`) lists everyone",
   "Got a WhatsApp from a parent? Paste it straight in: `/ey Hi! Luna's aunt Maria will pick her up today`",

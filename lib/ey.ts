@@ -35,6 +35,7 @@ export type RosterRow = {
   last_name: string;
   usual: Mode | null; // walker / bus / parent
   afterschool_days: number[];
+  walker_days?: number[]; // weekdays they walk via Maiden Ln; other days, their usual way
   today: DayMode | null; // that day's dismissal change
   today_am?: DayMode | null; // that day's morning change
   note?: string | null;
@@ -61,17 +62,21 @@ export function dayLabel(day: string, today = nyDate()): string {
 }
 export const daysLabel = (days: number[]) => (days.length ? days.slice().sort().map((d) => WEEKDAY[d]).join(", ") : "none");
 
+// Their usual way for that weekday: walking days first, then their usual way.
+export function usualFor(r: Pick<RosterRow, "usual" | "walker_days">, day: string): Mode | null {
+  return r.walker_days?.includes(weekdayOf(day)) ? "walker" : r.usual;
+}
 // How a child goes home on a given day: a one-day change wins, then their
-// afterschool days, then their usual way home.
-export function modeFor(r: Pick<RosterRow, "usual" | "afterschool_days" | "today">, day: string): DayMode | null {
+// afterschool days, then their usual way home for that weekday.
+export function modeFor(r: Pick<RosterRow, "usual" | "afterschool_days" | "walker_days" | "today">, day: string): DayMode | null {
   if (r.today) return r.today;
   const wd = weekdayOf(day);
   if (AFTERSCHOOL_DAYS.includes(wd) && r.afterschool_days.includes(wd)) return "afterschool";
-  return r.usual;
+  return usualFor(r, day);
 }
-// How they arrive: a morning change, or their usual way in.
-export function morningModeFor(r: Pick<RosterRow, "usual" | "today_am">): DayMode | null {
-  return r.today_am ?? r.usual;
+// How they arrive: a morning change, or their usual way in for that weekday.
+export function morningModeFor(r: Pick<RosterRow, "usual" | "walker_days" | "today_am">, day: string): DayMode | null {
+  return r.today_am ?? usualFor(r, day);
 }
 
 export const studentName = (r: { first_name: string; last_name: string }) => `${r.first_name} ${r.last_name}`;
@@ -218,6 +223,12 @@ export function parseMessage(text: string, roster: RosterRow[], today = nyDate()
   if (!chosen && negated.includes("afterschool")) chosen = "home";
   else if (!chosen && negated.length) return { kind: "set", ids, mode: "usual", day: day ?? today, note, part };
   if (!chosen) return { kind: "error", message: "Walker, bus, parent pickup, afterschool, late, early pickup or absent? Try `/ey Luna parent pickup today`." };
+
+  // Walking days: "Sasha walks Mon and Wed", "walker every Tuesday".
+  if (chosen === "walker" && weekdays.length && !explicitDay)
+    return { kind: "set", ids, mode: "walker", day: null, days: weekdays.filter((d) => d >= 1 && d <= 5), note };
+  if (chosen === "walker" && weekdays.length && every)
+    return { kind: "set", ids, mode: "walker", day: null, days: weekdays.filter((d) => d >= 1 && d <= 5), note };
 
   // Usual vs one day: "always"/"is a walker" set the usual; no day given and
   // no usual yet sets the usual; otherwise it's a change for today.

@@ -14,7 +14,7 @@ import { setDayMode } from "@/app/ey/actions";
 
 type Kid = {
   id: number; first_name: string; last_name: string; grade: string | null;
-  usual: Mode | null; afterschool_days: number[]; bus_route: string | null;
+  usual: Mode | null; afterschool_days: number[]; walker_days: number[]; bus_route: string | null;
   today: DayMode | null; today_am: DayMode | null; // this dismissal's and this morning's changes
 };
 type Change = { student_id: number; part: Part; mode: DayMode; note: string | null; updated_by: string | null; updated_at: string };
@@ -53,7 +53,7 @@ export function EyApp({ me }: { me: string }) {
   const load = useCallback(async () => {
     const [s, t, d, c] = await Promise.all([
       supabase.from("students").select("id, first_name, last_name, grade").eq("campus", "early-years").order("first_name"),
-      supabase.from("ey_travel").select("student_id, mode, afterschool_days, bus_route"),
+      supabase.from("ey_travel").select("student_id, mode, afterschool_days, walker_days, bus_route"),
       supabase.from("ey_travel_day").select("student_id, part, mode, note, updated_by, updated_at").eq("day", day),
       supabase.from("ey_checks").select("student_id, step").eq("day", day),
     ]);
@@ -65,7 +65,7 @@ export function EyApp({ me }: { me: string }) {
     setKids((s.data ?? []).map((k) => {
       const tr = travel.get(k.id);
       return {
-        ...k, usual: tr?.mode ?? null, afterschool_days: tr?.afterschool_days ?? [], bus_route: tr?.bus_route ?? null,
+        ...k, usual: tr?.mode ?? null, afterschool_days: tr?.afterschool_days ?? [], walker_days: tr?.walker_days ?? [], bus_route: tr?.bus_route ?? null,
         today: pmOf.get(k.id) ?? null, today_am: amOf.get(k.id) ?? null,
       };
     }));
@@ -108,11 +108,11 @@ export function EyApp({ me }: { me: string }) {
     load();
   }
 
-  async function setUsual(k: Kid, patch: Partial<Pick<Kid, "usual" | "afterschool_days" | "bus_route">>) {
+  async function setUsual(k: Kid, patch: Partial<Pick<Kid, "usual" | "afterschool_days" | "walker_days" | "bus_route">>) {
     const next = { ...k, ...patch };
     setKids((ks) => ks.map((x) => (x.id === k.id ? next : x)));
     const res = await supabase.from("ey_travel").upsert({
-      student_id: k.id, mode: next.usual, afterschool_days: next.afterschool_days, bus_route: next.bus_route,
+      student_id: k.id, mode: next.usual, afterschool_days: next.afterschool_days, walker_days: next.walker_days, bus_route: next.bus_route,
       updated_by: me, updated_at: new Date().toISOString(),
     });
     if (res.error) { flash("That didn't save."); load(); }
@@ -202,12 +202,15 @@ export function EyApp({ me }: { me: string }) {
   ) : null;
 
   const wd = weekdayOf(day);
-  const am = (m: DayMode | null) => inLevel.filter((k) => morningModeFor(k) === m);
+  const am = (m: DayMode | null) => inLevel.filter((k) => morningModeFor(k, day) === m);
   const pm = (m: DayMode | null) => inLevel.filter((k) => modeFor(k, day) === m);
-  const present = inLevel.filter((k) => morningModeFor(k) !== "absent");
+  const present = inLevel.filter((k) => morningModeFor(k, day) !== "absent");
   const amHere = present.filter((k) => done(k, "am_here")).length;
   const pmGone = inLevel.filter((k) => modeFor(k, day) !== "absent").filter((k) => done(k, "pm_done")).length;
   const pmTotal = inLevel.filter((k) => modeFor(k, day) !== "absent").length;
+  // Part-time walkers: which days they walk, and how they travel otherwise.
+  const walkTag = (k: Kid) => (k.usual !== "walker" && k.walker_days.length
+    ? `Walks ${k.walker_days.map((d) => WEEKDAY[d]).join(", ")} · other days ${k.usual ? MODE_LABEL[k.usual].toLowerCase() : "not set"}` : undefined);
   // Bus riders grouped by route, in route order; anyone without a route last.
   const byRoute = (list: Kid[], steps: [Step, string][]) => [...BUS_ROUTES, null].map((r) => (
     <Fragment key={r ?? "none"}>
@@ -245,7 +248,7 @@ export function EyApp({ me }: { me: string }) {
             <span><b>{amHere}</b> of {present.length} at William St{am("absent").length ? ` · ${am("absent").length} absent` : ""}</span>
           </div>
           {changesCard}
-          {section("Walkers", am("walker"), () => STEPS["am-walker"], "At Maiden Ln by 8:30, then walk over to William St.")}
+          {section("Walkers", am("walker"), () => STEPS["am-walker"], "At Maiden Ln by 8:30, then walk over to William St.", walkTag)}
           {byRoute(am("bus"), STEPS["am-other"])}
           {section("Parent drop-off", am("parent"), () => STEPS["am-other"])}
           {section("Arriving late", am("late"), () => STEPS["am-other"])}
@@ -258,7 +261,7 @@ export function EyApp({ me }: { me: string }) {
             <span><b>{pmGone}</b> of {pmTotal} gone home safely</span>
           </div>
           {changesCard}
-          {section("Walkers", pm("walker"), () => STEPS["pm-walker"], "Leave William St at 3:15 for Maiden Ln.")}
+          {section("Walkers", pm("walker"), () => STEPS["pm-walker"], "Leave William St at 3:15 for Maiden Ln.", walkTag)}
           {byRoute(pm("bus"), STEPS["pm-bus"])}
           {section("Parent pickup", pm("parent"), () => STEPS["pm-parent"], "Dismissal 3:30.")}
           {section("Early pickup", pm("early"), () => STEPS["pm-early"])}
@@ -268,7 +271,7 @@ export function EyApp({ me }: { me: string }) {
         </>
       ) : (
         <section className="ey-sec">
-          <p className="small muted">How each child usually travels, and which days they stay for afterschool. Changes for one day go in Morning or Dismissal (⋯), or in Slack with <code>/ey</code>.</p>
+          <p className="small muted">How each child usually travels, which days they walk via Maiden Ln instead, and which days they stay for afterschool. Changes for one day go in Morning or Dismissal (⋯), or in Slack with <code>/ey</code>.</p>
           <ul className="ey-list">
             {inLevel.map((k) => (
               <li key={k.id} className="ey-row usual">
@@ -278,7 +281,18 @@ export function EyApp({ me }: { me: string }) {
                     <button key={m} type="button" aria-pressed={k.usual === m} onClick={() => setUsual(k, { usual: m })}>{MODE_LABEL[m]}</button>
                   ))}
                 </div>
-                {k.usual === "bus" && (
+                {k.usual !== "walker" && (
+                  <div className="row ey-days" role="group" aria-label={`${k.first_name}: days they walk`}>
+                    <span className="small muted">Walks on</span>
+                    {[1, 2, 3, 4, 5].map((d) => (
+                      <button key={d} type="button" className="chip" aria-pressed={k.walker_days.includes(d)}
+                        onClick={() => setUsual(k, { walker_days: k.walker_days.includes(d) ? k.walker_days.filter((x) => x !== d) : [...k.walker_days, d].sort() })}>
+                        {WEEKDAY[d]}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                {(k.usual === "bus") && (
                   <div className="row ey-days" role="group" aria-label={`${k.first_name}: bus route`}>
                     <span className="small muted">Route</span>
                     {BUS_ROUTES.map((r) => (
