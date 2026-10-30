@@ -316,6 +316,12 @@ export function EyApp({ me }: { me: string }) {
       )}
 
       {wd === 5 && tab === "dismissal" && pm("afterschool").length === 0 && <p className="small muted">No afterschool on Fridays.</p>}
+      <div className="row" style={{ gap: 8, flexWrap: "wrap" }}>
+        <a className="btn sm outline" href={`/ey/export?day=${day}${level === "all" ? "" : `&level=${level}`}`} download>
+          Download Excel{level === "all" ? "" : ` (${GRADE_LABEL[level]})`}
+        </a>
+        <span className="small muted">Today&apos;s arrivals and dismissal, plus usual travel.</span>
+      </div>
       <p className="small muted">Updates every few seconds. In Slack, type <code>/ey help</code>.</p>
       {toast && <div className="ey-toast" role="status">{toast}</div>}
     </main>
