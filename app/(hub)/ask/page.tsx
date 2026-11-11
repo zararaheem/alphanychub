@@ -11,7 +11,7 @@ export default async function AskPage() {
           <h1>Ask the hub</h1>
           <p className="lede">Type a few words and get the matching procedures, one-pager sections, checklist items, people and tools.</p>
         </div>
-        <Link href="/resources" className="edit-toggle">Resources</Link>
+        <Link href="/resources" className="edit-toggle">Resource library</Link>
       </div>
       <p className="notice">In an emergency happening now: <b>call 911</b> and alert everyone by radio (alt: Zello) first.</p>
       <AskChat />

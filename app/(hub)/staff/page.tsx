@@ -45,13 +45,18 @@ export default async function StaffPage({ searchParams }: { searchParams: SP }) 
       <div className="kpis">
         <div className="kpi">
           <span className="label-caps">Maiden Ln</span>
-          <b>{count("maiden-ln") + both}</b>
-          <span className="note">{count("maiden-ln")} here{both ? ` + ${both} across both` : ""}</span>
+          <b>{count("maiden-ln")}</b>
+          <span className="note">full time on site</span>
         </div>
         <div className="kpi">
           <span className="label-caps">Early Years</span>
-          <b>{count("early-years") + both}</b>
-          <span className="note">{count("early-years")} here{both ? ` + ${both} across both` : ""}</span>
+          <b>{count("early-years")}</b>
+          <span className="note">full time on site</span>
+        </div>
+        <div className="kpi">
+          <span className="label-caps">Across both campuses</span>
+          <b>{both}</b>
+          <span className="note">leadership, not counted on site</span>
         </div>
         <div className="kpi">
           <span className="label-caps">All staff</span>
@@ -63,7 +68,7 @@ export default async function StaffPage({ searchParams }: { searchParams: SP }) 
       {editing ? (
         <section className="card stack">
           <form id="staff-bulk" action={saveAllStaff} className="bulk-save">
-            <p className="small muted">Change any titles, phones or campuses below, then choose <b>Save all changes</b> once. Both campuses counts them at Maiden Ln and Early Years.</p>
+            <p className="small muted">Change any titles, phones or campuses below, then choose <b>Save all changes</b> once. People on both campuses aren&apos;t counted in either campus total.</p>
             <button type="submit" className="btn">Save all changes</button>
           </form>
           <StaffEditor />

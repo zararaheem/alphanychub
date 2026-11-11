@@ -1,7 +1,10 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const PUBLIC_PATHS = ["/login", "/auth"];
+// The Parent Hub has its own sign-in (lib/parent-session.ts).
+// /api/slack is called by Slack itself and checks Slack's signature instead;
+// /r/<token> is a family's password-protected report.
+const PUBLIC_PATHS = ["/login", "/auth", "/parents", "/api/slack", "/r"];
 
 // Refreshes the Supabase session cookie and sends signed-out visitors to /login.
 // The allowlist itself is checked server-side in lib/access.ts (and by RLS).
@@ -30,7 +33,8 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const path = request.nextUrl.pathname;
-  const isPublic = PUBLIC_PATHS.some((p) => path === p || path.startsWith(p + "/"));
+  // The Parent Hub demo is for staff only; everything else under /parents has its own family sign-in.
+  const isPublic = !path.startsWith("/parents/demo") && PUBLIC_PATHS.some((p) => path === p || path.startsWith(p + "/"));
 
   if (!user && !isPublic) {
     const url = request.nextUrl.clone();

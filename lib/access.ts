@@ -11,7 +11,7 @@ export const ROLE_LABELS: Record<Role, string> = {
   staff: "Staff",
 };
 
-export type Member = { email: string; role: Role; name: string | null; can_see_parents: boolean };
+export type Member = { email: string; role: Role; name: string | null; can_see_parents: boolean; tracker: boolean; google: boolean; ey_class: "PK" | "K" | null };
 
 // Returns the signed-in member, or redirects: no session → /login,
 // signed in but not on the access list → /no-access.
@@ -30,14 +30,15 @@ export async function requireMember(): Promise<Member> {
 
   if (!data) redirect("/no-access");
   return {
-    email: data.email, role: data.role, can_see_parents: data.can_see_parents === true,
+    email: data.email, role: data.role, can_see_parents: data.can_see_parents === true, tracker: data.tracker === true, ey_class: data.ey_class === "PK" || data.ey_class === "K" ? data.ey_class : null,
+    google: ((user.app_metadata?.providers as string[] | undefined) ?? [user.app_metadata?.provider]).includes("google"),
     name: data.name ?? (user.user_metadata?.full_name as string | undefined) ?? null,
   };
 }
 
 export async function requireRole(roles: Role[]): Promise<Member> {
   const member = await requireMember();
-  if (!roles.includes(member.role)) redirect("/early-years");
+  if (!roles.includes(member.role)) redirect("/");
   return member;
 }
 
@@ -52,3 +53,20 @@ export const canManageStaff = (role: Role) => STAFF_MANAGERS.includes(role);
 export const canSeeParents = (m: Member) => STAFF_MANAGERS.includes(m.role) || m.can_see_parents;
 export const canEdit = (role: Role) => EDITORS.includes(role);
 export const canSeeLead = canEdit;
+
+// The Early Years Montessori tracker: people an admin has approved (admins
+// always), signed in with Google rather than the shared staff code.
+export const canUseTracker = (m: Member) => m.google && (m.tracker || isAdmin(m.role));
+// The tracker's owner (set in the database, not in code): sees the activity log
+// and is the only one who can give or remove tracker access.
+export async function isTrackerOwner(): Promise<boolean> {
+  const supabase = await createClient();
+  const { data } = await supabase.rpc("is_tracker_owner");
+  return data === true;
+}
+
+export async function requireTracker(): Promise<Member> {
+  const me = await requireMember();
+  if (!canUseTracker(me)) redirect(me.google ? "/tracker-access?why=approval" : "/tracker-access?why=google");
+  return me;
+}

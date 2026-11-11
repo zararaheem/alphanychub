@@ -10,6 +10,8 @@ export function GoogleButton({ next }: { next?: string }) {
     setBusy(true);
     const safeNext = next && next.startsWith("/") && !next.startsWith("//") ? next : "/";
     const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(safeNext)}`;
+    // Remembered in case Supabase drops ?next on the way back.
+    document.cookie = `after_login=${encodeURIComponent(safeNext)}; path=/; max-age=600; samesite=lax`;
     const { error } = await createClient().auth.signInWithOAuth({
       provider: "google",
       options: { redirectTo, queryParams: { prompt: "select_account" } },

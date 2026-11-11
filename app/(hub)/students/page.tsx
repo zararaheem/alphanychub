@@ -18,7 +18,10 @@ export default async function StudentsPage() {
       <div className="stack-sm">
         <h1>Students</h1>
         <p className="lede">Enrolled students{campus ? ` · ${CAMPUS_LABEL[campus]}` : " at both campuses"}, by level.</p>
-        <Link href="/health" className="btn ghost sm" style={{ alignSelf: "flex-start" }}>Health &amp; safety: student medications</Link>
+        <div className="row">
+          <Link href="/students/print" className="btn sm">Print class lists</Link>
+          <Link href="/health" className="btn ghost sm">Health &amp; safety: student medications</Link>
+        </div>
       </div>
 
       <div className="kpis">
