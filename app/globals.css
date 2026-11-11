@@ -846,7 +846,7 @@ tr.is-absent .roll-mark { border-style: dashed; color: var(--muted); }
 .pr-cando { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
 .pr-cando ul, .pr-home ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; }
 .pr-home { background: #fff8ea; border-radius: 12px; padding: 12px 14px; }
-.pr-home h2 { border-color: #f5a524; }
+
 .pr-foot { font-size: 11px; color: #6b6f8e; border-top: 1px solid #e3e7f0; padding-top: 8px; }
 .pr-page + .pr-page { margin-top: 24px; }
 @media print {
@@ -933,3 +933,9 @@ a.ey-step { color: var(--ink); white-space: nowrap; }
 }
 .pr-key .pr-dot { display: inline-block; margin-left: 2px; }
 .pr-home h2 { margin-top: 0; }
+
+/* Report lists: our own dots, so every column lines up the same way. */
+.pr-cando ul, .pr-home ul { list-style: none; padding-left: 0 !important; }
+.pr-cando li, .pr-home li { position: relative; padding-left: 14px; }
+.pr-cando li::before, .pr-home li::before { content: ""; position: absolute; left: 2px; top: .5em; width: 5px; height: 5px; border-radius: 50%; background: #12b5f6; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.pr-home li::before { background: #f5a524; }

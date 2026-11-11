@@ -94,11 +94,13 @@ export function ParentReportView({ r, photoUrls = {}, readOnly = false }: { r: P
       )}
 
       {r.growing.length > 0 && (
-        <section className="pr-sec pr-home">
+        <section className="pr-sec">
           <h2>Growing next, and how you can help at home</h2>
-          <ul>
-            {r.growing.map((s) => <li key={s.name}><b>{s.ican}</b><br />{s.home}</li>)}
-          </ul>
+          <div className="pr-home">
+            <ul>
+              {r.growing.map((s) => <li key={s.name}><b>{s.ican}</b><br />{s.home}</li>)}
+            </ul>
+          </div>
         </section>
       )}
       </div>
