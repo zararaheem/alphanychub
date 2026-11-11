@@ -3,7 +3,7 @@
 // Wonder Lab Success Indicators. Both are editable in the tracker.
 
 export type Level = "I" | "P" | "M"; // a lesson: Introduced / Practiced / Mastered
-export type SkillLevel = "U" | "E" | "D" | "P"; // a skill: Upcoming / Emerging / Developing / Proficient
+export type SkillLevel = "U" | "E" | "D" | "P"; // a skill: not yet / Introduced / Practiced / Mastered (same words as lessons)
 export type AreaId = "pl" | "se" | "ma" | "la" | "sc";
 export type DomainId = "ATL" | "SE" | "LL" | "COG" | "PMP";
 export type Cycle = "brief" | "complete";
@@ -33,12 +33,14 @@ export const LEVEL: Record<Level, { label: string; help: string; bg: string; fg:
   P: { label: "Practiced", help: "Child chooses and repeats the work independently.", bg: "#4f7cf0", fg: "#ffffff" },
   M: { label: "Mastered", help: "Completes the work correctly and independently at least twice, presents it back without error, or shows a peer.", bg: "#12b5f6", fg: "#04102e" },
 };
+// Skills use the same three words as lessons. "U" means not yet observed (shown as blank).
 export const SKILL_LEVELS: SkillLevel[] = ["U", "E", "D", "P"];
+export const SKILL_PICK: SkillLevel[] = ["E", "D", "P"];
 export const SKILL_LEVEL: Record<SkillLevel, { label: string; help: string; step: number }> = {
-  U: { label: "Upcoming", help: "Not yet presented or not yet observed.", step: 0 },
-  E: { label: "Emerging", help: "Shows the skill occasionally, with adult prompting or modeling.", step: 1 },
-  D: { label: "Developing", help: "Shows the skill often, with occasional reminders or support.", step: 2 },
-  P: { label: "Proficient", help: "Shows the skill consistently and independently, across days and settings.", step: 3 },
+  U: { label: "Not yet", help: "Not yet presented or not yet observed.", step: 0 },
+  E: { label: "Introduced", help: "Shows the skill sometimes, with an adult prompting or modeling.", step: 1 },
+  D: { label: "Practiced", help: "Shows the skill often, with the odd reminder.", step: 2 },
+  P: { label: "Mastered", help: "Shows the skill on their own, every day and in different settings.", step: 3 },
 };
 export const CYCLE: Record<Cycle, string> = { brief: "Brief", complete: "Full work cycle" };
 export const SUPPORT: Record<Support, string> = { self: "Chose it", invited: "Invited", lesson: "Lesson given" };

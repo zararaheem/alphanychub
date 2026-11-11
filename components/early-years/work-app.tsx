@@ -3,7 +3,7 @@
 import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import {
-  AREAS, CYCLE, DOMAINS, LEVEL, LEVELS, SKILL_LEVEL, SKILL_LEVELS, SUPPORT, goesBy, mondayOf, niceDay, nyToday,
+  AREAS, CYCLE, DOMAINS, LEVEL, LEVELS, SKILL_LEVEL, SKILL_PICK, SUPPORT, goesBy, mondayOf, niceDay, nyToday,
   type AreaId, type Cycle, type Level, type Observation, type Skill, type SkillLevel, type Support, type Work,
 } from "@/lib/montessori";
 import { deleteObservation, logWork, setLevel, setSkillLevel, updateObservation } from "@/app/tracker/actions";
@@ -231,8 +231,8 @@ export function WorkApp({ me, admin, people, myClass }: { me: string; admin: boo
     const cur = ids.length === 1 ? skillStatus.get(`${ids[0]}:${s.id}`) : undefined;
     return (
       <div className="seg mw-seg-sm" role="group" aria-label={`${s.name} level`}>
-        {SKILL_LEVELS.map((l) => (
-          <button key={l} type="button" aria-pressed={cur === l} title={SKILL_LEVEL[l].help} onClick={() => moveSkill(ids, s.id, l)}>{SKILL_LEVEL[l].label}</button>
+        {SKILL_PICK.map((l) => (
+          <button key={l} type="button" aria-pressed={cur === l} title={`${SKILL_LEVEL[l].help}${cur === l ? " Tap again to clear." : ""}`} onClick={() => moveSkill(ids, s.id, cur === l ? "U" : l)}>{SKILL_LEVEL[l].label}</button>
         ))}
       </div>
     );
