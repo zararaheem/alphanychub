@@ -26,7 +26,9 @@ export async function weekReport(supabase: SupabaseClient, monday: string, level
     supabase.from("ey_works").select("*"),
     supabase.from("ey_observations").select("*").gte("day", monday).lte("day", friday).order("day").order("created_at"),
   ]);
-  const kids = ((s.data ?? []) as Kid[]).filter((k) => !level || k.grade === level);
+  // PreK before K, each by last name.
+  const kids = ((s.data ?? []) as Kid[]).filter((k) => !level || k.grade === level)
+    .sort((a, b) => ((a.grade === "PK" ? 0 : 1) - (b.grade === "PK" ? 0 : 1)) || a.last_name.localeCompare(b.last_name));
   const ids = new Set(kids.map((k) => k.id));
   const works = new Map(((w.data ?? []) as Work[]).map((x) => [x.id, x]));
   const all = ((o.data ?? []) as Observation[]).filter((x) => ids.has(x.student_id));

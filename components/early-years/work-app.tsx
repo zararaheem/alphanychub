@@ -23,6 +23,12 @@ type Draft = {
 };
 
 const GRADE: Record<string, string> = { PK: "PreK", K: "K" };
+// The demo child first, then PreK before K, each by last name.
+const RANK: Record<string, number> = { PK: 0, K: 1 };
+const byClass = (a: { campus?: string; grade: string | null; last_name: string; first_name: string }, b: typeof a) =>
+  Number(b.campus === "demo") - Number(a.campus === "demo")
+  || (RANK[a.grade ?? ""] ?? 2) - (RANK[b.grade ?? ""] ?? 2)
+  || a.last_name.localeCompare(b.last_name) || goesBy(a).localeCompare(goesBy(b));
 const DISMISSAL: Record<string, string> = { walker: "walks to Maiden", bus: "bus", parent: "parent pickup", afterschool: "afterschool", early: "early pickup" };
 
 // Phone photos are large; shrink to 1600px JPEG before they leave the phone.
@@ -102,7 +108,7 @@ export function WorkApp({ me, admin, people, myClass }: { me: string; admin: boo
     ]);
     if (s.error || w.error) { flash("Couldn't load. Check your signal."); return; }
     // The demo child first, then everyone by the name they go by.
-    setKids((s.data ?? []).sort((a, b) => Number(b.campus === "demo") - Number(a.campus === "demo") || goesBy(a).localeCompare(goesBy(b))));
+    setKids((s.data ?? []).sort(byClass));
     // Today's attendance from EY attendance: absent children are greyed out.
     setAbsent(new Set((att.data ?? []).filter((r) => r.mode === "absent").map((r) => r.student_id)));
     setDismissal(new Map((att.data ?? []).filter((r) => r.part === "pm").map((r) => [r.student_id, r.mode])));
@@ -136,14 +142,15 @@ export function WorkApp({ me, admin, people, myClass }: { me: string; admin: boo
   const kidOf = new Map(kids.map((k) => [k.id, k]));
   const skillsFor = (workId: number) => links.filter(([, w]) => w === workId).map(([s]) => skillOf.get(s)).filter((s): s is Skill => !!s && !s.archived);
   const lessonsFor = (skillId: number) => links.filter(([s]) => s === skillId).map(([, w]) => workOf.get(w)).filter((w): w is Work => !!w && !w.archived);
-  const shown = kids
-    .filter((k) => cls === "all" || k.grade === cls || k.campus === "demo")
-    .filter((k) => !q || `${k.first_name} ${k.last_name}`.toLowerCase().includes(q.toLowerCase()))
-    .sort((a, b) => goesBy(a).localeCompare(goesBy(b)));
+  const demoKids = kids.filter((k) => k.campus === "demo");
+  const realKids = kids.filter((k) => k.campus !== "demo");
+  const shown = realKids
+    .filter((k) => cls === "all" || k.grade === cls)
+    .filter((k) => !q || `${k.first_name} ${k.last_name}`.toLowerCase().includes(q.toLowerCase()));
   const thisWeek = recent.filter((o) => o.day >= monday);
   const weekCount = (id: number) => thisWeek.filter((o) => o.student_id === id).length;
   const lastSeen = (id: number) => recent.find((o) => o.student_id === id)?.day;
-  const name = (k: Kid) => <><b>{goesBy(k)}</b> {k.last_name}{k.campus === "demo" && <span className="mw-demo">DEMO</span>}{k.grade && <span className="ey-grade">{GRADE[k.grade] ?? k.grade}</span>}</>;
+  const name = (k: Kid) => <><b>{goesBy(k)}</b> <b>{k.last_name}</b>{k.campus === "demo" && <span className="mw-demo">DEMO</span>}{k.grade && <span className="ey-grade">{GRADE[k.grade] ?? k.grade}</span>}</>;
 
   function openLog(kidId: number, workId: number | null = null) {
     const w = workId ? workOf.get(workId) : null;
@@ -415,12 +422,25 @@ export function WorkApp({ me, admin, people, myClass }: { me: string; admin: boo
           <div className="seg-links" role="group" aria-label="Class">
             {(["all", "PK", "K"] as ClassLevel[]).map((v) => (
               <a key={v} href={`#${v}`} aria-current={cls === v ? "page" : undefined} onClick={(e) => { e.preventDefault(); setCls(v); }}>
-                {v === "all" ? `All · ${kids.length}` : `${GRADE[v]} · ${kids.filter((k) => k.grade === v).length}`}
+                {v === "all" ? `All · ${realKids.length}` : `${GRADE[v]} · ${realKids.filter((k) => k.grade === v).length}`}
               </a>
             ))}
           </div>
           <input className="input mw-search" placeholder="Find a child" value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
+        {demoKids.map((k) => (
+          <div key={k.id} className="mw-demo-box">
+            <div className="ey-who">
+              <span className="ey-name"><b>Demo Child</b> <span className="mw-demo">DEMO</span></span>
+              <span className="small muted">A practice child with an example week. Try recording here; it never appears in class lists, attendance or reports.</span>
+            </div>
+            <div className="row mw-wrap">
+              <button type="button" className="btn ghost sm" onClick={() => setScreen({ s: "kid", id: k.id, tab: "lessons" })}>Open</button>
+              <a className="btn ghost sm" href={`/tracker/parent/${k.id}`}>Example report</a>
+              <button type="button" className="ey-step" onClick={() => openLog(k.id)}>+ Record</button>
+            </div>
+          </div>
+        ))}
         <div className={`roll-bar${seen === shown.length ? " done" : ""}`} role="status">
           <span><b>{seen}</b> of {shown.length} observed this week · {thisWeek.filter((o) => shown.some((k) => k.id === o.student_id)).length} lessons recorded</span>
         </div>

@@ -19,7 +19,7 @@ export default async function ParentReports({ searchParams }: { searchParams: SP
   const { data } = await supabase.from("students").select("id, first_name, last_name, grade, campus").in("campus", ["early-years", "demo"]);
   // The demo child is listed first but never printed with the class.
   const demo = (data ?? []).filter((k) => k.campus === "demo");
-  const kids = (data ?? []).filter((k) => k.campus !== "demo" && (!level || k.grade === level)).sort((a, b) => goesBy(a).localeCompare(goesBy(b)));
+  const kids = (data ?? []).filter((k) => k.campus !== "demo" && (!level || k.grade === level)).sort((a, b) => ((a.grade === "PK" ? 0 : 1) - (b.grade === "PK" ? 0 : 1)) || a.last_name.localeCompare(b.last_name) || goesBy(a).localeCompare(goesBy(b)));
   const q = (patch: Record<string, string | null>) => {
     const p = new URLSearchParams({ week: monday, ...(level ? { level } : {}) });
     for (const [k, v] of Object.entries(patch)) { if (v) p.set(k, v); else p.delete(k); }
@@ -50,7 +50,7 @@ export default async function ParentReports({ searchParams }: { searchParams: SP
         {sp.all !== "1" && (
           <ul className="ey-list">
             {demo.map((k) => (
-              <li key={k.id} className="ey-row">
+              <li key={k.id} className="ey-row mw-demo-box">
                 <span className="ey-name"><b>Demo Child</b> <span className="mw-demo">DEMO</span> <span className="small muted">an example week to show guides</span></span>
                 <Link className="ey-step" href={`/tracker/parent/${k.id}?week=${monday}`}>Open demo report</Link>
               </li>

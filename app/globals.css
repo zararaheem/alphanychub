@@ -863,3 +863,8 @@ tr.is-absent .roll-mark { border-style: dashed; color: var(--muted); }
 .tr-me { color: rgba(255, 255, 255, .8); margin-left: auto; }
 .tr-out { color: #fff; }
 @media (max-width: 560px) { .tr-me { display: none; } }
+/* The demo child sits apart at the top, in a calm blue-grey box. */
+.mw-demo-box { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px 12px; padding: 12px 14px; border-radius: 12px; background: #e9eef8; border: 1.5px dashed #9aa8c7; color: #1c2550; }
+.mw-demo-box .muted { color: #55607f; }
+.mw-demo-box .ey-step { background: #fff; }
+.mw-demo-box .mw-demo { background: #cfd9ee; color: #2b3a6b; }
