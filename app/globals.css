@@ -888,48 +888,35 @@ a.ey-step { color: var(--ink); white-space: nowrap; }
 .brand-stack .brand-divider { display: none; }
 .brand-stack .brand-name { font-size: 12px; letter-spacing: .32em; color: #fff; opacity: .9; }
 
-/* A family report prints on one clean page. */
+/* A family report in print: the same layout as on screen, sized for paper.
+   If it runs over, groups move whole and a heading never sits apart from its list. */
 @media print {
   @page { size: letter; margin: 0.45in 0.5in; }
-  .pr { gap: 18px; font-size: 12px; line-height: 1.4; }
-  .pr .kicker { font-size: 9px; }
-  .pr h1 { font-size: 28px; line-height: 1.1; }
-  .pr h2 { font-size: 14px; margin-bottom: 6px; padding-bottom: 3px; border-bottom-width: 1.5px; }
-  .pr h3 { font-size: 11.5px; margin-bottom: 3px; }
-  .pr-sub { font-size: 10.5px; }
-  .pr-head { align-items: center; flex-wrap: nowrap; }
-  .pr-badges { gap: 6px; }
-  .pr-badges div { padding: 5px 10px; min-width: 64px; border-radius: 10px; }
-  .pr-badges b { font-size: 18px; line-height: 1.1; }
-  .pr-badges span { font-size: 8.5px; }
-  .pr-note, .pr-note-print { font-size: 12px; line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
+  .pr { gap: 14px; }
+  .pr h1 { font-size: 26px; }
+  .pr h2 { font-size: 14px; margin-bottom: 6px; padding-bottom: 3px; }
+  .pr h3 { font-size: 12px; margin-bottom: 3px; }
+  .pr-badges div { padding: 5px 12px; }
+  .pr-badges b { font-size: 20px; }
+  .pr-note, .pr-note-print { font-size: 12px; line-height: 1.45; }
   .pr-days { grid-template-columns: repeat(5, 1fr); gap: 6px; }
-  .pr-days > li { padding: 9px 10px; border-radius: 8px; }
+  .pr-days > li { padding: 8px 9px; border-radius: 10px; }
   .pr-days ul { gap: 6px; }
   .pr-days ul li { font-size: 10.5px; line-height: 1.35; }
-  .pr-days ul li p { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; color: #3b3f63; }
-  .pr-lesson { display: block; }
-  .pr-lv { margin: 1px 0 2px; font-size: 8px; padding: 0 4px; }
   .pr-photos img { width: 44px; height: 44px; border-radius: 4px; }
-  .pr-ocr { display: none; }
-  .pr-extra { display: none !important; }
-  .pr-more { color: #6b6f8e; font-style: italic; }
   .pr-areas { grid-template-columns: repeat(5, 1fr); gap: 6px; }
-  .pr-area { padding: 8px 10px; border-radius: 8px; }
-  .pr-area ul { font-size: 10.5px; gap: 3px; line-height: 1.3; }
-  .pr-area li .pr-muted { display: none; }
-  .pr-area li { grid-template-columns: 7px 1fr; gap: 5px; }
-  .pr-dot { width: 7px; height: 7px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .pr-key { font-size: 9.5px; color: #6b6f8e; margin-top: 5px !important; }
-  .pr-pair { grid-template-columns: 1.15fr 1fr; gap: 14px; }
-  .pr-cando { grid-template-columns: 1fr 1fr; gap: 8px 12px; }
-  .pr-cando ul, .pr-home ul { font-size: 10.5px; gap: 3px; line-height: 1.35; padding-left: 13px; }
-  .pr-muted { font-size: 9px; }
-  .pr-home { padding: 10px 12px; border-radius: 8px; }
-  .pr-foot { font-size: 8.5px; padding-top: 5px; }
-  /* If it ever runs over, groups move whole: a heading never sits apart from its list. */
+  .pr-area { padding: 8px 9px; border-radius: 10px; }
+  .pr-area ul { font-size: 10.5px; gap: 4px; line-height: 1.3; }
+  .pr-dot { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .pr-key { font-size: 9.5px; margin-top: 5px !important; }
+  .pr-pair { grid-template-columns: 1.1fr 1fr; gap: 18px; }
+  .pr-cando { grid-template-columns: 1fr; gap: 6px; }
+  .pr-cando ul, .pr-home ul { font-size: 11px; gap: 3px; line-height: 1.35; }
+  .pr-muted { font-size: 10px; }
+  .pr-home { padding: 10px 12px; border-radius: 10px; }
+  .pr-foot { font-size: 9px; padding-top: 5px; }
   .pr h2, .pr h3 { break-after: avoid; page-break-after: avoid; }
-  .pr-cando > div, .pr-area, .pr-days > li, .pr-home, .pr-days ul li, .pr-cando li, .pr-home li, .pr-head { break-inside: avoid; page-break-inside: avoid; }
+  .pr-cando > div, .pr-area, .pr-days > li, .pr-home, .pr-cando li, .pr-home li, .pr-head { break-inside: avoid; page-break-inside: avoid; }
 }
 .pr-key .pr-dot { display: inline-block; margin-left: 2px; }
 .pr-home h2 { margin-top: 0; }
@@ -939,3 +926,4 @@ a.ey-step { color: var(--ink); white-space: nowrap; }
 .pr-cando li, .pr-home li { position: relative; padding-left: 14px; }
 .pr-cando li::before, .pr-home li::before { content: ""; position: absolute; left: 2px; top: .5em; width: 5px; height: 5px; border-radius: 50%; background: #12b5f6; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 .pr-home li::before { background: #f5a524; }
+.pr-more { display: none !important; }
