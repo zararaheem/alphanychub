@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import {
   AREAS, CYCLE, DOMAINS, LEVEL, LEVELS, SKILL_LEVEL, SKILL_LEVELS, SUPPORT, goesBy, mondayOf, niceDay, nyToday,
@@ -469,18 +469,22 @@ export function WorkApp({ me, admin, people, myClass }: { me: string; admin: boo
           <span><b>{seen}</b> of {shown.length} observed this week · {thisWeek.filter((o) => shown.some((k) => k.id === o.student_id)).length} lessons recorded</span>
         </div>
         <ul className="ey-list">
-          {shown.map((k) => {
+          {shown.map((k, i) => {
             const n = weekCount(k.id);
+            const heading = (i === 0 || shown[i - 1].grade !== k.grade) && cls === "all" && !q;
             const last = lastSeen(k.id);
             const mastered = works.filter((w) => status.get(`${k.id}:${w.id}`) === "M").length;
             return (
-              <li key={k.id} className={`ey-row${absent.has(k.id) ? " absent" : n === 0 ? " changed" : ""}`}>
+              <Fragment key={k.id}>
+              {heading && <li className="mw-group">{k.grade === "PK" ? "PreK" : k.grade === "K" ? "Kindergarten" : "Other"}</li>}
+              <li className={`ey-row${absent.has(k.id) ? " absent" : n === 0 ? " changed" : ""}`}>
                 <button type="button" className="mw-kid" onClick={() => setScreen({ s: "kid", id: k.id, tab: "lessons" })}>
                   <span className="ey-name">{name(k)}</span>
                   <span className="small muted">{absent.has(k.id) ? "Absent today · " : dismissal.get(k.id) ? `Today: ${DISMISSAL[dismissal.get(k.id)!] ?? dismissal.get(k.id)} · ` : ""}{n ? `${n} this week` : "Not observed this week"}{last ? ` · last ${last === today ? "today" : niceDay(last)}` : ""}{mastered ? ` · ${mastered} mastered` : ""}</span>
                 </button>
                 <button type="button" className="ey-step" onClick={() => openLog(k.id)}>+ Record</button>
               </li>
+              </Fragment>
             );
           })}
         </ul>

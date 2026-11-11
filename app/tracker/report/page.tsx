@@ -27,7 +27,7 @@ export default async function WeeklyReport({ searchParams }: { searchParams: SP 
   return (
     <main className="wrap stack mw-report">
       <div className="row mw-wrap no-print" style={{ justifyContent: "space-between" }}>
-        <Link href="/tracker" className="small">← Tracker</Link>
+<span />
         <div className="row mw-wrap">
           <PrintButton />
           <a className="btn sm outline" href={`/tracker/report/export?${new URLSearchParams({ week: monday, ...(level ? { level } : {}), ...(r.by ? { by: r.by } : {}) })}`} download>Download Excel</a>

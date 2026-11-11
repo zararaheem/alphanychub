@@ -872,3 +872,9 @@ tr.is-absent .roll-mark { border-style: dashed; color: var(--muted); }
 .tr-nav .wrap { display: flex; gap: 4px; overflow-x: auto; padding-top: 6px; padding-bottom: 6px; }
 .tr-nav a { white-space: nowrap; padding: 8px 12px; border-radius: 9px; font-size: 14px; font-weight: 600; color: var(--ink-2); text-decoration: none; }
 .tr-nav a[aria-current="page"] { background: var(--teal); color: var(--on-accent); }
+/* Tracker layout: one width for the menu and every page; links that look like buttons behave like them. */
+.tr-nav .wrap, .mw.ey, .mw-report { max-width: 960px; margin-left: auto; margin-right: auto; }
+a.ey-step, a.btn, a.chip { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
+a.ey-step { color: var(--ink); white-space: nowrap; }
+.mw-group { list-style: none; margin-top: 10px; font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.hub-header .ph-title { margin-left: 4px; }

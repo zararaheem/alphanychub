@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Fragment } from "react";
 import { requireTracker } from "@/lib/access";
 import { PrintButton } from "@/components/print-button";
 import { ParentReportView } from "@/components/early-years/parent-report";
@@ -30,7 +31,6 @@ export default async function ParentReports({ searchParams }: { searchParams: SP
   return (
     <main className="wrap stack mw-report">
       <div className="row mw-wrap no-print" style={{ justifyContent: "space-between" }}>
-        <Link href="/tracker" className="small">← Tracker</Link>
         {sp.all === "1" && <PrintButton label="Print or save all as PDF" />}
       </div>
       <div className="no-print stack">
@@ -52,17 +52,17 @@ export default async function ParentReports({ searchParams }: { searchParams: SP
             {demo.map((k) => (
               <li key={k.id} className="ey-row mw-demo-box">
                 <span className="ey-name"><b>Demo Child</b> <span className="mw-demo">DEMO</span> <span className="small muted">an example week to show guides</span></span>
-                <Link className="ey-step" href={`/tracker/parent/${k.id}?week=${monday}`}>Open demo report</Link>
+                <Link className="ey-step" href={`/tracker/parent/${k.id}?week=${monday}`}>Open example report</Link>
               </li>
             ))}
-            {kids.map((k) => (
-              <li key={k.id} className="ey-row">
-                <span className="ey-name"><b>{goesBy(k)}</b> {k.last_name}</span>
-                <div className="row mw-wrap">
+            {kids.map((k, i) => (
+              <Fragment key={k.id}>
+                {(i === 0 || kids[i - 1].grade !== k.grade) && <li className="mw-group">{k.grade === "PK" ? "PreK" : "Kindergarten"}</li>}
+                <li className="ey-row">
+                  <span className="ey-name"><b>{goesBy(k)}</b> <b>{k.last_name}</b></span>
                   <Link className="ey-step" href={`/tracker/parent/${k.id}?week=${monday}`}>Open report</Link>
-                  <Link className="btn ghost sm" href={`/tracker/parent/${k.id}?week=${monday}&sample=1`}>Sample</Link>
-                </div>
-              </li>
+                </li>
+              </Fragment>
             ))}
           </ul>
         )}
