@@ -883,3 +883,34 @@ a.ey-step { color: var(--ink); white-space: nowrap; }
 .brand-stack { flex-direction: column; gap: 6px; }
 .brand-stack .brand-divider { display: none; }
 .brand-stack .brand-name { font-size: 12px; letter-spacing: .32em; color: #fff; opacity: .9; }
+
+/* A family report prints on one page: tighter type and spacing, wider columns. */
+@media print {
+  .pr { gap: 9px !important; font-size: 10px; }
+  .pr h1 { font-size: 20px; }
+  .pr h2 { font-size: 12.5px !important; margin: 0 0 3px !important; padding-bottom: 2px !important; }
+  .pr h3 { font-size: 10px; margin: 0 0 2px; }
+  .pr-sec { gap: 4px !important; }
+  .pr-sub { font-size: 10px; margin: 0; }
+  .pr-badges div { padding: 3px 8px; min-width: 52px; border-radius: 8px; }
+  .pr-badges b { font-size: 15px; }
+  .pr-badges span { font-size: 8.5px; }
+  .pr-note, .pr-note-print { font-size: 11px; line-height: 1.35; }
+  .pr-days { gap: 4px; }
+  .pr-days > li { padding: 4px 6px; border-radius: 6px; }
+  .pr-days ul { gap: 3px; }
+  .pr-days ul li { font-size: 9.5px; line-height: 1.25; }
+  .pr-days ul li p { margin: 0; }
+  .pr-lv { font-size: 7.5px; margin-left: 3px; padding: 0 3px; }
+  .pr-photos img { width: 40px; height: 40px; border-radius: 4px; }
+  .pr-areas { font-size: 9.5px; }
+  .pr-areas th, .pr-areas td { padding: 2px 5px; }
+  .pr-areas thead th { font-size: 8px; }
+  .pr-key { font-size: 8.5px; margin-top: 2px !important; }
+  .pr-cando { grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .pr-cando ul, .pr-home ul { gap: 2px; font-size: 9.5px; line-height: 1.25; padding-left: 12px; }
+  .pr-muted { font-size: 8.5px; }
+  .pr-home { padding: 5px 8px; border-radius: 6px; }
+  .pr-foot { font-size: 7.5px; padding-top: 3px; }
+  .pr-page { break-inside: avoid; }
+}
