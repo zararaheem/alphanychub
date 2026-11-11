@@ -1,7 +1,21 @@
+import type { Metadata } from "next";
 import { Brand } from "@/components/brand";
 import { GoogleButton } from "./google-button";
 import { signInWithCode } from "./actions";
 import { TrackerLogin } from "@/components/early-years/tracker-login";
+
+const isTracker = (next?: string) => !!next && (next.startsWith("/tracker") || next.startsWith("/ey-tracker") || next.startsWith("/ey/tracker"));
+const TRACKER_META: Metadata = {
+  title: "Early Years Tracker",
+  description: "Alpha NYC Early Years: record lessons and standout moments, attendance and dismissal, and weekly reports for families.",
+  openGraph: { title: "Early Years Tracker", description: "Alpha NYC Early Years: lessons, attendance and weekly family reports.", siteName: "Early Years Tracker", type: "website" },
+};
+
+// Links to the tracker land here when signed out, so the tab and link previews say Early Years Tracker.
+export async function generateMetadata({ searchParams }: { searchParams: Promise<{ next?: string }> }): Promise<Metadata> {
+  const { next } = await searchParams;
+  return isTracker(next) ? TRACKER_META : {};
+}
 
 export default async function LoginPage({ searchParams }: { searchParams: Promise<{ next?: string; error?: string }> }) {
   const { next, error } = await searchParams;
@@ -9,7 +23,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
   const googleEnabled = process.env.NEXT_PUBLIC_GOOGLE_SIGNIN === "on";
 
   // The Montessori tracker has its own sign-in: Google only.
-  if (next?.startsWith("/tracker") || next?.startsWith("/ey-tracker") || next?.startsWith("/ey/tracker")) return <TrackerLogin next={next} error={!!error} />;
+  if (isTracker(next)) return <TrackerLogin next={next} error={!!error} />;
 
   return (
     <div className="auth">

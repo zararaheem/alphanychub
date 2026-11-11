@@ -5,7 +5,10 @@ import { Brand } from "@/components/brand";
 import { SignOut } from "@/components/sign-out";
 import { TrackerNav } from "@/components/early-years/tracker-nav";
 
-export const metadata: Metadata = { title: "Early Years Tracker · Alpha NYC" };
+export const metadata: Metadata = {
+  title: "Early Years Tracker",
+  openGraph: { title: "Early Years Tracker", siteName: "Early Years Tracker", description: "Alpha NYC Early Years: lessons, attendance and weekly family reports." },
+};
 
 // The Montessori tracker stands on its own link. Only approved people,
 // signed in with Google, can open it (and the database checks the same).

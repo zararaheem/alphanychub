@@ -1,6 +1,9 @@
+import type { Metadata } from "next";
 import { requireMember } from "@/lib/access";
 import { GoogleButton } from "@/app/login/google-button";
 import { TrackerLogin } from "@/components/early-years/tracker-login";
+
+export const metadata: Metadata = { title: "Early Years Tracker", openGraph: { title: "Early Years Tracker", siteName: "Early Years Tracker" } };
 
 // Why someone can't open the Montessori tracker, and what to do about it.
 export default async function TrackerAccess({ searchParams }: { searchParams: Promise<{ why?: string }> }) {
