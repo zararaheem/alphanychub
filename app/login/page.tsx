@@ -9,7 +9,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
   const googleEnabled = process.env.NEXT_PUBLIC_GOOGLE_SIGNIN === "on";
 
   // The Montessori tracker has its own sign-in: Google only.
-  if (next?.startsWith("/tracker") || next?.startsWith("/ey-tracker")) return <TrackerLogin next={next} error={!!error} />;
+  if (next?.startsWith("/tracker") || next?.startsWith("/ey-tracker") || next?.startsWith("/ey/tracker")) return <TrackerLogin next={next} error={!!error} />;
 
   return (
     <div className="auth">
