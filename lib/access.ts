@@ -57,6 +57,14 @@ export const canSeeLead = canEdit;
 // The Early Years Montessori tracker: people an admin has approved (admins
 // always), signed in with Google rather than the shared staff code.
 export const canUseTracker = (m: Member) => m.google && (m.tracker || isAdmin(m.role));
+// The tracker's owner (set in the database, not in code): sees the activity log
+// and is the only one who can give or remove tracker access.
+export async function isTrackerOwner(): Promise<boolean> {
+  const supabase = await createClient();
+  const { data } = await supabase.rpc("is_tracker_owner");
+  return data === true;
+}
+
 export async function requireTracker(): Promise<Member> {
   const me = await requireMember();
   if (!canUseTracker(me)) redirect(me.google ? "/tracker-access?why=approval" : "/tracker-access?why=google");

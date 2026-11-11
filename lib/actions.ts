@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { ADMINS, EDITORS, STAFF_MANAGERS, ROLE_LABELS, canSeeParents, requireMember, requireRole, type Role } from "@/lib/access";
+import { ADMINS, EDITORS, STAFF_MANAGERS, ROLE_LABELS, canSeeParents, isTrackerOwner, requireMember, requireRole, type Role } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { parseParentCsv } from "@/lib/parent-import";
 import { clearUnlocked, codeMatches, setUnlocked } from "@/lib/parent-lock";
@@ -122,6 +122,7 @@ export async function setParentAccess(form: FormData) {
 
 export async function setTrackerAccess(form: FormData) {
   await requireRole(ADMINS);
+  if (!(await isTrackerOwner())) back("/access", { error: { message: "Only the tracker owner can change tracker access." } }, "");
   const supabase = await createClient();
   const on = str(form, "on") === "1";
   const email = str(form, "email") ?? "";

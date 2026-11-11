@@ -1,4 +1,4 @@
-import { ADMINS, requireRole, ROLE_LABELS, type Member, type Role } from "@/lib/access";
+import { ADMINS, isTrackerOwner, requireRole, ROLE_LABELS, type Member, type Role } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
 import { addMember, removeMember, setParentAccess, setTrackerAccess } from "@/lib/actions";
 import { Field } from "@/components/fields";
@@ -18,6 +18,7 @@ const ROLE_HELP: Record<Role, string> = {
 export default async function AccessPage({ searchParams }: { searchParams: SP }) {
   const sp = await searchParams;
   const me = await requireRole(ADMINS);
+  const owner = await isTrackerOwner();
   const supabase = await createClient();
   const { data } = await supabase.from("allowed_users").select("*").order("role").order("email");
   const rows = (data ?? []) as Row[];
@@ -84,6 +85,8 @@ export default async function AccessPage({ searchParams }: { searchParams: SP })
                 <td>
                   {r.role === "admin" ? (
                     <span className="small muted">Always</span>
+                  ) : !owner ? (
+                    <span className={`pill ${r.tracker ? "mint" : ""}`}>{r.tracker ? "Approved" : "No access"}</span>
                   ) : (
                     <form action={setTrackerAccess} className="row" style={{ gap: 6 }}>
                       <input type="hidden" name="email" value={r.email} />

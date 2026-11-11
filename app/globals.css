@@ -927,3 +927,12 @@ a.ey-step { color: var(--ink); white-space: nowrap; }
 .pr-cando li::before, .pr-home li::before { content: ""; position: absolute; left: 2px; top: .5em; width: 5px; height: 5px; border-radius: 50%; background: #12b5f6; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 .pr-home li::before { background: #f5a524; }
 .pr-more { display: none !important; }
+/* Printed report fills the page: the footer sits at the bottom, so any space reads as intentional. */
+@media print {
+  .pr { padding-bottom: 28px; }
+  .pr-foot { position: fixed; left: 0; right: 0; bottom: 0; background: #fff; }
+}
+.mw-date { width: auto; min-height: 40px; }
+.mw-activity { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.mw-activity li { display: grid; grid-template-columns: 150px 1fr; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--hairline); font-size: 14px; }
+@media (max-width: 560px) { .mw-activity li { grid-template-columns: 1fr; gap: 2px; } }

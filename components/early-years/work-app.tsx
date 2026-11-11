@@ -3,12 +3,13 @@
 import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import {
-  AREAS, CYCLE, DOMAINS, LEVEL, LEVELS, SKILL_LEVEL, SKILL_PICK, SUPPORT, goesBy, mondayOf, niceDay, nyToday,
+  AREAS, CYCLE, DOMAINS, addDays, LEVEL, LEVELS, SKILL_LEVEL, SKILL_PICK, SUPPORT, goesBy, mondayOf, niceDay, nyToday,
   type AreaId, type Cycle, type Level, type Observation, type Skill, type SkillLevel, type Support, type Work,
 } from "@/lib/montessori";
 import { deleteObservation, logWork, setLevel, setSkillLevel, updateObservation } from "@/app/tracker/actions";
 import { KnowledgeBase } from "@/components/early-years/knowledge-base";
 import { TrackerAdmin, type Person } from "@/components/early-years/tracker-admin";
+import { ActivityLog } from "@/components/early-years/activity-log";
 
 // Montessori work tracker for Early Years guides: pick a child, log the lesson
 // they did (level, cycle, support, a note, photos), move the skills it builds,
@@ -19,7 +20,7 @@ type Screen = { s: "kids" } | { s: "kid"; id: number; tab: "lessons" | "skills" 
 type ClassLevel = "all" | "PK" | "K";
 type Draft = {
   kids: number[]; area: AreaId; work: number | null; level: Level | null; cycle: Cycle | null; support: Support | null;
-  note: string; highlight: boolean; photos: { path: string; url: string }[]; ocr: string; q: string; strand: string;
+  note: string; highlight: boolean; photos: { path: string; url: string }[]; ocr: string; q: string; strand: string; day: string;
 };
 
 const GRADE: Record<string, string> = { PK: "PreK", K: "K" };
@@ -56,7 +57,7 @@ export function Steps({ level }: { level: SkillLevel | undefined }) {
   );
 }
 
-export function WorkApp({ me, admin, people, myClass }: { me: string; admin: boolean; people: Person[]; myClass: "PK" | "K" | null }) {
+export function WorkApp({ me, admin, owner, people, myClass }: { me: string; admin: boolean; owner: boolean; people: Person[]; myClass: "PK" | "K" | null }) {
   const supabase = useMemo(() => createClient(), []);
   const today = nyToday();
   const monday = mondayOf(today);
@@ -156,7 +157,7 @@ export function WorkApp({ me, admin, people, myClass }: { me: string; admin: boo
 
   function openLog(kidId: number, workId: number | null = null) {
     const w = workId ? workOf.get(workId) : null;
-    setDraft({ kids: [kidId], area: w?.area ?? "pl", work: workId, level: workId ? status.get(`${kidId}:${workId}`) ?? null : null, cycle: null, support: null, note: "", highlight: false, photos: [], ocr: "", q: "", strand: "" });
+    setDraft({ kids: [kidId], area: w?.area ?? "pl", work: workId, level: workId ? status.get(`${kidId}:${workId}`) ?? null : null, cycle: null, support: null, note: "", highlight: false, photos: [], ocr: "", q: "", strand: "", day: nyToday() });
   }
 
   async function upload(files: FileList, room: number): Promise<{ path: string; url: string }[]> {
@@ -212,10 +213,11 @@ export function WorkApp({ me, admin, people, myClass }: { me: string; admin: boo
   async function save() {
     if (!draft || !draft.kids.length) return;
     setSaving(true);
-    const r = await logWork({ studentIds: draft.kids, workId: draft.work, level: draft.work ? draft.level : null, cycle: draft.cycle, support: draft.support, note: draft.note, highlight: draft.highlight, photos: draft.photos.map((p) => p.path), ocrText: draft.ocr });
+    const r = await logWork({ studentIds: draft.kids, workId: draft.work, level: draft.work ? draft.level : null, cycle: draft.cycle, support: draft.support, note: draft.note, highlight: draft.highlight, photos: draft.photos.map((p) => p.path), ocrText: draft.ocr, day: draft.day });
     setSaving(false);
     if (!r.ok) { flash(r.error ?? "That didn't save."); return; }
-    flash(draft.kids.length > 1 ? `Logged for ${draft.kids.length} children` : "Logged");
+    const on = draft.day === today ? "today" : niceDay(draft.day);
+    flash(draft.kids.length > 1 ? `Saved for ${draft.kids.length} children, ${on}` : `Saved for ${on}`);
     setDraft(null);
     await load();
     if (screen.s === "kid") loadHistory(screen.id);
@@ -267,6 +269,19 @@ export function WorkApp({ me, admin, people, myClass }: { me: string; admin: boo
           <div className="row" style={{ justifyContent: "space-between" }}>
             <h2>Record a lesson or moment</h2>
             <button type="button" className="btn ghost sm" onClick={() => setDraft(null)}>Close</button>
+          </div>
+
+          <div className="stack-sm">
+            <span className="label">Date</span>
+            <div className="row mw-wrap">
+              <div className="seg" role="group" aria-label="Date">
+                <button type="button" aria-pressed={draft.day === today} onClick={() => setDraft({ ...draft, day: today })}>Today</button>
+                <button type="button" aria-pressed={draft.day === addDays(today, -1)} onClick={() => setDraft({ ...draft, day: addDays(today, -1) })}>Yesterday</button>
+              </div>
+              <input className="input mw-date" type="date" value={draft.day} max={today} aria-label="Pick a date"
+                onChange={(e) => e.target.value && setDraft({ ...draft, day: e.target.value > today ? today : e.target.value })} />
+            </div>
+            <span className="small muted">Recording for <b>{draft.day === today ? "today" : niceDay(draft.day, { weekday: "long", month: "long", day: "numeric" })}</b>.</span>
           </div>
 
           <div className="stack-sm">
@@ -420,7 +435,7 @@ export function WorkApp({ me, admin, people, myClass }: { me: string; admin: boo
   const tabs: [string, Screen["s"], (() => void) | string][] = [
     ["Students", "kids", () => setScreen({ s: "kids" })],
     ["Knowledge base", "kb", () => setScreen({ s: "kb" })],
-    ...(isAdmin ? [["Admin", "admin", () => setScreen({ s: "admin" })] as [string, Screen["s"], () => void]] : []),
+    ...(owner && isAdmin ? [["Admin", "admin", () => setScreen({ s: "admin" })] as [string, Screen["s"], () => void]] : []),
   ];
   const top = (
     <div className="ey-top">
@@ -653,8 +668,13 @@ export function WorkApp({ me, admin, people, myClass }: { me: string; admin: boo
     );
   } else if (loaded && screen.s === "kb") {
     body = <KnowledgeBase works={works} skills={skills} links={links} onSaved={load} flash={flash} />;
-  } else if (loaded && screen.s === "admin" && isAdmin) {
-    body = <TrackerAdmin people={people} flash={flash} />;
+  } else if (loaded && screen.s === "admin" && isAdmin && owner) {
+    body = (
+      <>
+        <TrackerAdmin people={people} flash={flash} />
+        <ActivityLog kids={kids} works={works} skills={skills} people={people} />
+      </>
+    );
   }
 
   return (

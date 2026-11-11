@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { isAdmin, requireTracker } from "@/lib/access";
+import { isTrackerOwner, requireTracker } from "@/lib/access";
 import { DOMAINS, LEVELS, SKILL_LEVELS, nyToday, type AreaId, type Cycle, type DomainId, type Level, type SkillLevel, type Support } from "@/lib/montessori";
 import { randomInt } from "node:crypto";
 import { passwordStem } from "@/lib/parent-report";
@@ -160,7 +160,7 @@ export async function saveReportNote(studentId: number, periodStart: string, not
 // Superadmin: approve or remove someone's access to the tracker.
 export async function setTrackerAccessFor(email: string, on: boolean): Promise<{ ok: boolean }> {
   const me = await requireTracker();
-  if (!isAdmin(me.role)) return { ok: false };
+  if (!(await isTrackerOwner())) return { ok: false };
   const supabase = await createClient();
   const { error } = await supabase.from("allowed_users").update({ tracker: on }).eq("email", email.toLowerCase());
   return { ok: !error };
@@ -170,7 +170,7 @@ export async function setTrackerAccessFor(email: string, on: boolean): Promise<{
 // or change their class.
 export async function addTrackerPerson(input: { email: string; name: string; eyClass: "PK" | "K" | null }): Promise<{ ok: boolean; error?: string }> {
   const me = await requireTracker();
-  if (!isAdmin(me.role)) return { ok: false, error: "Only a superadmin can add people." };
+  if (!(await isTrackerOwner())) return { ok: false, error: "Only the tracker owner can add people." };
   const email = input.email.trim().toLowerCase();
   if (!/^[^@\s]+@alpha\.school$/.test(email)) return { ok: false, error: "Use their @alpha.school email." };
   const supabase = await createClient();
@@ -185,7 +185,7 @@ export async function addTrackerPerson(input: { email: string; name: string; eyC
 
 export async function setTrackerClass(email: string, eyClass: "PK" | "K" | null): Promise<{ ok: boolean }> {
   const me = await requireTracker();
-  if (!isAdmin(me.role)) return { ok: false };
+  if (!(await isTrackerOwner())) return { ok: false };
   const supabase = await createClient();
   const { error } = await supabase.from("allowed_users").update({ ey_class: eyClass === "PK" || eyClass === "K" ? eyClass : null }).eq("email", email.toLowerCase());
   return { ok: !error };
@@ -229,4 +229,16 @@ export async function updateObservation(id: number, input: {
   }
   revalidatePath("/tracker/report");
   return { ok: true };
+}
+
+// Everything added, changed or removed in the tracker and attendance. Owner only (the database enforces it too).
+export type Activity = { id: number; at: string; actor: string; action: "added" | "changed" | "removed"; table_name: string; row_key: string | null; student_id: number | null; details: Record<string, unknown> };
+export async function activityLog(before?: number): Promise<{ ok: boolean; rows: Activity[] }> {
+  await requireTracker();
+  if (!(await isTrackerOwner())) return { ok: false, rows: [] };
+  const supabase = await createClient();
+  let q = supabase.from("ey_activity").select("*").order("id", { ascending: false }).limit(200);
+  if (before && Number.isInteger(before)) q = q.lt("id", before);
+  const { data, error } = await q;
+  return { ok: !error, rows: (data ?? []) as Activity[] };
 }
