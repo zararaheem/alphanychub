@@ -2,7 +2,9 @@ import { LEVEL, SKILL_LEVEL } from "@/lib/montessori";
 import type { ParentReport } from "@/lib/parent-report";
 import { ReportNote } from "@/components/early-years/report-note";
 
-// One child's week for their family. Prints (or saves as PDF) on one or two pages.
+// One child's week for their family. Prints (or saves as PDF) on one page:
+// in print, each day shows its first few lessons and notes are trimmed.
+const MAX_DAY = 4;
 export function ParentReportView({ r, photoUrls = {}, readOnly = false }: { r: ParentReport; photoUrls?: Record<string, string>; readOnly?: boolean }) {
   const first = r.name.split(" ")[0];
   return (
@@ -36,7 +38,7 @@ export function ParentReportView({ r, photoUrls = {}, readOnly = false }: { r: P
               {d.items.length === 0 ? <p className="pr-muted">No lessons recorded.</p> : (
                 <ul>
                   {d.items.map((x, i) => (
-                    <li key={i}>
+                    <li key={i} className={i >= MAX_DAY ? "pr-extra" : undefined}>
                       <span className="pr-lesson">{x.lesson}</span>
                       {x.level && <span className={`pr-lv pr-lv-${x.level}`}>{LEVEL[x.level].label}</span>}
                       {x.note && <p>{x.note}</p>}
@@ -49,6 +51,7 @@ export function ParentReportView({ r, photoUrls = {}, readOnly = false }: { r: P
                       {x.ocr && <p className="pr-ocr">“{x.ocr}”</p>}
                     </li>
                   ))}
+                  {d.items.length > MAX_DAY && <li className="print-only pr-more">+{d.items.length - MAX_DAY} more</li>}
                 </ul>
               )}
             </li>
@@ -59,18 +62,23 @@ export function ParentReportView({ r, photoUrls = {}, readOnly = false }: { r: P
       {r.areas.length > 0 && (
         <section className="pr-sec">
           <h2>Where {first} is in each area</h2>
-          <table className="pr-areas">
-            <thead><tr><th>Area</th><th>Introduced</th><th>Practiced</th><th>Mastered</th></tr></thead>
-            <tbody>
-              {r.areas.map((a) => (
-                <tr key={a.id}><th>{a.name}</th><td>{a.introduced.join(", ")}</td><td>{a.practiced.join(", ")}</td><td>{a.mastered.join(", ")}</td></tr>
-              ))}
-            </tbody>
-          </table>
-          <p className="pr-key"><b>Introduced</b>: the lesson was presented. <b>Practiced</b>: {first} chooses it and repeats it independently. <b>Mastered</b>: does it correctly on their own, or shows a friend.</p>
+          <div className="pr-areas">
+            {r.areas.map((a) => (
+              <div key={a.id} className="pr-area">
+                <h3>{a.name}</h3>
+                <ul>
+                  {(["M", "P", "I"] as const).flatMap((lv) => (lv === "M" ? a.mastered : lv === "P" ? a.practiced : a.introduced).map((name) => (
+                    <li key={lv + name}><span className={`pr-dot pr-lv-${lv}`} aria-hidden="true" /><span>{name} <span className="pr-muted">· {LEVEL[lv].label}</span></span></li>
+                  )))}
+                </ul>
+              </div>
+            ))}
+          </div>
+          <p className="pr-key"><span className="pr-dot pr-lv-I" aria-hidden="true" /> <b>Introduced</b>: the lesson was presented. <span className="pr-dot pr-lv-P" aria-hidden="true" /> <b>Practiced</b>: {first} chooses it and repeats it independently. <span className="pr-dot pr-lv-M" aria-hidden="true" /> <b>Mastered</b>: does it correctly on their own, or shows a friend.</p>
         </section>
       )}
 
+      <div className="pr-pair">
       {r.canDo.length > 0 && (
         <section className="pr-sec">
           <h2>What {first} can do</h2>
@@ -78,7 +86,7 @@ export function ParentReportView({ r, photoUrls = {}, readOnly = false }: { r: P
             {r.canDo.map((d) => (
               <div key={d.domain}>
                 <h3>{d.domainName}</h3>
-                <ul>{d.items.map((s) => <li key={s.name}>{s.ican} <span className="pr-muted">· {SKILL_LEVEL[s.level].label}</span></li>)}</ul>
+                <ul>{d.items.map((s, i) => <li key={s.name} className={i >= 3 ? "pr-extra" : undefined}>{s.ican} <span className="pr-muted">· {SKILL_LEVEL[s.level].label}</span></li>)}</ul>
               </div>
             ))}
           </div>
@@ -93,6 +101,7 @@ export function ParentReportView({ r, photoUrls = {}, readOnly = false }: { r: P
           </ul>
         </section>
       )}
+      </div>
 
       <footer className="pr-foot">
         Skills follow the Wonder Lab Success Indicators (Head Start ELOF). Lessons follow the Montessori PreK sequence.

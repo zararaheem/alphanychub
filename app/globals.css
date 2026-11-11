@@ -835,9 +835,13 @@ tr.is-absent .roll-mark { border-style: dashed; color: var(--muted); }
 .pr-photos { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
 .pr-photos img { width: 84px; height: 84px; object-fit: cover; border-radius: 8px; }
 .pr-ocr { font-style: italic; color: #3d4170; }
-.pr-areas { width: 100%; border-collapse: collapse; font-size: 13px; }
-.pr-areas th, .pr-areas td { text-align: left; vertical-align: top; padding: 6px 8px; border-bottom: 1px solid #e3e7f0; }
-.pr-areas thead th { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: #6b6f8e; }
+.pr-areas { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
+.pr-area { border: 1px solid #e3e7f0; border-radius: 12px; padding: 10px 12px; }
+.pr-area ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; font-size: 13px; line-height: 1.35; }
+.pr-area li { display: grid; grid-template-columns: 8px 1fr; gap: 6px; align-items: baseline; }
+.pr-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; flex: none; }
+.pr-dot.pr-lv-M { background: #0a7bc4; } .pr-dot.pr-lv-P { background: #6f8fe6; } .pr-dot.pr-lv-I { background: #c3c8f2; }
+.pr-pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; align-items: start; }
 .pr-key { font-size: 12px; color: #55597a; margin-top: 6px !important; }
 .pr-cando { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
 .pr-cando ul, .pr-home ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; }
@@ -884,33 +888,48 @@ a.ey-step { color: var(--ink); white-space: nowrap; }
 .brand-stack .brand-divider { display: none; }
 .brand-stack .brand-name { font-size: 12px; letter-spacing: .32em; color: #fff; opacity: .9; }
 
-/* A family report prints on one page: tighter type and spacing, wider columns. */
+/* A family report prints on one clean page. */
 @media print {
-  .pr { gap: 9px !important; font-size: 10px; }
-  .pr h1 { font-size: 20px; }
-  .pr h2 { font-size: 12.5px !important; margin: 0 0 3px !important; padding-bottom: 2px !important; }
-  .pr h3 { font-size: 10px; margin: 0 0 2px; }
-  .pr-sec { gap: 4px !important; }
-  .pr-sub { font-size: 10px; margin: 0; }
-  .pr-badges div { padding: 3px 8px; min-width: 52px; border-radius: 8px; }
-  .pr-badges b { font-size: 15px; }
+  @page { size: letter; margin: 0.45in 0.5in; }
+  .pr { gap: 18px; font-size: 12px; line-height: 1.4; }
+  .pr .kicker { font-size: 9px; }
+  .pr h1 { font-size: 28px; line-height: 1.1; }
+  .pr h2 { font-size: 14px; margin-bottom: 6px; padding-bottom: 3px; border-bottom-width: 1.5px; }
+  .pr h3 { font-size: 11.5px; margin-bottom: 3px; }
+  .pr-sub { font-size: 10.5px; }
+  .pr-head { align-items: center; flex-wrap: nowrap; }
+  .pr-badges { gap: 6px; }
+  .pr-badges div { padding: 5px 10px; min-width: 64px; border-radius: 10px; }
+  .pr-badges b { font-size: 18px; line-height: 1.1; }
   .pr-badges span { font-size: 8.5px; }
-  .pr-note, .pr-note-print { font-size: 11px; line-height: 1.35; }
-  .pr-days { gap: 4px; }
-  .pr-days > li { padding: 4px 6px; border-radius: 6px; }
-  .pr-days ul { gap: 3px; }
-  .pr-days ul li { font-size: 9.5px; line-height: 1.25; }
-  .pr-days ul li p { margin: 0; }
-  .pr-lv { font-size: 7.5px; margin-left: 3px; padding: 0 3px; }
-  .pr-photos img { width: 40px; height: 40px; border-radius: 4px; }
-  .pr-areas { font-size: 9.5px; }
-  .pr-areas th, .pr-areas td { padding: 2px 5px; }
-  .pr-areas thead th { font-size: 8px; }
-  .pr-key { font-size: 8.5px; margin-top: 2px !important; }
-  .pr-cando { grid-template-columns: repeat(4, 1fr); gap: 6px; }
-  .pr-cando ul, .pr-home ul { gap: 2px; font-size: 9.5px; line-height: 1.25; padding-left: 12px; }
-  .pr-muted { font-size: 8.5px; }
-  .pr-home { padding: 5px 8px; border-radius: 6px; }
-  .pr-foot { font-size: 7.5px; padding-top: 3px; }
-  .pr-page { break-inside: avoid; }
+  .pr-note, .pr-note-print { font-size: 12px; line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
+  .pr-days { grid-template-columns: repeat(5, 1fr); gap: 6px; }
+  .pr-days > li { padding: 9px 10px; border-radius: 8px; }
+  .pr-days ul { gap: 6px; }
+  .pr-days ul li { font-size: 10.5px; line-height: 1.35; }
+  .pr-days ul li p { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; color: #3b3f63; }
+  .pr-lesson { display: block; }
+  .pr-lv { margin: 1px 0 2px; font-size: 8px; padding: 0 4px; }
+  .pr-photos img { width: 44px; height: 44px; border-radius: 4px; }
+  .pr-ocr { display: none; }
+  .pr-extra { display: none !important; }
+  .pr-more { color: #6b6f8e; font-style: italic; }
+  .pr-areas { grid-template-columns: repeat(5, 1fr); gap: 6px; }
+  .pr-area { padding: 8px 10px; border-radius: 8px; }
+  .pr-area ul { font-size: 10.5px; gap: 3px; line-height: 1.3; }
+  .pr-area li .pr-muted { display: none; }
+  .pr-area li { grid-template-columns: 7px 1fr; gap: 5px; }
+  .pr-dot { width: 7px; height: 7px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .pr-key { font-size: 9.5px; color: #6b6f8e; margin-top: 5px !important; }
+  .pr-pair { grid-template-columns: 1.15fr 1fr; gap: 14px; }
+  .pr-cando { grid-template-columns: 1fr 1fr; gap: 8px 12px; }
+  .pr-cando ul, .pr-home ul { font-size: 10.5px; gap: 3px; line-height: 1.35; padding-left: 13px; }
+  .pr-muted { font-size: 9px; }
+  .pr-home { padding: 10px 12px; border-radius: 8px; }
+  .pr-foot { font-size: 8.5px; padding-top: 5px; }
+  /* If it ever runs over, groups move whole: a heading never sits apart from its list. */
+  .pr h2, .pr h3 { break-after: avoid; page-break-after: avoid; }
+  .pr-cando > div, .pr-area, .pr-days > li, .pr-home, .pr-days ul li, .pr-cando li, .pr-home li, .pr-head { break-inside: avoid; page-break-inside: avoid; }
 }
+.pr-key .pr-dot { display: inline-block; margin-left: 2px; }
+.pr-home h2 { margin-top: 0; }
