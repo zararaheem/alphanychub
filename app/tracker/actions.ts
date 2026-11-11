@@ -52,7 +52,10 @@ export async function logWork(input: {
 export async function deleteObservation(id: number): Promise<{ ok: boolean }> {
   await requireTracker();
   const supabase = await createClient();
+  const { data: old } = await supabase.from("ey_observations").select("photos").eq("id", id).maybeSingle();
   const { error } = await supabase.from("ey_observations").delete().eq("id", id);
+  // Its photos go too, so nothing is left behind in storage.
+  if (!error && old?.photos?.length) await supabase.storage.from("ey-work").remove(old.photos as string[]);
   return { ok: !error };
 }
 
@@ -201,4 +204,29 @@ export async function shareReport(studentId: number, periodStart: string): Promi
   const { data: token, error } = await supabase.rpc("ey_create_share", { p_student: studentId, p_period: periodStart, p_password: password, p_by: me.name ?? me.email });
   if (error || !token) { console.error("tracker: share failed", error?.message); return { ok: false, error: "Couldn't make the link." }; }
   return { ok: true, url: hubUrl(`/r/${token}`), password };
+}
+
+// Fixes a recorded entry: level, note, standout, the writing, and its photos.
+// Photos taken off the entry are deleted from storage too.
+export async function updateObservation(id: number, input: {
+  level: Level | null; note: string; highlight: boolean; ocrText: string; photos: string[];
+}): Promise<{ ok: boolean; error?: string }> {
+  const me = await requireTracker();
+  const supabase = await createClient();
+  const { data: old } = await supabase.from("ey_observations").select("student_id, work_id, photos").eq("id", id).maybeSingle();
+  if (!old) return { ok: false, error: "That entry is gone." };
+  const photos = input.photos.filter((p) => /^[\w\-/]+\.\w+$/.test(p)).slice(0, 8);
+  const level = old.work_id && input.level && LEVELS.includes(input.level) ? input.level : null;
+  const { error } = await supabase.from("ey_observations").update({
+    level, note: input.note.trim().slice(0, 1000) || null, highlight: !!input.highlight,
+    ocr_text: input.ocrText.trim().slice(0, 4000) || null, photos,
+  }).eq("id", id);
+  if (error) { console.error("tracker: edit failed", error.message); return { ok: false, error: "That didn't save." }; }
+  const removed = ((old.photos ?? []) as string[]).filter((p) => !photos.includes(p));
+  if (removed.length) await supabase.storage.from("ey-work").remove(removed);
+  if (level && old.work_id) {
+    await supabase.from("ey_work_status").upsert({ student_id: old.student_id, work_id: old.work_id, level, updated_by: me.name ?? me.email, updated_at: new Date().toISOString() });
+  }
+  revalidatePath("/tracker/report");
+  return { ok: true };
 }

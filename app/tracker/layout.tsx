@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { requireTracker } from "@/lib/access";
 import { Brand } from "@/components/brand";
 import { SignOut } from "@/components/sign-out";
+import { TrackerNav } from "@/components/early-years/tracker-nav";
 
 export const metadata: Metadata = { title: "Early Years Tracker · Alpha NYC" };
 
@@ -20,6 +21,7 @@ export default async function TrackerLayout({ children }: { children: React.Reac
           <SignOut className="btn ghost sm tr-out" />
         </div>
       </header>
+      <TrackerNav />
       {children}
     </>
   );

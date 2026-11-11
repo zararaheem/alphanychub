@@ -6,7 +6,7 @@ import {
   AREAS, CYCLE, DOMAINS, LEVEL, LEVELS, SKILL_LEVEL, SKILL_LEVELS, SUPPORT, goesBy, mondayOf, niceDay, nyToday,
   type AreaId, type Cycle, type Level, type Observation, type Skill, type SkillLevel, type Support, type Work,
 } from "@/lib/montessori";
-import { deleteObservation, logWork, setLevel, setSkillLevel } from "@/app/tracker/actions";
+import { deleteObservation, logWork, setLevel, setSkillLevel, updateObservation } from "@/app/tracker/actions";
 import { KnowledgeBase } from "@/components/early-years/knowledge-base";
 import { TrackerAdmin, type Person } from "@/components/early-years/tracker-admin";
 
@@ -76,6 +76,8 @@ export function WorkApp({ me, admin, people, myClass }: { me: string; admin: boo
   const [draft, setDraft] = useState<Draft | null>(null);
   const [saving, setSaving] = useState(false);
   const [busy, setBusy] = useState("");
+  // Fixing an entry that's already recorded.
+  const [editing, setEditing] = useState<{ id: number; level: Level | null; note: string; highlight: boolean; ocr: string; photos: string[]; added: Record<string, string> } | null>(null);
   const [toast, setToast] = useState("");
   const [cls, setClsState] = useState<ClassLevel>("all");
   const [q, setQ] = useState("");
@@ -155,6 +157,31 @@ export function WorkApp({ me, admin, people, myClass }: { me: string; admin: boo
   function openLog(kidId: number, workId: number | null = null) {
     const w = workId ? workOf.get(workId) : null;
     setDraft({ kids: [kidId], area: w?.area ?? "pl", work: workId, level: workId ? status.get(`${kidId}:${workId}`) ?? null : null, cycle: null, support: null, note: "", highlight: false, photos: [], ocr: "", q: "", strand: "" });
+  }
+
+  async function upload(files: FileList, room: number): Promise<{ path: string; url: string }[]> {
+    const out: { path: string; url: string }[] = [];
+    for (const f of Array.from(files).slice(0, room)) {
+      const blob = await shrink(f);
+      const ext = blob.type === "image/jpeg" ? "jpg" : f.name.split(".").pop()?.toLowerCase() ?? "jpg";
+      const path = `${today.slice(0, 7)}/${crypto.randomUUID()}.${ext}`;
+      const { error } = await supabase.storage.from("ey-work").upload(path, blob, { contentType: blob.type || f.type });
+      if (error) { flash("A photo didn't upload."); continue; }
+      out.push({ path, url: URL.createObjectURL(blob) });
+    }
+    return out;
+  }
+
+  async function saveEdit() {
+    if (!editing) return;
+    setSaving(true);
+    const r = await updateObservation(editing.id, { level: editing.level, note: editing.note, highlight: editing.highlight, ocrText: editing.ocr, photos: editing.photos });
+    setSaving(false);
+    if (!r.ok) { flash(r.error ?? "That didn't save."); return; }
+    flash("Updated");
+    setEditing(null);
+    await load();
+    if (screen.s === "kid") loadHistory(screen.id);
   }
 
   async function addPhotos(files: FileList | null) {
@@ -393,9 +420,6 @@ export function WorkApp({ me, admin, people, myClass }: { me: string; admin: boo
   const tabs: [string, Screen["s"], (() => void) | string][] = [
     ["Students", "kids", () => setScreen({ s: "kids" })],
     ["Knowledge base", "kb", () => setScreen({ s: "kb" })],
-    ["Attendance & dismissal", "kids", "/ey"],
-    ["Weekly report", "kids", "/tracker/report"],
-    ["Parent reports", "kids", "/tracker/parent"],
     ...(isAdmin ? [["Admin", "admin", () => setScreen({ s: "admin" })] as [string, Screen["s"], () => void]] : []),
   ];
   const top = (
@@ -487,6 +511,46 @@ export function WorkApp({ me, admin, people, myClass }: { me: string; admin: boo
                     {o.highlight && <span className="mw-star" title="Standout moment">★ Standout</span>}
                     <span className="small muted">{niceDay(o.day)} · {o.by_name}</span>
                   </div>
+                  {editing?.id === o.id ? (
+                    <div className="stack-sm mw-form">
+                      {o.work_id && (
+                        <div className="seg mw-seg-sm" role="group" aria-label="Level">
+                          {LEVELS.map((l) => <button key={l} type="button" aria-pressed={editing.level === l} onClick={() => setEditing({ ...editing, level: l })}>{LEVEL[l].label}</button>)}
+                        </div>
+                      )}
+                      <textarea className="input" rows={3} value={editing.note} placeholder="What you saw" onChange={(e) => setEditing({ ...editing, note: e.target.value })} />
+                      {editing.photos.length > 0 && (
+                        <div className="mw-photos">
+                          {editing.photos.map((p) => (
+                            <figure key={p}>
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img src={editing.added[p] ?? urls[p]} alt="Work photo" />
+                              <button type="button" className="btn ghost sm" onClick={() => setEditing({ ...editing, photos: editing.photos.filter((x) => x !== p) })}>Remove</button>
+                            </figure>
+                          ))}
+                        </div>
+                      )}
+                      <label className="btn outline sm mw-upload">
+                        Add a photo
+                        <input type="file" accept="image/*" capture="environment" multiple hidden onChange={async (e) => {
+                          const files = e.target.files; e.target.value = "";
+                          if (!files?.length) return;
+                          setBusy("Uploading…");
+                          const added = await upload(files, 8 - editing.photos.length);
+                          setBusy("");
+                          setEditing((ed) => ed ? { ...ed, photos: [...ed.photos, ...added.map((a) => a.path)], added: { ...ed.added, ...Object.fromEntries(added.map((a) => [a.path, a.url])) } } : ed);
+                        }} />
+                      </label>
+                      <textarea className="input" rows={2} value={editing.ocr} placeholder="Writing in the work" onChange={(e) => setEditing({ ...editing, ocr: e.target.value })} />
+                      <label className="row small" style={{ gap: 8 }}><input type="checkbox" checked={editing.highlight} onChange={(e) => setEditing({ ...editing, highlight: e.target.checked })} /> Standout moment</label>
+                      {busy && <span className="small muted">{busy}</span>}
+                      <div className="row mw-wrap">
+                        <button type="button" className="btn sm" disabled={saving || !!busy} onClick={saveEdit}>{saving ? "Saving…" : "Save changes"}</button>
+                        <button type="button" className="btn ghost sm" onClick={() => setEditing(null)}>Cancel</button>
+                      </div>
+                      <span className="small muted">Removed photos are deleted when you save.</span>
+                    </div>
+                  ) : <>
                   {o.note && <p className="small">{o.note}</p>}
                   {o.photos?.length > 0 && (
                     <div className="mw-photos">
@@ -500,7 +564,11 @@ export function WorkApp({ me, admin, people, myClass }: { me: string; admin: boo
                   )}
                   {o.ocr_text && <p className="small mw-ocr">{o.ocr_text}</p>}
                   <span className="small muted">{[o.cycle && CYCLE[o.cycle], o.support && SUPPORT[o.support]].filter(Boolean).join(" · ")}</span>
-                  <button type="button" className="btn ghost sm mw-del" onClick={async () => { if (confirm("Delete this entry?")) { await deleteObservation(o.id); loadHistory(k.id); load(); } }}>Delete</button>
+                  <div className="row mw-wrap mw-del">
+                    <button type="button" className="btn ghost sm" onClick={() => setEditing({ id: o.id, level: o.level, note: o.note ?? "", highlight: o.highlight, ocr: o.ocr_text ?? "", photos: o.photos ?? [], added: {} })}>Edit</button>
+                    <button type="button" className="btn ghost sm" onClick={async () => { if (confirm("Delete this entry?")) { await deleteObservation(o.id); loadHistory(k.id); load(); } }}>Delete</button>
+                  </div>
+                  </>}
                 </li>
               ))}
             </ul>
