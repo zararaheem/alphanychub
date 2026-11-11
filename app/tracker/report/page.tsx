@@ -59,16 +59,16 @@ export default async function WeeklyReport({ searchParams }: { searchParams: SP 
         </header>
 
         <div className="mw-stats">
-          <div><b>{r.stats.logged}</b><span>works logged</span></div>
+          <div><b>{r.stats.logged}</b><span>lessons recorded</span></div>
           <div><b>{r.stats.observed}<small>/{r.stats.total}</small></b><span>children observed</span></div>
-          <div><b>{r.stats.lessons}</b><span>lessons given</span></div>
-          <div><b>{r.stats.independent}</b><span>reached Independent</span></div>
+          <div><b>{r.stats.introduced}</b><span>Introduced</span></div>
+          <div><b>{r.stats.practiced}</b><span>Practiced</span></div>
+          <div><b>{r.stats.mastered}</b><span>Mastered</span></div>
           <div><b>{r.stats.fullCycles}</b><span>full work cycles</span></div>
-          <div><b>{r.stats.chose}</b><span>works chosen by the child</span></div>
         </div>
 
         <section>
-          <h2>Work by area</h2>
+          <h2>Lessons by area</h2>
           <ul className="mw-bars">
             {r.byArea.map((a) => (
               <li key={a.id}><span>{a.name}</span><span className="mw-bar"><i style={{ width: `${(a.count / max) * 100}%` }} /></span><b>{a.count}</b></li>
@@ -90,14 +90,16 @@ export default async function WeeklyReport({ searchParams }: { searchParams: SP 
         <section>
           <h2>Each child</h2>
           <table className="class-table mw-table">
-            <thead><tr><th>Child</th><th className="n">Works</th><th>Areas</th><th>Reached Independent</th></tr></thead>
+            <thead><tr><th>Child</th><th className="n">Lessons</th><th>Areas</th><th>Introduced</th><th>Practiced</th><th>Mastered</th></tr></thead>
             <tbody>
               {r.lines.map((l) => (
                 <tr key={l.kid.id} className={l.count ? undefined : "mw-none"}>
-                  <td><b>{kidName(l.kid)}</b> <span className="small muted">{l.kid.grade === "PK" ? "PreK" : l.kid.grade}</span></td>
+                  <td><b>{kidName(l.kid)}</b> <span className="small muted">{l.kid.grade === "PK" ? "PreK" : l.kid.grade}</span> <Link className="small no-print" href={`/tracker/parent/${l.kid.id}?week=${monday}`}>Report</Link></td>
                   <td className="n">{l.count || "–"}</td>
                   <td className="small">{l.areas.join(", ")}</td>
-                  <td className="small">{l.independent.join(", ")}</td>
+                  <td className="small">{l.introduced.join(", ")}</td>
+                  <td className="small">{l.practiced.join(", ")}</td>
+                  <td className="small">{l.mastered.join(", ")}</td>
                 </tr>
               ))}
             </tbody>

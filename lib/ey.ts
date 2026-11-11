@@ -9,7 +9,7 @@ export type Part = "am" | "pm";
 export type Step = "am_maiden" | "am_here" | "pm_left" | "pm_done";
 
 export const MODE_LABEL: Record<DayMode, string> = {
-  walker: "Walker",
+  walker: "Walk to Maiden",
   bus: "Bus",
   parent: "Parent pickup/drop-off",
   afterschool: "Afterschool",

@@ -20,17 +20,17 @@ export async function GET(req: Request) {
   const file = buildXlsx([
     {
       name: "Summary",
-      widths: [24, 7, 8, 9, 40, 40, 60],
+      widths: [24, 7, 10, 9, 40, 34, 34, 34, 60],
       rows: [
-        ["Child", "Grade", "Works", "Lessons", "Areas", "Reached Independent", "Latest note"],
-        ...r.lines.map((l) => [kidName(l.kid), grade(l.kid.grade), l.count, l.lessons, l.areas.join(", "), l.independent.join(", "), l.lastNote ?? ""]),
+        ["Child", "Grade", "Lessons recorded", "Lessons given", "Areas", "Introduced", "Practiced", "Mastered", "Latest note"],
+        ...r.lines.map((l) => [kidName(l.kid), grade(l.kid.grade), l.count, l.lessons, l.areas.join(", "), l.introduced.join(", "), l.practiced.join(", "), l.mastered.join(", "), l.lastNote ?? ""]),
       ],
     },
     {
-      name: "All work logged",
+      name: "All lessons recorded",
       widths: [12, 24, 18, 24, 14, 16, 14, 60, 40, 8, 20],
       rows: [
-        ["Date", "Child", "Area", "Work", "Level", "Work cycle", "How it started", "Note", "Writing in the work", "Photos", "Logged by"],
+        ["Date", "Child", "Area", "Lesson", "Level", "Work cycle", "How it started", "Note", "Writing in the work", "Photos", "Logged by"],
         ...r.obs.map((o) => {
           const k = kids.get(o.student_id);
           const wk = o.work_id ? works.get(o.work_id) : undefined;

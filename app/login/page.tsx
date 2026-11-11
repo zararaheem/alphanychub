@@ -1,11 +1,15 @@
 import { Brand } from "@/components/brand";
 import { GoogleButton } from "./google-button";
 import { signInWithCode } from "./actions";
+import { TrackerLogin } from "@/components/early-years/tracker-login";
 
 export default async function LoginPage({ searchParams }: { searchParams: Promise<{ next?: string; error?: string }> }) {
   const { next, error } = await searchParams;
   const codeEnabled = !!process.env.STAFF_ACCESS_CODE;
   const googleEnabled = process.env.NEXT_PUBLIC_GOOGLE_SIGNIN === "on";
+
+  // The Montessori tracker has its own sign-in: Google only.
+  if (next?.startsWith("/tracker") || next?.startsWith("/ey-tracker")) return <TrackerLogin next={next} error={!!error} />;
 
   return (
     <div className="auth">
