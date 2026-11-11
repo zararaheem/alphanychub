@@ -16,7 +16,7 @@ export default async function TrackerLayout({ children }: { children: React.Reac
       <header className="hub-header no-print">
         <div className="wrap">
           <Link href="/tracker" className="brand" aria-label="Early Years Tracker home"><Brand /></Link>
-          <span className="ph-title">Wonder Lab Tracker</span>
+          <span className="ph-title">Early Years Tracker</span>
           <span className="tr-me small">{me.name ?? me.email}</span>
           <SignOut className="btn ghost sm tr-out" />
         </div>

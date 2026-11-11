@@ -8,7 +8,7 @@ export function TrackerLogin({ next = "/tracker", error, children }: { next?: st
       <span className="brand tl-brand"><Brand size={44} /></span>
       <div className="tl-card">
         <span className="kicker">Early Years · William St</span>
-        <h1>Wonder Lab <em>Tracker</em></h1>
+        <h1>Early Years <em>Tracker</em></h1>
         <p className="muted">Record lessons and standout moments, follow each child&apos;s skills, and share weekly reports with families.</p>
         {error && <p className="notice error" role="alert">Sign-in didn&apos;t finish. Please try again.</p>}
         {children ?? (

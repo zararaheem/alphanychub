@@ -14,7 +14,7 @@ const LINKS: [string, string][] = [
 export function TrackerNav() {
   const path = usePathname();
   return (
-    <nav className="tr-nav no-print" aria-label="Wonder Lab Tracker">
+    <nav className="tr-nav no-print" aria-label="Early Years Tracker">
       <div className="wrap">
         {LINKS.map(([href, label]) => {
           const on = href === "/tracker" ? path === "/tracker" : path.startsWith(href);
