@@ -17,7 +17,6 @@ export function TrackerLogin({ next = "/tracker", error, children }: { next?: st
             <p className="small muted">Use your @alpha.school Google account. Only guides approved by the Early Years team can sign in.</p>
           </>
         )}
-        <a href="/" className="small tl-back">Alpha NYC staff hub →</a>
       </div>
       <p className="tl-foot small">Montessori lessons from the PreK Crosswalk · skills from the Wonder Lab Success Indicators</p>
     </div>
