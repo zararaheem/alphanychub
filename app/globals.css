@@ -723,3 +723,51 @@ tr.is-absent .roll-mark { border-style: dashed; color: var(--muted); }
 .ey-toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: var(--ink); color: var(--bg, #fff); padding: 10px 16px; border-radius: 10px; font-size: 14px; z-index: 50; }
 .ey-grade { margin-left: 8px; padding: 1px 7px; border-radius: 6px; background: var(--soft); color: var(--ink-2); font-size: 11px; font-weight: 700; letter-spacing: .04em; vertical-align: middle; }
 .ey-level { align-self: flex-start; }
+
+/* Montessori tracker (/tracker) */
+.mw-wrap { gap: 6px; flex-wrap: wrap; }
+.mw-gap { flex: 0 0 8px; }
+.mw-search { max-width: 220px; min-height: 38px; }
+.mw-pill { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: .03em; width: fit-content; }
+.mw-kid { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; flex: 1 1 200px; background: none; border: 0; padding: 0; text-align: left; color: inherit; cursor: pointer; font: inherit; }
+.mw-level { width: auto; min-height: 40px; }
+.mw-feed { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.mw-feed li { background: var(--surface); border: 1px solid var(--hairline); border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; gap: 4px; position: relative; }
+.mw-feed p { margin: 0; }
+.mw-del { align-self: flex-end; min-height: 30px; font-size: 12px; }
+.mw-star { color: var(--amber); }
+.mw-ocr { white-space: pre-wrap; background: var(--soft); border-radius: 8px; padding: 6px 8px; font-family: ui-monospace, Menlo, monospace; }
+.mw-photos { display: flex; gap: 8px; flex-wrap: wrap; }
+.mw-photos figure { margin: 0; display: flex; flex-direction: column; gap: 4px; }
+.mw-photos img { width: 104px; height: 104px; object-fit: cover; border-radius: 10px; border: 1px solid var(--hairline); display: block; }
+.mw-upload { width: fit-content; cursor: pointer; }
+.mw-two { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.mw-sheet { position: fixed; inset: 0; z-index: 40; background: rgba(4, 6, 30, .55); display: flex; justify-content: center; align-items: flex-end; }
+.mw-sheet-in { background: var(--bg); color: var(--ink); width: 100%; max-width: 760px; max-height: 92vh; overflow-y: auto; border-radius: 18px 18px 0 0; padding: 18px 16px 28px; }
+@media (min-width: 760px) { .mw-sheet { align-items: center; } .mw-sheet-in { border-radius: 18px; } }
+
+.mw-report { padding-top: 16px; padding-bottom: 48px; max-width: 900px; }
+.mw-sheet-page { background: var(--surface); border: 1px solid var(--hairline); border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+.mw-sheet-page h1 { font-family: var(--display); font-size: 26px; }
+.mw-sheet-page h2 { font-size: 15px; margin-bottom: 6px; }
+.mw-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; }
+.mw-stats div { background: var(--soft); border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; }
+.mw-stats b { font-size: 26px; font-family: var(--display); line-height: 1.1; }
+.mw-stats small { font-size: 14px; color: var(--muted); }
+.mw-stats span { font-size: 12px; color: var(--muted); }
+.mw-bars { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.mw-bars li { display: grid; grid-template-columns: 140px 1fr 32px; gap: 10px; align-items: center; font-size: 13px; }
+.mw-bar { height: 10px; background: var(--soft); border-radius: 6px; overflow: hidden; }
+.mw-bar i { display: block; height: 100%; background: var(--teal); border-radius: 6px; }
+.mw-highlights { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; }
+.mw-table tr.mw-none td { color: var(--muted); }
+@media print {
+  .hub-header, .no-print { display: none !important; }
+  .mw-report { padding: 0; max-width: none; zoom: .86; }
+  .mw-sheet-page { border: 0; padding: 0; background: #fff !important; color: #111; gap: 10px; }
+  .mw-stats div { background: #f1f4f8 !important; }
+  .mw-stats b { color: #0b0b3b; }
+  .mw-bar { background: #e6eaf0 !important; }
+  .mw-bar i { background: #12b5f6 !important; }
+  .mw-table td, .mw-table th { padding: 3px 6px; }
+}

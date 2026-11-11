@@ -1,7 +1,6 @@
-import { EDITORS, requireRole } from "@/lib/access";
-import { LeadApp } from "@/components/early-years/lead-app";
+import { redirect } from "next/navigation";
 
-export default async function TrackerLeadPage() {
-  await requireRole(EDITORS);
-  return <LeadApp />;
+// The Lead Guide view is now the weekly report.
+export default function TrackerLeadPage() {
+  redirect("/tracker/report");
 }

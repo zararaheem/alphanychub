@@ -1,6 +1,6 @@
 import { ADMINS, requireRole, ROLE_LABELS, type Member, type Role } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
-import { addMember, removeMember, setParentAccess } from "@/lib/actions";
+import { addMember, removeMember, setParentAccess, setTrackerAccess } from "@/lib/actions";
 import { Field } from "@/components/fields";
 import { Flash } from "@/components/flash";
 
@@ -50,9 +50,9 @@ export default async function AccessPage({ searchParams }: { searchParams: SP })
 
       <section className="table-box" aria-labelledby="list-h">
         <h2 id="list-h" style={{ padding: "10px 10px 0" }}>{rows.length} people with access</h2>
-        <table style={{ minWidth: 760 }}>
+        <table style={{ minWidth: 900 }}>
           <thead>
-            <tr><th scope="col">Person</th><th scope="col">Role</th><th scope="col">Parent contacts</th><th scope="col">Added by</th><th scope="col"><span className="sr-only">Actions</span></th></tr>
+            <tr><th scope="col">Person</th><th scope="col">Role</th><th scope="col">Parent contacts</th><th scope="col">Montessori tracker</th><th scope="col">Added by</th><th scope="col"><span className="sr-only">Actions</span></th></tr>
           </thead>
           <tbody>
             {rows.map((r) => (
@@ -78,6 +78,18 @@ export default async function AccessPage({ searchParams }: { searchParams: SP })
                       <input type="hidden" name="on" value={r.can_see_parents ? "0" : "1"} />
                       <span className={`pill ${r.can_see_parents ? "mint" : ""}`}>{r.can_see_parents ? "Can see" : "No access"}</span>
                       <button type="submit" className="btn secondary sm">{r.can_see_parents ? "Remove" : "Allow"}</button>
+                    </form>
+                  )}
+                </td>
+                <td>
+                  {r.role === "admin" ? (
+                    <span className="small muted">Always</span>
+                  ) : (
+                    <form action={setTrackerAccess} className="row" style={{ gap: 6 }}>
+                      <input type="hidden" name="email" value={r.email} />
+                      <input type="hidden" name="on" value={r.tracker ? "0" : "1"} />
+                      <span className={`pill ${r.tracker ? "mint" : ""}`}>{r.tracker ? "Approved" : "No access"}</span>
+                      <button type="submit" className="btn secondary sm">{r.tracker ? "Remove" : "Allow"}</button>
                     </form>
                   )}
                 </td>

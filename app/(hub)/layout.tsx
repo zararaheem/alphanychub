@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { isAdmin, requireMember, ROLE_LABELS } from "@/lib/access";
+import { canUseTracker, isAdmin, requireMember, ROLE_LABELS } from "@/lib/access";
 import { SignOut } from "@/components/sign-out";
 import { HubNav } from "@/components/hub-nav";
 import { Brand } from "@/components/brand";
@@ -27,7 +27,7 @@ export default async function HubLayout({ children }: { children: React.ReactNod
     ...(isAdmin(me.role) ? [{ href: "/access", label: "Access" }] : []),
   ];
   const external = [
-    ...(campus !== "maiden-ln" ? [{ href: "/tracker", label: "Early Years tracker" }] : []),
+    ...(canUseTracker(me) ? [{ href: "/tracker", label: "Montessori tracker" }] : []),
     // Walkers start and end at Maiden Ln, so both campuses need this one.
     { href: "/ey", label: "EY attendance" },
     ...(OFF_CAMPUS_URL ? [{ href: OFF_CAMPUS_URL, label: "Off-campus board" }] : []),

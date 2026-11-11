@@ -120,6 +120,15 @@ export async function setParentAccess(form: FormData) {
   back("/access", res, on ? `${email} can now see parent contacts.` : `${email} can no longer see parent contacts.`);
 }
 
+export async function setTrackerAccess(form: FormData) {
+  await requireRole(ADMINS);
+  const supabase = await createClient();
+  const on = str(form, "on") === "1";
+  const email = str(form, "email") ?? "";
+  const res = await supabase.from("allowed_users").update({ tracker: on }).eq("email", email);
+  back("/access", res, on ? `${email} can now use the Montessori tracker.` : `${email} can no longer use the Montessori tracker.`);
+}
+
 export async function removeMember(form: FormData) {
   const me = await requireRole(ADMINS);
   const email = str(form, "email");
