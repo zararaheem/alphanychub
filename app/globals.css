@@ -878,3 +878,8 @@ a.ey-step, a.btn, a.chip { display: inline-flex; align-items: center; justify-co
 a.ey-step { color: var(--ink); white-space: nowrap; }
 .mw-group { list-style: none; margin-top: 10px; font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
 .hub-header .ph-title { margin-left: 4px; }
+
+/* Logo with "New York City" tucked under Alpha (tracker sign-in) */
+.brand-stack { flex-direction: column; gap: 6px; }
+.brand-stack .brand-divider { display: none; }
+.brand-stack .brand-name { font-size: 12px; letter-spacing: .32em; color: #fff; opacity: .9; }

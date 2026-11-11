@@ -2,7 +2,7 @@ import Link from "next/link";
 import { getParentDemo } from "@/lib/parent-demo";
 import { ParentDemo } from "@/components/parent-demo";
 
-// Public click-through of the Parent Hub. Shared content only, no family data; nothing sends.
+// Staff-only click-through of the Parent Hub. Shared content only, no family data; nothing sends.
 export default async function ParentHubDemo() {
   const data = await getParentDemo();
   return (
