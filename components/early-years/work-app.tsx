@@ -10,6 +10,7 @@ import { deleteObservation, logWork, setLevel, setSkillLevel, updateObservation 
 import { KnowledgeBase } from "@/components/early-years/knowledge-base";
 import { TrackerAdmin, type Person } from "@/components/early-years/tracker-admin";
 import { ActivityLog } from "@/components/early-years/activity-log";
+import { Scanner } from "@/components/early-years/scanner";
 
 // Montessori work tracker for Early Years guides: pick a child, log the lesson
 // they did (level, cycle, support, a note, photos), move the skills it builds,
@@ -75,6 +76,7 @@ export function WorkApp({ me, admin, owner, people, myClass }: { me: string; adm
   const [absent, setAbsent] = useState<Set<number>>(new Set());
   const [dismissal, setDismissal] = useState<Map<number, string>>(new Map());
   const [draft, setDraft] = useState<Draft | null>(null);
+  const [scanning, setScanning] = useState<{ file: File; into: "draft" | "edit" } | null>(null);
   const [saving, setSaving] = useState(false);
   const [busy, setBusy] = useState("");
   // Fixing an entry that's already recorded.
@@ -160,17 +162,37 @@ export function WorkApp({ me, admin, owner, people, myClass }: { me: string; adm
     setDraft({ kids: [kidId], area: w?.area ?? "pl", work: workId, level: workId ? status.get(`${kidId}:${workId}`) ?? null : null, cycle: null, support: null, note: "", highlight: false, photos: [], ocr: "", q: "", strand: "", day: nyToday() });
   }
 
+  async function putPhoto(blob: Blob, name = "photo.jpg"): Promise<{ path: string; url: string } | null> {
+    const ext = blob.type === "image/jpeg" ? "jpg" : name.split(".").pop()?.toLowerCase() ?? "jpg";
+    const path = `${today.slice(0, 7)}/${crypto.randomUUID()}.${ext}`;
+    const { error } = await supabase.storage.from("ey-work").upload(path, blob, { contentType: blob.type || "image/jpeg" });
+    if (error) { flash("A photo didn't upload."); return null; }
+    return { path, url: URL.createObjectURL(blob) };
+  }
+
   async function upload(files: FileList, room: number): Promise<{ path: string; url: string }[]> {
     const out: { path: string; url: string }[] = [];
     for (const f of Array.from(files).slice(0, room)) {
-      const blob = await shrink(f);
-      const ext = blob.type === "image/jpeg" ? "jpg" : f.name.split(".").pop()?.toLowerCase() ?? "jpg";
-      const path = `${today.slice(0, 7)}/${crypto.randomUUID()}.${ext}`;
-      const { error } = await supabase.storage.from("ey-work").upload(path, blob, { contentType: blob.type || f.type });
-      if (error) { flash("A photo didn't upload."); continue; }
-      out.push({ path, url: URL.createObjectURL(blob) });
+      const put = await putPhoto(await shrink(f), f.name);
+      if (put) out.push(put);
     }
     return out;
+  }
+
+  const addToEdit = (added: { path: string; url: string }[]) =>
+    setEditing((ed) => ed ? { ...ed, photos: [...ed.photos, ...added.map((a) => a.path)], added: { ...ed.added, ...Object.fromEntries(added.map((a) => [a.path, a.url])) } } : ed);
+
+  // A finished scan: upload it, then type out any writing on it straight away.
+  async function scanned(blob: Blob) {
+    const into = scanning?.into ?? "draft";
+    setScanning(null);
+    setBusy("Uploading the scan…");
+    const put = await putPhoto(blob);
+    setBusy("");
+    if (!put) return;
+    if (into === "edit") addToEdit([put]);
+    else setDraft((d) => (d ? { ...d, photos: [...d.photos, put] } : d));
+    readWriting(put.path, into);
   }
 
   async function saveEdit() {
@@ -188,26 +210,19 @@ export function WorkApp({ me, admin, owner, people, myClass }: { me: string; adm
   async function addPhotos(files: FileList | null) {
     if (!files?.length || !draft) return;
     setBusy("Uploading…");
-    const added: Draft["photos"] = [];
-    for (const f of Array.from(files).slice(0, 8 - draft.photos.length)) {
-      const blob = await shrink(f);
-      const ext = blob.type === "image/jpeg" ? "jpg" : f.name.split(".").pop()?.toLowerCase() ?? "jpg";
-      const path = `${today.slice(0, 7)}/${crypto.randomUUID()}.${ext}`;
-      const { error } = await supabase.storage.from("ey-work").upload(path, blob, { contentType: blob.type || f.type });
-      if (error) { flash("A photo didn't upload."); continue; }
-      added.push({ path, url: URL.createObjectURL(blob) });
-    }
+    const added = await upload(files, 8 - draft.photos.length);
     setBusy("");
     setDraft((d) => (d ? { ...d, photos: [...d.photos, ...added] } : d));
   }
 
-  async function readWriting(path: string) {
+  async function readWriting(path: string, into: "draft" | "edit" = "draft") {
     setBusy("Reading the writing…");
     const res = await fetch("/api/tracker/ocr", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ path }) });
     const out = (await res.json().catch(() => ({}))) as { text?: string; error?: string };
     setBusy("");
     if (!res.ok || !out.text) { flash(out.error ?? "Couldn't read that photo."); return; }
-    setDraft((d) => (d ? { ...d, ocr: d.ocr ? `${d.ocr}\n\n${out.text}` : out.text! } : d));
+    if (into === "edit") setEditing((ed) => (ed ? { ...ed, ocr: ed.ocr ? `${ed.ocr}\n\n${out.text}` : out.text! } : ed));
+    else setDraft((d) => (d ? { ...d, ocr: d.ocr ? `${d.ocr}\n\n${out.text}` : out.text! } : d));
   }
 
   async function save() {
@@ -406,12 +421,24 @@ export function WorkApp({ me, admin, owner, people, myClass }: { me: string; adm
                 ))}
               </div>
             )}
-            <label className="btn outline sm mw-upload">
-              {draft.photos.length ? "Add another photo" : "Take or add a photo"}
-              <input type="file" accept="image/*" capture="environment" multiple hidden onChange={(e) => { addPhotos(e.target.files); e.target.value = ""; }} />
-            </label>
+            {draft.photos.length < 8 && (
+              <div className="row mw-wrap mw-cam">
+                <label className="btn outline sm mw-upload">
+                  Take a photo
+                  <input type="file" accept="image/*" capture="environment" hidden onChange={(e) => { addPhotos(e.target.files); e.target.value = ""; }} />
+                </label>
+                <label className="btn outline sm mw-upload">
+                  Scan work
+                  <input type="file" accept="image/*" capture="environment" hidden onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ""; if (f) setScanning({ file: f, into: "draft" }); }} />
+                </label>
+                <label className="btn ghost sm mw-upload">
+                  Choose from photos
+                  <input type="file" accept="image/*" multiple hidden onChange={(e) => { addPhotos(e.target.files); e.target.value = ""; }} />
+                </label>
+              </div>
+            )}
             {busy && <span className="small muted" role="status">{busy}</span>}
-            <span className="small muted">Photos are private to approved Early Years staff. For written work, tap “Read the writing” to type it out for you.</span>
+            <span className="small muted"><b>Scan work</b> straightens a worksheet or writing sample, cleans it up and types out the writing for you. Photos and scans are private to approved Early Years staff.</span>
           </div>
           {(draft.ocr || draft.photos.length > 0) && (
             <label className="stack-sm">
@@ -549,17 +576,30 @@ export function WorkApp({ me, admin, owner, people, myClass }: { me: string; adm
                           ))}
                         </div>
                       )}
-                      <label className="btn outline sm mw-upload">
-                        Add a photo
-                        <input type="file" accept="image/*" capture="environment" multiple hidden onChange={async (e) => {
-                          const files = e.target.files; e.target.value = "";
-                          if (!files?.length) return;
-                          setBusy("Uploading…");
-                          const added = await upload(files, 8 - editing.photos.length);
-                          setBusy("");
-                          setEditing((ed) => ed ? { ...ed, photos: [...ed.photos, ...added.map((a) => a.path)], added: { ...ed.added, ...Object.fromEntries(added.map((a) => [a.path, a.url])) } } : ed);
-                        }} />
-                      </label>
+                      {editing.photos.length < 8 && (
+                        <div className="row mw-wrap mw-cam">
+                          <label className="btn outline sm mw-upload">
+                            Take a photo
+                            <input type="file" accept="image/*" capture="environment" hidden onChange={async (e) => {
+                              const files = e.target.files; e.target.value = "";
+                              if (!files?.length) return;
+                              setBusy("Uploading…"); addToEdit(await upload(files, 8 - editing.photos.length)); setBusy("");
+                            }} />
+                          </label>
+                          <label className="btn outline sm mw-upload">
+                            Scan work
+                            <input type="file" accept="image/*" capture="environment" hidden onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ""; if (f) setScanning({ file: f, into: "edit" }); }} />
+                          </label>
+                          <label className="btn ghost sm mw-upload">
+                            Choose from photos
+                            <input type="file" accept="image/*" multiple hidden onChange={async (e) => {
+                              const files = e.target.files; e.target.value = "";
+                              if (!files?.length) return;
+                              setBusy("Uploading…"); addToEdit(await upload(files, 8 - editing.photos.length)); setBusy("");
+                            }} />
+                          </label>
+                        </div>
+                      )}
                       <textarea className="input" rows={2} value={editing.ocr} placeholder="Writing in the work" onChange={(e) => setEditing({ ...editing, ocr: e.target.value })} />
                       <label className="row small" style={{ gap: 8 }}><input type="checkbox" checked={editing.highlight} onChange={(e) => setEditing({ ...editing, highlight: e.target.checked })} /> Standout moment</label>
                       {busy && <span className="small muted">{busy}</span>}
@@ -688,6 +728,7 @@ export function WorkApp({ me, admin, owner, people, myClass }: { me: string; adm
       {top}
       {body}
       {sheet}
+      {scanning && <Scanner file={scanning.file} onDone={scanned} onCancel={() => setScanning(null)} />}
       <p className="small muted">Signed in as {me}. Everyone on the Early Years team sees the same notes.</p>
       {toast && <div className="ey-toast" role="status">{toast}</div>}
     </main>
