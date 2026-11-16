@@ -948,3 +948,6 @@ a.ey-step { color: var(--ink); white-space: nowrap; }
 .sc-dot { position: absolute; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%; border: 3px solid #fff; background: #12b5f6; box-shadow: 0 2px 8px rgba(0,0,0,.4); padding: 0; cursor: grab; touch-action: none; }
 .sc-dot::after { content: ""; position: absolute; inset: -12px; } /* bigger touch target */
 .mw-cam { gap: 8px; }
+.pr-dayhead { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; }
+.pr-add { font-size: 12px; font-weight: 700; color: #0a7bc4; text-decoration: none; white-space: nowrap; padding: 2px 8px; border-radius: 999px; background: #e3f2fc; }
+.pr-add:hover { background: #cfe8fa; }

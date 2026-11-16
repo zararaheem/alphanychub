@@ -139,6 +139,17 @@ export function WorkApp({ me, admin, owner, people, myClass }: { me: string; adm
   }, [supabase]);
 
   useEffect(() => { load(); }, [load]);
+
+  // Arriving from a report's "Add for this day": open that child with the record sheet set to that date.
+  useEffect(() => {
+    if (!loaded) return;
+    const sp = new URLSearchParams(window.location.search);
+    const id = Number(sp.get("kid")), day = sp.get("day") ?? "";
+    if (!id || !kids.some((k) => k.id === id)) return;
+    window.history.replaceState(null, "", window.location.pathname);
+    setScreen({ s: "kid", id, tab: "lessons" });
+    if (/^\d{4}-\d{2}-\d{2}$/.test(day) && day <= nyToday()) openLog(id, null, day);
+  }, [loaded]); // eslint-disable-line react-hooks/exhaustive-deps
   const kidScreenId = screen.s === "kid" ? screen.id : null;
   useEffect(() => { if (kidScreenId) loadHistory(kidScreenId); }, [kidScreenId, loadHistory]);
 
@@ -157,9 +168,9 @@ export function WorkApp({ me, admin, owner, people, myClass }: { me: string; adm
   const lastSeen = (id: number) => recent.find((o) => o.student_id === id)?.day;
   const name = (k: Kid) => <><b>{goesBy(k)}</b> <b>{k.last_name}</b>{k.campus === "demo" && <span className="mw-demo">DEMO</span>}{k.grade && <span className="ey-grade">{GRADE[k.grade] ?? k.grade}</span>}</>;
 
-  function openLog(kidId: number, workId: number | null = null) {
+  function openLog(kidId: number, workId: number | null = null, day = nyToday()) {
     const w = workId ? workOf.get(workId) : null;
-    setDraft({ kids: [kidId], area: w?.area ?? "pl", work: workId, level: workId ? status.get(`${kidId}:${workId}`) ?? null : null, cycle: null, support: null, note: "", highlight: false, photos: [], ocr: "", q: "", strand: "", day: nyToday() });
+    setDraft({ kids: [kidId], area: w?.area ?? "pl", work: workId, level: workId ? status.get(`${kidId}:${workId}`) ?? null : null, cycle: null, support: null, note: "", highlight: false, photos: [], ocr: "", q: "", strand: "", day });
   }
 
   async function putPhoto(blob: Blob, name = "photo.jpg"): Promise<{ path: string; url: string } | null> {

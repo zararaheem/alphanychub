@@ -1,4 +1,5 @@
-import { LEVEL, SKILL_LEVEL } from "@/lib/montessori";
+import Link from "next/link";
+import { LEVEL, SKILL_LEVEL, nyToday } from "@/lib/montessori";
 import type { ParentReport } from "@/lib/parent-report";
 import { ReportNote } from "@/components/early-years/report-note";
 
@@ -34,7 +35,12 @@ export function ParentReportView({ r, photoUrls = {}, readOnly = false }: { r: P
         <ol className="pr-days">
           {r.days.map((d) => (
             <li key={d.day}>
-              <h3>{d.label}</h3>
+              <div className="pr-dayhead">
+                <h3>{d.label}</h3>
+                {!readOnly && !r.sample && d.day <= nyToday() && (
+                  <Link className="pr-add no-print" href={`/tracker?kid=${r.kid.id}&day=${d.day}`} aria-label={`Record something for ${first} on ${d.label}`}>+ Add</Link>
+                )}
+              </div>
               {d.items.length === 0 ? <p className="pr-muted">No lessons recorded.</p> : (
                 <ul>
                   {d.items.map((x, i) => (
