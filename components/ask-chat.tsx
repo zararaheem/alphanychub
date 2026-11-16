@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { WhoToAsk } from "@/components/who-to-ask";
 
 type Hit = { title: string; where: string; href?: string; external?: boolean; lines: string[] };
-type Turn = { q: string; answer: string | null; results: Hit[]; logId?: number | null; rated?: boolean };
+type Turn = { q: string; answer: string | null; results: Hit[]; logId?: number | null; rated?: boolean; helpful?: boolean; note?: string; noted?: boolean };
 
 const STARTERS = [
   "Imagination Playground is closed. Where do we go?",
@@ -79,8 +79,15 @@ export function AskChat({ compact = false }: { compact?: boolean }) {
   function rate(i: number, helpful: boolean) {
     const t = turns[i];
     if (!t?.logId) return;
-    setTurns((ts) => ts.map((x, j) => (j === i ? { ...x, rated: true } : x)));
+    setTurns((ts) => ts.map((x, j) => (j === i ? { ...x, rated: true, helpful } : x)));
     fetch("/api/ask/log", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: t.logId, helpful }) }).catch(() => {});
+  }
+
+  function sendNote(i: number) {
+    const t = turns[i];
+    if (!t?.logId || !t.note?.trim()) return;
+    setTurns((ts) => ts.map((x, j) => (j === i ? { ...x, noted: true } : x)));
+    fetch("/api/ask/log", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: t.logId, feedback: t.note }) }).catch(() => {});
   }
 
   return (
@@ -130,7 +137,16 @@ export function AskChat({ compact = false }: { compact?: boolean }) {
                 <p>Nothing in the hub matches that yet. Try different words (e.g. &ldquo;fire&rdquo;, &ldquo;visitor&rdquo;, &ldquo;bus&rdquo;), or check <b>Who do I ask?</b> above.</p>
               </div>
             )}
-            {t.logId && (t.rated ? <p className="hit-label">Thanks, noted.</p> : (
+            {t.logId && (t.rated ? (t.noted ? <p className="hit-label">Thanks. Your note goes to the hub admins.</p> : (
+              <form className="ask-note" onSubmit={(e) => { e.preventDefault(); sendNote(i); }}>
+                <label className="small muted" htmlFor={`note-${i}`}>{t.helpful ? "Thanks! Anything to add? (optional)" : "What did you need that this didn't give you?"}</label>
+                <div className="row" style={{ gap: 6 }}>
+                  <input id={`note-${i}`} className="input" value={t.note ?? ""} placeholder={t.helpful ? "e.g. Add the Pearl St address" : "e.g. It didn't say who to call after 5pm"}
+                    onChange={(e) => setTurns((ts) => ts.map((x, j) => (j === i ? { ...x, note: e.target.value } : x)))} />
+                  <button type="submit" className="btn sm" disabled={!t.note?.trim()}>Send</button>
+                </div>
+              </form>
+            )) : (
               <div className="row ask-rate">
                 <span className="small muted">Did this help?</span>
                 <button type="button" className="chip" onClick={() => rate(i, true)} aria-label="Yes, this helped">👍</button>

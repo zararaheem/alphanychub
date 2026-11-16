@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { checkWith, topicOf } from "@/lib/ask-topics";
 
 // Logs each question asked in the hub assistant (and later a 👍/👎), so admins
 // can see on /requests what staff look for and where the hub falls short.
@@ -20,7 +21,9 @@ export async function POST(request: Request) {
   if (!question) return NextResponse.json({ error: "No question." }, { status: 400 });
   const answer = body?.answer?.slice(0, 4000) ?? null;
   const answered = answer ? !NOT_COVERED.test(answer) : (body?.hits ?? 0) > 0;
-  const { data, error } = await supabase.from("ask_log").insert({ email, question, answer, answered }).select("id").single();
+  const { data, error } = await supabase.from("ask_log")
+    .insert({ email, question, answer, answered, topic: topicOf(question), check_with: checkWith(answer) })
+    .select("id").single();
   if (error) return NextResponse.json({ id: null });
   return NextResponse.json({ id: data.id });
 }
@@ -28,8 +31,12 @@ export async function POST(request: Request) {
 export async function PATCH(request: Request) {
   const { supabase, email } = await me();
   if (!email) return NextResponse.json({ error: "Please sign in again." }, { status: 401 });
-  const body = (await request.json().catch(() => null)) as { id?: number; helpful?: boolean } | null;
-  if (typeof body?.id !== "number" || typeof body.helpful !== "boolean") return NextResponse.json({ error: "Bad request." }, { status: 400 });
-  await supabase.from("ask_log").update({ helpful: body.helpful }).eq("id", body.id).eq("email", email);
+  // A 👍/👎, and optionally what they needed that the answer didn't give them.
+  const body = (await request.json().catch(() => null)) as { id?: number; helpful?: boolean; feedback?: string } | null;
+  if (typeof body?.id !== "number" || (typeof body.helpful !== "boolean" && typeof body.feedback !== "string")) return NextResponse.json({ error: "Bad request." }, { status: 400 });
+  const patch: { helpful?: boolean; feedback?: string } = {};
+  if (typeof body.helpful === "boolean") patch.helpful = body.helpful;
+  if (typeof body.feedback === "string" && body.feedback.trim()) patch.feedback = body.feedback.trim().slice(0, 1000);
+  await supabase.from("ask_log").update(patch).eq("id", body.id).eq("email", email);
   return NextResponse.json({ ok: true });
 }
