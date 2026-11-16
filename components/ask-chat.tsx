@@ -7,12 +7,12 @@ type Hit = { title: string; where: string; href?: string; external?: boolean; li
 type Turn = { q: string; answer: string | null; results: Hit[]; logId?: number | null; rated?: boolean };
 
 const STARTERS = [
+  "Imagination Playground is closed. Where do we go?",
+  "Someone not on the pickup list is here for a child",
+  "A student keeps leaving class without asking",
+  "A parent sent Tylenol in a backpack",
+  "Can I buy supplies for a class project?",
   "What do I do in a lockdown?",
-  "Visitor at the door",
-  "Student is missing",
-  "Taking students off campus",
-  "Vendor contract",
-  "Student medication",
 ];
 
 // Each question gets an AI answer written from the hub's documents, plus the
@@ -38,17 +38,33 @@ export function AskChat({ compact = false }: { compact?: boolean }) {
     setError(null);
     try {
       const history = turns.flatMap((t) => (t.answer ? [{ role: "user", content: t.q }, { role: "assistant", content: t.answer }] : [])).slice(-6);
-      const [ai, found] = await Promise.all([
-        fetch("/api/ask", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ messages: [...history, { role: "user", content: q }] }) })
-          .then(async (r) => (r.ok ? ((await r.json()) as { answer?: string }).answer ?? null : null))
-          .catch(() => null),
-        fetch("/api/search", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ q }) })
-          .then(async (r) => ((await r.json().catch(() => ({}))) as { results?: Hit[]; error?: string })),
-      ]);
-      if (!ai && !found.results) throw new Error(found.error ?? "Something went wrong. Try again.");
-      setTurns((t) => [...t, { q, answer: ai, results: (found.results ?? []).slice(0, ai ? 3 : 6) }].slice(-6));
+      const searching = fetch("/api/search", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ q }) })
+        .then(async (r) => ((await r.json().catch(() => ({}))) as { results?: Hit[]; error?: string }))
+        .catch(() => ({ results: [] as Hit[] }));
+      setTurns((t) => [...t, { q, answer: "", results: [] }].slice(-6));
+      const put = (patch: Partial<Turn>) => setTurns((ts) => ts.map((x, j) => (j === ts.length - 1 && x.q === q ? { ...x, ...patch } : x)));
+
+      // The answer streams in as it's written.
+      let answer = "";
+      const res = await fetch("/api/ask", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ messages: [...history, { role: "user", content: q }] }) }).catch(() => null);
+      if (res?.ok && res.body) {
+        const reader = res.body.getReader();
+        const dec = new TextDecoder();
+        for (;;) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          answer += dec.decode(value, { stream: true });
+          put({ answer });
+        }
+      } else if (res) {
+        const msg = ((await res.json().catch(() => ({}))) as { error?: string }).error;
+        if (msg) setError(msg);
+      }
+      const found = await searching;
+      put({ answer: answer || null, results: (found.results ?? []).slice(0, answer ? 3 : 6) });
+      if (!answer && !found.results?.length) throw new Error("Something went wrong. Try again.");
       // Log the question so admins can see what staff need (never blocks the answer).
-      fetch("/api/ask/log", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ q, answer: ai, hits: found.results?.length ?? 0 }) })
+      fetch("/api/ask/log", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ q, answer: answer || null, hits: found.results?.length ?? 0 }) })
         .then(async (r) => ((await r.json()) as { id?: number | null }).id ?? null)
         .then((logId) => setTurns((ts) => ts.map((x) => (x.q === q && x.logId === undefined ? { ...x, logId } : x))))
         .catch(() => {});
@@ -76,7 +92,7 @@ export function AskChat({ compact = false }: { compact?: boolean }) {
               <summary>Who do I ask? (quick list)</summary>
               <WhoToAsk compact />
             </details>
-            <p className="muted">Try one of these, or type your own question:</p>
+            <p className="muted">Describe a question or a situation in your own words. You&apos;ll get what to do, who to check with, and where it&apos;s written. Try one of these:</p>
             <div className="row" style={{ gap: 6 }}>
               {(compact ? STARTERS.slice(0, 4) : STARTERS).map((s) => (
                 <button key={s} type="button" className="chip" onClick={() => ask(s)}>{s}</button>
@@ -124,14 +140,14 @@ export function AskChat({ compact = false }: { compact?: boolean }) {
             ))}
           </div>
         ))}
-        {busy && <div className="bubble assistant muted">Looking through the hub…</div>}
+        {busy && !turns[turns.length - 1]?.answer && <div className="bubble assistant muted">Checking the policies…</div>}
         <div ref={end} />
       </div>
       {error && <p className="notice error" role="alert">{error}</p>}
       <form className="ask-form" onSubmit={(e) => { e.preventDefault(); ask(draft); }}>
         <label htmlFor="ask-input" className="sr-only">Ask the hub</label>
         <input
-          id="ask-input" className="input" value={draft} placeholder="Ask anything: lockdown, visitor, bus, meds…" autoComplete="off"
+          id="ask-input" className="input" value={draft} placeholder="Describe the situation or ask a question…" autoComplete="off"
           onChange={(e) => setDraft(e.target.value)}
         />
         <button type="submit" className="btn" disabled={busy || !draft.trim()}>Ask</button>
@@ -145,18 +161,37 @@ export function AskChat({ compact = false }: { compact?: boolean }) {
   );
 }
 
-// Minimal formatting: paragraphs, "- " bullets, "1. " steps and **bold**.
+// Minimal formatting: paragraphs, "- " bullets, "1. " steps and **bold**,
+// with lists allowed to follow a heading line in the same block.
 function Rich({ text }: { text: string }) {
-  return (
-    <>
-      {text.split(/\n{2,}/).map((b, i) => {
-        const lines = b.split("\n").filter(Boolean);
-        if (lines.every((l) => /^\s*[-•*]\s/.test(l))) return <ul key={i}>{lines.map((l, j) => <li key={j}>{bold(l.replace(/^\s*[-•*]\s/, ""))}</li>)}</ul>;
-        if (lines.every((l) => /^\s*\d+[.)]\s/.test(l))) return <ol key={i}>{lines.map((l, j) => <li key={j}>{bold(l.replace(/^\s*\d+[.)]\s/, ""))}</li>)}</ol>;
-        return <p key={i}>{lines.map((l, j) => <span key={j}>{j > 0 && <br />}{bold(l.replace(/^#+\s*/, ""))}</span>)}</p>;
-      })}
-    </>
-  );
+  const out: React.ReactNode[] = [];
+  text.split(/\n{2,}/).forEach((b, i) => {
+    let list: { kind: "ul" | "ol"; items: string[] } | null = null;
+    let para: string[] = [];
+    const flushPara = (k: string) => { if (para.length) out.push(<p key={k}>{para.map((l, j) => <span key={j}>{j > 0 && <br />}{bold(l)}</span>)}</p>); para = []; };
+    const flushList = (k: string) => {
+      if (!list) return;
+      const items = list.items.map((l, j) => <li key={j}>{bold(l)}</li>);
+      out.push(list.kind === "ul" ? <ul key={k}>{items}</ul> : <ol key={k}>{items}</ol>);
+      list = null;
+    };
+    b.split("\n").filter((l) => l.trim()).forEach((raw, j) => {
+      const l = raw.replace(/^#+\s*/, "");
+      const kind = /^\s*[-•*]\s/.test(l) ? "ul" : /^\s*\d+[.)]\s/.test(l) ? "ol" : null;
+      if (kind) {
+        flushPara(`${i}p${j}`);
+        if (list && list.kind !== kind) flushList(`${i}l${j}`);
+        list = list ?? { kind, items: [] };
+        list.items.push(l.replace(/^\s*([-•*]|\d+[.)])\s/, ""));
+      } else {
+        flushList(`${i}l${j}`);
+        para.push(l);
+      }
+    });
+    flushList(`${i}le`);
+    flushPara(`${i}pe`);
+  });
+  return <>{out}</>;
 }
 
 const bold = (s: string) => s.split(/(\*\*[^*]+\*\*)/).map((part, i) => (part.startsWith("**") && part.endsWith("**") ? <b key={i}>{part.slice(2, -2)}</b> : part));

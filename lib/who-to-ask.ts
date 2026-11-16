@@ -6,6 +6,7 @@ const PEOPLE: AskPerson[] = [
   {
     who: "Zara", role: "Chief of Staff",
     topics: [
+      "Security requests: building access, visitors, Raptor, cameras, safety concerns",
       "Trip security clearance (or run it on the board)",
       "Waivers",
       "Vendor / off-site activities requiring a contract (with Legal)",
@@ -16,6 +17,8 @@ const PEOPLE: AskPerson[] = [
   {
     who: "Julianne", role: "Campus Coordinator, Maiden Ln",
     topics: [
+      "Logistics: dismissal, pickups, authorized pickup changes, late arrivals and early release",
+      "Lunch program",
       "Off-campus attendance",
       "Transportation",
       "Photos, video, media release",
@@ -27,9 +30,9 @@ const PEOPLE: AskPerson[] = [
   { who: "Emerly", role: "Campus Coordinator, Early Years", topics: ["Lunch changes (Early Years)", "Missing or hurt student (Early Years)"] },
   { who: "Lead Guards", role: "Derek Ghee (Maiden Ln) · Sugey Castillo (Early Years)", topics: ["Missing student search", "Door and building security on the day"] },
   { who: "Emily", role: "Director of Global Programming", topics: ["Student experiences", "Off-campus app (trip on the board)"] },
-  { who: "Terrence", role: "DoP (Dean of Parents)", topics: ["All parent-facing communications"] },
-  { who: "Nancy", role: "Dean of Students", topics: ["Details to come"] },
-  { who: "Tasha", role: "Head of Schools", topics: ["Budget approvals and budgets", "Booking videographers and storytellers", "Media or press questions", "Anything else"] },
+  { who: "Terrence", role: "DoP (Dean of Parents)", topics: ["All parent-facing communications", "Behavioral issues (with Nancy)"] },
+  { who: "Nancy", role: "Dean of Students", topics: ["Behavioral issues: infractions, strikes, behavior plans, discipline reviews (with Terrence)"] },
+  { who: "Tasha", role: "Head of Schools", topics: ["Finance: budget approvals, spending and reimbursements", "Booking videographers and storytellers", "Media or press questions", "Anything else"] },
   { who: "Ops", role: "Operations", topics: ["Room or setup changes"] },
 ];
 
