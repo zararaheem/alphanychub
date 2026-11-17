@@ -7,6 +7,8 @@ const PEOPLE: AskPerson[] = [
     who: "Zara", role: "Chief of Staff",
     topics: [
       "Security requests: building access, visitors, Raptor, cameras, safety concerns",
+      "Changing an off-campus venue or park (locations are vetted for security), and trip routes",
+      "Medication (with the Campus Coordinators)",
       "Trip security clearance (or run it on the board)",
       "Waivers",
       "Vendor / off-site activities requiring a contract (with Legal)",
@@ -19,6 +21,7 @@ const PEOPLE: AskPerson[] = [
     topics: [
       "Logistics: dismissal, pickups, authorized pickup changes, late arrivals and early release",
       "Lunch program",
+      "Medication: receiving, storing (mini staff fridge in the admin space) and records",
       "Off-campus attendance",
       "Transportation",
       "Photos, video, media release",
@@ -27,12 +30,12 @@ const PEOPLE: AskPerson[] = [
       "Missing or hurt student (Maiden Ln)",
     ],
   },
-  { who: "Emerly", role: "Campus Coordinator, Early Years", topics: ["Lunch changes (Early Years)", "Missing or hurt student (Early Years)"] },
+  { who: "Emerly", role: "Campus Coordinator, Early Years", topics: ["Lunch changes (Early Years)", "Missing or hurt student (Early Years)", "Medication (Early Years)"] },
   { who: "Lead Guards", role: "Derek Ghee (Maiden Ln) · Sugey Castillo (Early Years)", topics: ["Missing student search", "Door and building security on the day"] },
   { who: "Emily", role: "Director of Global Programming", topics: ["Student experiences", "Off-campus app (trip on the board)"] },
   { who: "Terrence", role: "DoP (Dean of Parents)", topics: ["All parent-facing communications", "Behavioral issues (with Nancy)"] },
   { who: "Nancy", role: "Dean of Students", topics: ["Behavioral issues: infractions, strikes, behavior plans, discipline reviews (with Terrence)"] },
-  { who: "Tasha", role: "Head of Schools", topics: ["Finance: budget approvals, spending and reimbursements", "Booking videographers and storytellers", "Media or press questions", "Anything else"] },
+  { who: "Tasha", role: "Head of Schools", topics: ["Finance: budget approvals, spending and reimbursements, workshop costs and new venues (even inside the building), documented and approved", "Booking videographers and storytellers", "Media or press questions", "Anything else"] },
   { who: "Ops", role: "Operations", topics: ["Room or setup changes"] },
 ];
 

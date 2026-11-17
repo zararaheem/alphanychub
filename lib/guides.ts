@@ -25,6 +25,7 @@ export const GUIDE_LIST = [
   { slug: "workshops", title: "Workshop procedures", blurb: "Running a Session 2 workshop block, on campus or off." },
   { slug: "security", title: "Security", blurb: "Security requests go through Zara; doors, access cards, visitors and lockdown." },
   { slug: "vendors", title: "Vendors & visitors", blurb: "Approvals for money and contracts, access cards, check-in, escorts and deliveries." },
+  { slug: "health-safety", title: "Health & safety", blurb: "What needs approval first, the off-campus non-negotiables, medication, photos and injuries." },
 ];
 
 export const GUIDES: Record<string, Guide> = {
@@ -55,10 +56,13 @@ export const GUIDES: Record<string, Guide> = {
           "A designated activity lead (Guide or staff) plus a second adult, minimum",
           "Run the 12-point \"Before every activity\" checklist (waiver, vendor, off-campus app, attendance, guard, transport…)",
           "Transport (shuttle, bus, car) is requested in the Transport request tool, for Maiden Ln and Early Years",
-          "The trip is on the Off-Campus board with lead, security and headcount",
+          "The trip is on the Off-Campus board with lead, security and headcount, listing every adult and every student going (non-negotiable)",
+          "Add the venue's point person (name and contact) in the Off-Campus tracker",
+          "Changing the venue, even if a park is closed? Check with Zara or the security team first: locations are vetted for security",
           "Security clearance: every trip needs it. The trip lead can run it on the Off-Campus board, or request it from Zara",
           "Lead carries the student roster and the emergency contact list for every student on the trip",
-          "Lead carries a charged phone and a two-way radio (or confirms cell reception)",
+          "Every Guide carries a walkie (the black and orange ones reach security from anywhere) and a charged phone. At William St, Jenna and Jeremy carry one",
+          "If you can, walk Zara or the security team through your route before the workshop starts",
           "Agree the off-campus assembly point (nearest safe public space) with all staff before leaving",
           "Take attendance as you leave",
         ],
@@ -75,7 +79,7 @@ export const GUIDES: Record<string, Guide> = {
         heading: "If something goes wrong",
         steps: [
           "Call 911 first if there is immediate danger.",
-          "Account for every student using the roster.",
+          "Account for every student using the roster. A student missing? Notify security on the walkie immediately.",
           "Notify the Coordinator by radio or phone as soon as it is safe.",
           "The DoP (Dean of Parents, Terrence McMullen) handles all parent messages, via ParentSquare.",
           "Don't return to campus until the Coordinator confirms it is safe.",
@@ -267,6 +271,77 @@ export const GUIDES: Record<string, Guide> = {
         bullets: [
           "Freight elevator deliveries must be pre-authorized with Building Operations",
           "Visitor log is kept daily by the Security Liaison and reviewed weekly by the Coordinator",
+        ],
+      },
+    ],
+  },
+
+  "health-safety": {
+    slug: "health-safety",
+    title: "Health & safety",
+    kicker: "One-pager",
+    intro: "What needs a check before you act, and the rules for every trip off campus. When in doubt, check first.",
+    source: "Zara Raheem, Chief of Staff · Alpha Anywhere Center Policies and Procedures",
+    links: [{ label: "Health & safety page (injuries, medication records)", href: "/health" }, { label: "Off campus one-pager", href: "/guides/off-campus" }],
+    sections: [
+      {
+        heading: "Check first: these need approval",
+        tone: "warn",
+        table: {
+          head: ["If you want to…", "Check with", "Why"],
+          rows: [
+            ["Change an off-campus venue, including when a park is closed", "Zara or the security team, before you go", "Every location is vetted for security ahead of time. Don't swap in a new place on the day."],
+            ["Give, store or take in any medication", "Your Campus Coordinator (Julianne, Emerly) or Zara", "There are rules on how and where medicine is kept. Coordinators own this."],
+            ["Spend money on a workshop, or use a new venue (even another floor in the building)", "Tasha, documented and approved", "A blanket workshop approval doesn't cover an exact location or cost."],
+            ["Sign a vendor agreement or contract", "Zara (with Legal)", "Guides never sign agreements themselves."],
+            ["Share photos", "No approval needed for 1:1 photos sent to that family", "No group photos on the community app. Individual photos may be shared with the family directly."],
+          ],
+        },
+      },
+      {
+        heading: "Every trip off campus (non-negotiable)",
+        steps: [
+          "List every adult and every student going, in the Off-Campus tracker, every time.",
+          "Add the name and contact details of your point person at the venue (there's a field for it in the tracker).",
+          "Do a headcount when you leave, when you arrive, before you head back, and when you're back.",
+          "Carry a walkie every time: the black and orange ones. They reach our security team from anywhere. At William St, Jenna and Jeremy carry one.",
+          "If you can, walk Zara or the security team through your route before the workshop starts.",
+          "If a park or venue is closed: don't move on to somewhere new. Tell the team and check before going anywhere else.",
+        ],
+      },
+      {
+        heading: "If a student is missing",
+        tone: "warn",
+        steps: [
+          "Notify security immediately on your walkie.",
+          "Do a headcount of everyone else and keep the group together.",
+          "Tell your Campus Coordinator. Call 911 if the student can't be found quickly or may be in danger.",
+        ],
+      },
+      {
+        heading: "Medication",
+        bullets: [
+          "Campus Coordinators (or Zara) own medication: receiving it, storing it and the records.",
+          "Store medicine out of reach of students and anyone else.",
+          "Medicine that needs a fridge goes in the mini staff fridge in the admin space, not the classroom or a shared fridge.",
+          "Only give medicine that has a record on the Health & safety page, exactly as written. No over-the-counter medicine without written parent permission.",
+        ],
+      },
+      {
+        heading: "If a student gets hurt",
+        steps: [
+          "Give immediate care first. Gloves for any blood.",
+          "Call 911 if it's serious: heavy bleeding, trouble breathing, unresponsive, a possible broken bone, or a head injury with confusion or vomiting.",
+          "Tell your Campus Coordinator the same day. Bumps to the head, face or neck: right away, even if the student seems fine.",
+          "The Coordinator and the Dean of Parents (Terrence) contact the family. Don't message parents yourself.",
+        ],
+      },
+      {
+        heading: "Photos and media",
+        bullets: [
+          "No group photos on the community app.",
+          "Individual photos may be shared with that child's family directly.",
+          "Never post students on personal social media or send photos from your own phone to anyone outside Alpha.",
         ],
       },
     ],
