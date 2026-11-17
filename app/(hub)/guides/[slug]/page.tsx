@@ -48,7 +48,7 @@ function Sheet({ title, intro, source, children, campus }: { title: string; intr
       </header>
       {children}
       <footer className="sheet-foot">
-        <span>Source: {source}</span>
+        {source ? <span>Source: {source}</span> : <span />}
         <span>Printed {printed()}</span>
       </footer>
     </main>

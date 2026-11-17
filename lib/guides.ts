@@ -281,7 +281,7 @@ export const GUIDES: Record<string, Guide> = {
     title: "Health & safety",
     kicker: "One-pager",
     intro: "What needs a check before you act, and the rules for every trip off campus. When in doubt, check first.",
-    source: "Zara Raheem, Chief of Staff · Alpha Anywhere Center Policies and Procedures",
+    source: "",
     links: [{ label: "Health & safety page (injuries, medication records)", href: "/health" }, { label: "Off campus one-pager", href: "/guides/off-campus" }],
     sections: [
       {
