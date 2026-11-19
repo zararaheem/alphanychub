@@ -309,7 +309,6 @@ export const GUIDES: Record<string, Guide> = {
           "Do a headcount when you leave, when you arrive, before you head back, and when you're back.",
           "Carry a walkie every time: the black and orange ones. They reach our security team from anywhere. At William St, Jenna and Jeremy carry one.",
           "If you can, walk Zara or the security team through your route before the workshop starts.",
-          "If a park or venue is closed: don't move on to somewhere new. Tell the team and check before going anywhere else.",
         ],
       },
       {
