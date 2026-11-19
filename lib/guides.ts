@@ -282,7 +282,7 @@ export const GUIDES: Record<string, Guide> = {
     slug: "health-safety",
     title: "Health & safety",
     kicker: "One-pager",
-    intro: "What needs a check before you act, and the rules for every trip off campus. When in doubt, check first.",
+    intro: "What needs a check before you act, and the rules for every trip off campus. When in doubt, check first. Someone hurt? See the Health & safety page.",
     source: "",
     links: [{ label: "Health & safety page (injuries, medication records)", href: "/health" }, { label: "Off campus one-pager", href: "/guides/off-campus" }],
     sections: [
@@ -297,7 +297,7 @@ export const GUIDES: Record<string, Guide> = {
             ["Spend money on a workshop, or use a new venue (even another floor in the building)", "Tasha, documented and approved", "A blanket workshop approval doesn't cover an exact location or cost."],
             ["Sign a vendor agreement or contract", "Zara (with Legal)", "Guides never sign agreements themselves."],
             ["Change a bus route or stop, or give a student a one-off ride", "Zara", "Only students on a regular schedule ride. One-off rides (playdates, after-school plans) are a no."],
-            ["Share photos", "No approval needed for 1:1 photos sent to that family", "No group photos on the community app. Individual photos may be shared with the family directly."],
+            ["Share photos", "No approval needed for 1:1 photos to that child's family", "No group photos on the community app, and never on personal social media."],
           ],
         },
       },
@@ -333,27 +333,9 @@ export const GUIDES: Record<string, Guide> = {
       {
         heading: "Medication",
         bullets: [
-          "Campus Coordinators (or Zara) own medication: receiving it, storing it and the records.",
-          "Store medicine out of reach of students and anyone else.",
-          "Medicine that needs a fridge goes in the mini staff fridge in the admin space, not the classroom or a shared fridge.",
-          "Only give medicine that has a record on the Health & safety page, exactly as written. No over-the-counter medicine without written parent permission.",
-        ],
-      },
-      {
-        heading: "If a student gets hurt",
-        steps: [
-          "Give immediate care first. Gloves for any blood.",
-          "Call 911 if it's serious: heavy bleeding, trouble breathing, unresponsive, a possible broken bone, or a head injury with confusion or vomiting.",
-          "Tell your Campus Coordinator the same day. Bumps to the head, face or neck: right away, even if the student seems fine.",
-          "The Coordinator and the Dean of Parents (Terrence) contact the family. Don't message parents yourself.",
-        ],
-      },
-      {
-        heading: "Photos and media",
-        bullets: [
-          "No group photos on the community app.",
-          "Individual photos may be shared with that child's family directly.",
-          "Never post students on personal social media or send photos from your own phone to anyone outside Alpha.",
+          "Campus Coordinators (or Zara) receive, store and record all medicine.",
+          "Keep it out of reach. Medicine that needs a fridge goes in the mini staff fridge in the admin space.",
+          "Only give medicine with a record on the Health & safety page, exactly as written.",
         ],
       },
     ],

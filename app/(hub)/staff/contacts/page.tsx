@@ -48,7 +48,7 @@ export default async function StaffContacts() {
                 {rows.map((s) => (
                   <tr key={s.id}>
                     <td><b>{s.name}</b></td>
-                    <td>{[s.title, s.team].filter(Boolean).join(" · ")}</td>
+                    <td>{[s.title, s.team].filter((x) => x && x !== "Alpha").join(" · ")}</td>
                     <td className="nowrap">{s.phone ? <a href={tel(s.phone)}>{s.phone}</a> : <span className="sheet-note">–</span>}</td>
                     <td>{s.email ? <a href={`mailto:${s.email}`}>{s.email}</a> : <span className="sheet-note">–</span>}</td>
                   </tr>
