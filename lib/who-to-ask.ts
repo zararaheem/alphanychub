@@ -9,6 +9,7 @@ const PEOPLE: AskPerson[] = [
       "Security requests: building access, visitors, Raptor, cameras, safety concerns",
       "Changing an off-campus venue or park (locations are vetted for security), and trip routes",
       "Medication (with the Campus Coordinators)",
+      "Bus routes, stops and ride requests (no one-off rides)",
       "Trip security clearance (or run it on the board)",
       "Waivers",
       "Vendor / off-site activities requiring a contract (with Legal)",
@@ -36,6 +37,7 @@ const PEOPLE: AskPerson[] = [
   { who: "Terrence", role: "DoP (Dean of Parents)", topics: ["All parent-facing communications", "Behavioral issues (with Nancy)"] },
   { who: "Nancy", role: "Dean of Students", topics: ["Behavioral issues: infractions, strikes, behavior plans, discipline reviews (with Terrence)"] },
   { who: "Tasha", role: "Head of Schools", topics: ["Finance: budget approvals, spending and reimbursements, workshop costs and new venues (even inside the building), documented and approved", "Booking videographers and storytellers", "Media or press questions", "Anything else"] },
+  { who: "Jim", role: "Jim Liu, backup transport", topics: ["Backup car when a bus or trip vehicle doesn't show or is too small"] },
   { who: "Ops", role: "Operations", topics: ["Room or setup changes"] },
 ];
 

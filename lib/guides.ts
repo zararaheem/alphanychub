@@ -4,6 +4,7 @@
 
 import { SHOWCASES } from "@/lib/session2";
 import { ALSO_CHECK, CHECKLIST_LINKS, CORE_SIX, type CheckItem, type CheckLink } from "@/lib/checklist";
+import { TRANSPORT_URL } from "@/lib/links";
 
 export type GuideSection = {
   heading: string;
@@ -25,6 +26,7 @@ export const GUIDE_LIST = [
   { slug: "workshops", title: "Workshop procedures", blurb: "Running a Session 2 workshop block, on campus or off." },
   { slug: "security", title: "Security", blurb: "Security requests go through Zara; doors, access cards, visitors and lockdown." },
   { slug: "vendors", title: "Vendors & visitors", blurb: "Approvals for money and contracts, access cards, check-in, escorts and deliveries." },
+  { slug: "transport", title: "Transport & rides", blurb: "Daily buses, booking trip vehicles, car seats, and what to do if a bus doesn't show. No Uber or Lyft for students." },
   { slug: "health-safety", title: "Health & safety", blurb: "What needs approval first, the off-campus non-negotiables, medication, photos and injuries." },
 ];
 
@@ -294,6 +296,7 @@ export const GUIDES: Record<string, Guide> = {
             ["Give, store or take in any medication", "Your Campus Coordinator (Julianne, Emerly) or Zara", "There are rules on how and where medicine is kept. Coordinators own this."],
             ["Spend money on a workshop, or use a new venue (even another floor in the building)", "Tasha, documented and approved", "A blanket workshop approval doesn't cover an exact location or cost."],
             ["Sign a vendor agreement or contract", "Zara (with Legal)", "Guides never sign agreements themselves."],
+            ["Change a bus route or stop, or give a student a one-off ride", "Zara", "Only students on a regular schedule ride. One-off rides (playdates, after-school plans) are a no."],
             ["Share photos", "No approval needed for 1:1 photos sent to that family", "No group photos on the community app. Individual photos may be shared with the family directly."],
           ],
         },
@@ -307,6 +310,15 @@ export const GUIDES: Record<string, Guide> = {
           "Carry a walkie every time: the black and orange ones. They reach our security team from anywhere. At William St, Jenna and Jeremy carry one.",
           "If you can, walk Zara or the security team through your route before the workshop starts.",
           "If a park or venue is closed: don't move on to somewhere new. Tell the team and check before going anywhere else.",
+        ],
+      },
+      {
+        heading: "Rides & transport",
+        tone: "warn",
+        bullets: [
+          "Students never ride in an Uber, Lyft or any rideshare. Book vehicles only through our approved providers.",
+          "Count every student and adult when you book. Everyone buckles up; no student in the front seat. Car seats until age 8, then a booster (we provide seats for under 5s).",
+          "Bus late or vehicle too small? Call the provider; no firm time → Jim Liu for a backup car (cc your Campus Coordinator). Keep students inside with their guides. Never split students into Ubers.",
         ],
       },
       {
@@ -343,6 +355,59 @@ export const GUIDES: Record<string, Guide> = {
           "Individual photos may be shared with that child's family directly.",
           "Never post students on personal social media or send photos from your own phone to anyone outside Alpha.",
         ],
+      },
+    ],
+  },
+
+  transport: {
+    slug: "transport",
+    title: "Transport & rides",
+    kicker: "One-pager",
+    intro: "How our buses and trips work, and what to do when a ride falls through. Students never ride in an Uber or Lyft.",
+    source: "",
+    links: [{ label: "Transport request tool", href: TRANSPORT_URL }, { label: "Health & safety one-pager", href: "/guides/health-safety" }],
+    sections: [
+      {
+        heading: "Daily buses",
+        text: "Three Manhattan routes: Downtown & the Village, the West Side, and the East Side, run by EK4Kids and Buggy. Rides are planned at 65 minutes or less, and every bus has an attendant on board as well as the driver.",
+        bullets: [
+          "Only students on a regular schedule ride. If a family asks for a one-off ride (a playdate, an after-school plan), the answer is no. Send them to Zara.",
+          "Students get on their assigned bus and get off at their assigned stop. Anyone asking to switch: confirm with Zara first.",
+          "The bus is screen-free. If a student needs to reach a parent, they ask the attendant.",
+        ],
+      },
+      {
+        heading: "Trips",
+        tone: "warn",
+        bullets: [
+          "Book vehicles only through our approved providers. Uber and Lyft are for adults only, never for students.",
+          "When you book, count every student and adult, and leave room for car seats and boosters.",
+          "Everyone buckles up, and no student sits in the front seat.",
+          "New York law: a car seat until age 8, then a booster until the seatbelt fits properly. We provide seats for kids under 5.",
+          "Bring any emergency meds kept on campus, a first-aid kit, and the emergency binder.",
+        ],
+      },
+      {
+        heading: "If a bus doesn't show (or the vehicle is too small)",
+        steps: [
+          "Call the provider first.",
+          "If they can't give you a firm time, contact Jim Liu for a backup car. Copy your Campus Coordinator: Julianne (Maiden Ln) or Emerly (Early Years).",
+          "Keep students inside with their guides until it arrives.",
+          "Your Campus Coordinator updates families. Don't message parents yourself.",
+          "Never split students into Ubers or Lyfts. Get a backup car.",
+        ],
+      },
+      {
+        heading: "Who to contact",
+        table: {
+          head: ["For", "Contact"],
+          rows: [
+            ["Backup cars", "Jim Liu"],
+            ["Maiden Ln", "Julianne Braime"],
+            ["Early Years", "Emerly Campusano"],
+            ["Route changes and ride requests", "Zara Raheem"],
+          ],
+        },
       },
     ],
   },
