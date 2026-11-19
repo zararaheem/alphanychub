@@ -598,6 +598,13 @@ a.hit-title:hover { color: var(--teal); }
 .who-card ul { margin: 0; padding-left: 16px; display: flex; flex-direction: column; gap: 3px; font-size: 13.5px; color: var(--ink-2); line-height: 1.4; }
 .who-grid.compact .who-card { padding: 10px 12px; }
 .who-grid.compact .who-card ul { font-size: 13px; }
+.who-sum { margin: 0; font-size: 13.5px; font-weight: 600; color: var(--ink); line-height: 1.35; }
+.who-groups { display: flex; flex-direction: column; gap: 6px; }
+.who-g { display: flex; flex-direction: column; gap: 2px; }
+.who-gl { font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+.who-g ul { gap: 2px; font-size: 13px; }
+.who-more summary { cursor: pointer; font-size: 12.5px; color: var(--teal); font-weight: 600; }
+.who-more[open] summary { margin-bottom: 6px; }
 .who-emergency { grid-column: 1 / -1; margin: 0; padding: 10px 14px; border-radius: 12px; background: var(--red-soft); color: var(--red-ink); font-size: 13.5px; }
 .who-mini summary { cursor: pointer; font-weight: 700; font-size: 13.5px; color: var(--teal); padding: 4px 0; }
 .role-head { font-size: 13px; font-weight: 700; color: var(--ink-2); margin-top: 6px; }

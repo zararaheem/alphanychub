@@ -3,6 +3,8 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { buildKnowledge } from "@/lib/knowledge";
 import { WHO_BY_PERSON } from "@/lib/who-to-ask";
+import { currentCampus } from "@/lib/campus-pref";
+import { CAMPUS_LABEL } from "@/lib/campus";
 
 export const maxDuration = 60;
 
@@ -62,10 +64,16 @@ export async function POST(request: Request) {
   }
 
   // Policy documents are read with the person's own session: only hub staff can read them.
-  const [{ data: docs }, knowledge] = await Promise.all([
+  const [{ data: docs }, knowledge, campus] = await Promise.all([
     supabase.from("hub_docs").select("key, title, body").in("key", ["handbook", "campus_notes"]),
     buildKnowledge(),
+    currentCampus(),
   ]);
+  // The campus picked in the hub's top toggle, so answers can name the right
+  // coordinator instead of asking. Kept after the cached block.
+  const where = campus
+    ? `The person asking has ${CAMPUS_LABEL[campus]} selected in the hub, so assume that campus (and its coordinator) unless they say otherwise. Don't ask which campus.`
+    : "The person asking hasn't picked a campus. If the answer depends on it, name both coordinators rather than asking.";
   const doc = (k: string) => docs?.find((d) => d.key === k)?.body ?? "(not loaded yet)";
 
   const client = new Anthropic();
@@ -82,6 +90,7 @@ export async function POST(request: Request) {
         text: `<policies>\n${doc("handbook")}\n</policies>\n\n<campus_know_how>\n${doc("campus_notes")}\n</campus_know_how>\n\n<hub_documents>\n${knowledge}\n</hub_documents>\n\n<who_handles_what>\n${routing()}\n</who_handles_what>`,
         cache_control: { type: "ephemeral" },
       },
+      { type: "text", text: where },
     ],
     messages: turns,
   });

@@ -1,50 +1,80 @@
 // "Who do I ask?" at a glance, grouped by person, from the activity checklist
-// and the emergency team roles.
-export type AskPerson = { who: string; role: string; topics: string[] };
+// and the emergency team roles. Each person has a one-line summary and their
+// topics in short labelled groups, so long lists stay easy to scan.
+export type AskGroup = { label?: string; items: string[] };
+export type AskPerson = { who: string; role: string; summary: string; groups: AskGroup[]; topics: string[] };
 
-const PEOPLE: AskPerson[] = [
+const PEOPLE: Omit<AskPerson, "topics">[] = [
   {
     who: "Zara", role: "Chief of Staff",
-    topics: [
-      "Security requests: building access, visitors, Raptor, cameras, safety concerns",
-      "Changing an off-campus venue or park (locations are vetted for security), and trip routes",
-      "Medication (with the Campus Coordinators)",
-      "Bus routes, stops and ride requests (no one-off rides)",
-      "Trip security clearance (or run it on the board)",
-      "Waivers",
-      "Vendor / off-site activities requiring a contract (with Legal)",
-      "Vendors coming on campus (with Julianne)",
-      "Guests coming in (with Julianne)",
+    summary: "Security, venue changes, buses, contracts and waivers.",
+    groups: [
+      { label: "Security", items: ["Building access, visitors, Raptor, cameras", "Any safety concern", "Guests and vendors coming on campus (with Julianne)"] },
+      { label: "Trips & buses", items: ["Changing a venue or park (all are security-vetted)", "Trip routes and security clearance", "Bus routes, stops and ride requests (no one-off rides)"] },
+      { label: "Paperwork", items: ["Vendor or off-site contracts (with Legal)", "Waivers"] },
+      { label: "Health", items: ["Medication (with the Campus Coordinators)"] },
     ],
   },
   {
     who: "Julianne", role: "Campus Coordinator, Maiden Ln",
-    topics: [
-      "Logistics: dismissal, pickups, authorized pickup changes, late arrivals and early release",
-      "Lunch program",
-      "Medication: receiving, storing (mini staff fridge in the admin space) and records",
-      "Off-campus attendance",
-      "Transportation",
-      "Photos, video, media release",
-      "Lunch changes (Maiden Ln)",
-      "Guests and vendors coming on campus",
-      "Missing or hurt student (Maiden Ln)",
+    summary: "The school day at Maiden Ln: arrivals, pickups, lunch, medication.",
+    groups: [
+      { label: "Arrival & dismissal", items: ["Pickups and authorized pickup changes", "Late arrivals and early release", "Transportation and off-campus attendance"] },
+      { label: "Lunch", items: ["Lunch program and lunch changes"] },
+      { label: "Health", items: ["Medication: receiving, storing (admin-space fridge), records", "Missing or hurt student"] },
+      { label: "On campus", items: ["Guests and vendors coming in", "Photos, video and media releases"] },
     ],
   },
-  { who: "Emerly", role: "Campus Coordinator, Early Years", topics: ["Lunch changes (Early Years)", "Missing or hurt student (Early Years)", "Medication (Early Years)"] },
-  { who: "Lead Guards", role: "Derek Ghee (Maiden Ln) · Sugey Castillo (Early Years)", topics: ["Missing student search", "Door and building security on the day"] },
-  { who: "Emily", role: "Director of Global Programming", topics: ["Experiences", "International expansion", "Guide training", "Off-campus app and tracker (trip on the board, venue point person)"] },
-  { who: "Terrence", role: "DoP (Dean of Parents)", topics: ["All parent-facing communications", "Behavioral issues (with Nancy)"] },
-  { who: "Nancy", role: "Dean of Students", topics: ["Behavioral issues: infractions, strikes, behavior plans, discipline reviews (with Terrence)"] },
-  { who: "Tasha", role: "Head of Schools", topics: ["Finance: budget approvals, spending and reimbursements, workshop costs and new venues (even inside the building), documented and approved", "Booking videographers and storytellers", "Media or press questions", "Anything else"] },
-  { who: "Jim", role: "Jim Liu, backup transport", topics: ["Backup car when a bus or trip vehicle doesn't show or is too small"] },
-  { who: "Ops", role: "Operations", topics: ["Room or setup changes"] },
+  {
+    who: "Emerly", role: "Campus Coordinator, Early Years",
+    summary: "The school day at Early Years.",
+    groups: [{ items: ["Lunch changes", "Medication", "Missing or hurt student"] }],
+  },
+  {
+    who: "Lead Guards", role: "Derek Ghee (Maiden Ln) · Sugey Castillo (Early Years)",
+    summary: "Doors and searches on the day.",
+    groups: [{ items: ["Missing student search", "Door and building security"] }],
+  },
+  {
+    who: "Emily", role: "Director of Global Programming",
+    summary: "Programs, guide training and the off-campus tracker.",
+    groups: [{ items: ["Experiences", "International expansion", "Guide training", "Off-campus app and tracker (trip on the board, venue point person)"] }],
+  },
+  {
+    who: "Terrence", role: "Dean of Parents",
+    summary: "Anything that goes to a family.",
+    groups: [{ items: ["All parent-facing messages", "Behavior issues (with Nancy)"] }],
+  },
+  {
+    who: "Nancy", role: "Dean of Students",
+    summary: "Behavior and discipline.",
+    groups: [{ items: ["Infractions, strikes and behavior plans", "Discipline reviews (with Terrence)"] }],
+  },
+  {
+    who: "Tasha", role: "Head of Schools",
+    summary: "Money and approvals, and anything not listed here.",
+    groups: [
+      { label: "Money", items: ["Budget approvals, spending and reimbursements", "Workshop costs", "New venues, even inside the building"] },
+      { label: "Media", items: ["Booking videographers and storytellers", "Press questions"] },
+      { label: "Else", items: ["Anything not on this list"] },
+    ],
+  },
+  {
+    who: "Jim", role: "Jim Liu, backup transport",
+    summary: "Backup cars.",
+    groups: [{ items: ["A bus or trip vehicle doesn't show or is too small"] }],
+  },
+  {
+    who: "Ops", role: "Operations",
+    summary: "Rooms and setup.",
+    groups: [{ items: ["Room or setup changes"] }],
+  },
 ];
 
-// Cards A–Z by name; each card's topics A–Z ("Anything else" stays last).
-const az = (a: string, b: string) => (a === "Anything else" ? 1 : b === "Anything else" ? -1 : a.localeCompare(b));
+// Cards A–Z by name. `topics` is the flat list (group label + item) the
+// assistant and search use.
 export const WHO_BY_PERSON: AskPerson[] = PEOPLE
-  .map((p) => ({ ...p, topics: [...p.topics].sort(az) }))
+  .map((p) => ({ ...p, topics: p.groups.flatMap((g) => g.items.map((i) => (g.label ? `${g.label}: ${i}` : i))) }))
   .sort((a, b) => a.who.localeCompare(b.who));
 
 export const EMERGENCY_NOW = "Emergency happening now: call 911, then alert everyone on your radio (alt: Zello).";
