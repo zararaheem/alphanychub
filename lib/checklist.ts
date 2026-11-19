@@ -11,7 +11,7 @@ const meds = { label: "Student medications", href: "/health" };
 
 export const CORE_SIX: CheckItem[] = [
   { n: 1, check: "Waiver needed?", who: "Zara", how: "Anything physical or run by an outside provider. Ask before you book." },
-  { n: 2, check: "Vendor or off-site activity needing a contract?", who: "Zara + Legal", how: "Costs money or needs a signature? Don't sign or pay until you get the go-ahead." },
+  { n: 2, check: "Vendor or off-site activity needing a contract?", who: "Zara + Legal", how: "Don't sign until you get the go-ahead." },
   { n: 3, check: "On the off-campus app?", who: "Emily", how: "Log the trip: lead, students, leave and return times.", link: offCampus },
   { n: 4, check: "Off-campus attendance?", who: "Julianne", how: "Mark students out when you leave and back in when you return.", link: attendance },
   { n: 5, check: "Guard needed?", who: "Zara", how: "Every trip needs security clearance. Run it on the tracker or ask Zara.", link: offCampus },

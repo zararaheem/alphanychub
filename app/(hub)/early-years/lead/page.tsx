@@ -1,7 +1,5 @@
-import { EDITORS, requireRole } from "@/lib/access";
-import { LeadApp } from "@/components/early-years/lead-app";
+import { redirect } from "next/navigation";
 
-export default async function LeadPage() {
-  await requireRole(EDITORS);
-  return <LeadApp />;
+export default function LeadPage() {
+  redirect("/tracker/lead");
 }

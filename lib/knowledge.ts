@@ -1,9 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
 import { GUIDES } from "@/lib/guides";
 import { LEVELS, SESSION, SHOWCASES, WEEKLY, WORKSHOPS, MOMA_DATES, LOCATIONS } from "@/lib/session2";
-import { ATTENDANCE_URL, OFF_CAMPUS_URL, PARENT_VIEW_URL, TRANSPORT_URL } from "@/lib/links";
+import { ATTENDANCE_URL, OFF_CAMPUS_URL, TRANSPORT_URL } from "@/lib/links";
 import type { Contact, Procedure, StaffMember } from "@/lib/types";
 import { WHO_TO_ASK } from "@/lib/who-to-ask";
+import { HEALTH_RULES, INJURY_STEPS } from "@/lib/health";
 
 // Everything the Ask assistant may answer from, as one plain-text document.
 // Parent contact details and student names are deliberately left out.
@@ -21,6 +22,9 @@ export async function buildKnowledge(): Promise<string> {
   const campusName = (c: string) => (c === "maiden-ln" ? "Maiden Ln" : c === "early-years" ? "Early Years / William St" : "both campuses");
 
   out.push(`# Who to ask (quick reference)\n${WHO_TO_ASK.map((r) => `- ${r.topic}: ${r.who}`).join("\n")}`);
+
+  out.push(`# If a student gets injured (in order)\n${INJURY_STEPS.map((t, i) => `${i + 1}. ${t}`).join("\n")}`);
+  out.push(`# Health & safety rules (everyone)\n${HEALTH_RULES.map((r) => `- ${r.rule}. ${r.detail}`).join("\n")}`);
 
   out.push("# Resource library (added by admins)");
   for (const r of (resources.data ?? []) as { title: string; category: string | null; campus: string; body: string }[]) {
@@ -66,6 +70,6 @@ export async function buildKnowledge(): Promise<string> {
   for (const s of (students.data ?? []) as { level: string | null }[]) counts[s.level ?? "Other"] = (counts[s.level ?? "Other"] ?? 0) + 1;
   out.push(`# Enrollment\n${Object.entries(counts).map(([k, v]) => `${k}: ${v}`).join(", ")} (total ${students.data?.length ?? 0})`);
 
-  out.push(`# Other tools\n- Off-campus board: ${OFF_CAMPUS_URL ?? "not linked"}\n- Attendance: ${ATTENDANCE_URL ?? "not linked"}\n- Transport request tool (both campuses): ${TRANSPORT_URL}\n- Student medication records: the Health & safety page in this hub (/health). Staff open a student there for the time, dose, how it is given and where it is stored.\n- Parent view (Families app): ${PARENT_VIEW_URL}`);
+  out.push(`# Other tools\n- Off-campus board: ${OFF_CAMPUS_URL ?? "not linked"}\n- Attendance: ${ATTENDANCE_URL ?? "not linked"}\n- Transport request tool (both campuses): ${TRANSPORT_URL}\n- Student medication records: the Health & safety page in this hub (/health). Staff open a student there for the time, dose, how it is given and where it is stored.\n- Parent Hub (for families): /parents. Families send pickup or dismissal changes, absences or late arrivals, medication forms and questions or meeting requests; each goes to the right person (Campus Coordinator, DoP or Head of School) and posts to Slack. Staff can preview it while signed in. Staff demo: /parent-view.\n- Requests (staff): /requests. Staff report something missing in the hub or ask leadership; editors see every parent and staff request there and mark them in progress or done.`);
   return out.join("\n\n");
 }

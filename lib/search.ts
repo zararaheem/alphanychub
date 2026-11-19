@@ -1,9 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
 import { GUIDES } from "@/lib/guides";
 import { LEVELS, WORKSHOPS } from "@/lib/session2";
-import { ATTENDANCE_URL, OFF_CAMPUS_URL, PARENT_VIEW_URL, TRANSPORT_URL } from "@/lib/links";
+import { ATTENDANCE_URL, OFF_CAMPUS_URL, TRANSPORT_URL } from "@/lib/links";
 import type { Contact, Procedure, StaffMember } from "@/lib/types";
 import { WHO_TO_ASK } from "@/lib/who-to-ask";
+import { HEALTH_RULES, INJURY_STEPS } from "@/lib/health";
 
 // Keyword search over everything in the hub. No AI and no API costs: the
 // question is split into words, matched against each entry (titles count
@@ -84,6 +85,9 @@ async function entries(): Promise<Entry[]> {
   ]);
   const out: Entry[] = [];
 
+  out.push({ title: "If a student gets injured", where: "Health & safety", href: "/health", lines: INJURY_STEPS, keywords: "injury injured hurt wound cut bleeding fall bump first aid photo" });
+  for (const r of HEALTH_RULES) out.push({ title: r.rule, where: "Health & safety rule", href: "/health", lines: [r.detail], keywords: "health safety first aid injury" });
+
   for (const r of WHO_TO_ASK) out.push({ title: r.topic, where: "Who do I ask?", lines: [`Ask: **${r.who}**`] });
 
   for (const r of (resources.data ?? []) as { title: string; category: string | null; campus: string; body: string }[]) {
@@ -127,9 +131,10 @@ async function entries(): Promise<Entry[]> {
     ["Off-campus tracker", OFF_CAMPUS_URL, "Plan and clear trips, security clearance, who's out, check students out and back in.", "trip off-campus clearance board"],
     ["Attendance", ATTENDANCE_URL, "Take and check attendance.", "attendance roster headcount absent"],
     ["Transport request", TRANSPORT_URL, "Request shuttles and buses for Maiden Ln and Early Years.", "transport transportation bus shuttle car"],
-    ["Parent view (Families app)", PARENT_VIEW_URL, "What families see.", "parent family families app"],
+    ["Parent Hub", "/parents", "Families send pickup changes, absences, medication forms and questions. Staff can preview it.", "parent family families app hub pickup dismissal absence late form preview"],
+    ["Requests", "/requests", "Send a request to leadership or report something missing in the hub; see parent requests.", "request ask leadership missing wrong inbox slack"],
   ];
-  for (const [title, href, line, keywords] of tools) if (href) out.push({ title, where: "Tool", href, external: true, lines: [line], keywords });
+  for (const [title, href, line, keywords] of tools) if (href) out.push({ title, where: "Tool", href, external: /^https?:/.test(href), lines: [line], keywords });
 
   out.push({ title: "Health & safety", where: "Hub page", href: "/health", lines: ["Student medications, medical emergency steps, first aid and what to carry on trips."], keywords: "health medical medication medicine meds first aid sick nurse allergy injury" });
   return out;

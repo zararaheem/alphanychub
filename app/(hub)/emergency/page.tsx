@@ -5,7 +5,7 @@ import { deleteContact, deleteProcedure, importParentContacts, lockParents, save
 import { isUnlocked, UNLOCK_MINUTES } from "@/lib/parent-lock";
 import { ParentContacts } from "@/components/parent-contacts";
 import Link from "next/link";
-import { isRespondNow, procKind, shortTitle } from "@/lib/procedure-meta";
+import { FIRST_MOVES, isRespondNow, procKind, shortTitle } from "@/lib/procedure-meta";
 import { ProcIcon } from "@/components/procedure-view";
 import { currentCampus } from "@/lib/campus-pref";
 import { CampusSelect, Field, TextArea } from "@/components/fields";
@@ -42,7 +42,7 @@ export default async function EmergencyPage({ searchParams }: { searchParams: SP
       <div className="stack-sm">
         <h1>Emergency</h1>
         <p className="lede">
-          Who to call and what to do{campus ? ` · ${CAMPUS_LABEL[campus]}` : ""}. <Link href="/guides/emergency">Printable one-pager →</Link>
+          Who to call and what to do{campus ? ` · ${CAMPUS_LABEL[campus]}` : ""}. <Link href="/guides/emergency">Printable one-pager →</Link> · <Link href="/drills">Drill log →</Link>
         </p>
       </div>
 
@@ -67,6 +67,8 @@ export default async function EmergencyPage({ searchParams }: { searchParams: SP
                 <Link key={p.id} href={`/emergency/${p.id}`} className={`em-tile k-${kind}`}>
                   <span className={`proc-icon k-${kind}`}><ProcIcon kind={kind} /></span>
                   <span>{shortTitle(p.title)}</span>
+                  {FIRST_MOVES[kind] && <span className="em-first">{FIRST_MOVES[kind]}</span>}
+                  <span className="em-more">Full steps →</span>
                 </Link>
               );
             })}

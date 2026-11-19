@@ -4,6 +4,7 @@
 
 import { SHOWCASES } from "@/lib/session2";
 import { ALSO_CHECK, CHECKLIST_LINKS, CORE_SIX, type CheckItem, type CheckLink } from "@/lib/checklist";
+import { TRANSPORT_URL } from "@/lib/links";
 
 export type GuideSection = {
   heading: string;
@@ -16,7 +17,9 @@ export type GuideSection = {
   tone?: "warn";
 };
 
-export type Guide = { slug: string; title: string; kicker: string; intro: string; sections: GuideSection[]; source: string; links?: CheckLink[] };
+// reviewed: who last checked the sheet is right, and when (YYYY-MM-DD). Sheets
+// older than 90 days show "due for review" on screen.
+export type Guide = { slug: string; title: string; kicker: string; intro: string; sections: GuideSection[]; source: string; links?: CheckLink[]; reviewed?: { by: string; on: string } };
 
 export const GUIDE_LIST = [
   { slug: "checklist", title: "Before every activity", blurb: "The 12 checks before every workshop, mobile squad or Fun Friday, and who helps." },
@@ -25,6 +28,8 @@ export const GUIDE_LIST = [
   { slug: "workshops", title: "Workshop procedures", blurb: "Running a Session 2 workshop block, on campus or off." },
   { slug: "security", title: "Security", blurb: "Security requests go through Zara; doors, access cards, visitors and lockdown." },
   { slug: "vendors", title: "Vendors & visitors", blurb: "Approvals for money and contracts, access cards, check-in, escorts and deliveries." },
+  { slug: "transport", title: "Transport & rides", blurb: "Daily buses, booking trip vehicles, car seats, and what to do if a bus doesn't show. No Uber or Lyft for students." },
+  { slug: "health-safety", title: "Health & safety", blurb: "What needs approval first, the off-campus non-negotiables, medication, photos and injuries." },
 ];
 
 export const GUIDES: Record<string, Guide> = {
@@ -55,10 +60,13 @@ export const GUIDES: Record<string, Guide> = {
           "A designated activity lead (Guide or staff) plus a second adult, minimum",
           "Run the 12-point \"Before every activity\" checklist (waiver, vendor, off-campus app, attendance, guard, transport…)",
           "Transport (shuttle, bus, car) is requested in the Transport request tool, for Maiden Ln and Early Years",
-          "The trip is on the Off-Campus board with lead, security and headcount",
+          "The trip is on the Off-Campus board with lead, security and headcount, listing every adult and every student going (non-negotiable)",
+          "Add the venue's point person (name and contact) in the Off-Campus tracker",
+          "Changing the venue, even if a park is closed? Check with Zara or the security team first: locations are vetted for security",
           "Security clearance: every trip needs it. The trip lead can run it on the Off-Campus board, or request it from Zara",
           "Lead carries the student roster and the emergency contact list for every student on the trip",
-          "Lead carries a charged phone and a two-way radio (or confirms cell reception)",
+          "Every Guide carries a walkie (the black and orange ones reach security from anywhere) and a charged phone. At William St, Jenna and Jeremy carry one",
+          "If you can, walk Zara or the security team through your route before the workshop starts",
           "Agree the off-campus assembly point (nearest safe public space) with all staff before leaving",
           "Take attendance as you leave",
         ],
@@ -75,7 +83,7 @@ export const GUIDES: Record<string, Guide> = {
         heading: "If something goes wrong",
         steps: [
           "Call 911 first if there is immediate danger.",
-          "Account for every student using the roster.",
+          "Account for every student using the roster. A student missing? Notify security on the walkie immediately.",
           "Notify the Coordinator by radio or phone as soon as it is safe.",
           "The DoP (Dean of Parents, Terrence McMullen) handles all parent messages, via ParentSquare.",
           "Don't return to campus until the Coordinator confirms it is safe.",
@@ -268,6 +276,123 @@ export const GUIDES: Record<string, Guide> = {
           "Freight elevator deliveries must be pre-authorized with Building Operations",
           "Visitor log is kept daily by the Security Liaison and reviewed weekly by the Coordinator",
         ],
+      },
+    ],
+  },
+
+  "health-safety": {
+    slug: "health-safety",
+    title: "Health & safety",
+    kicker: "One-pager",
+    intro: "What needs a check before you act, and the rules for every trip off campus. When in doubt, check first. Someone hurt? See the Health & safety page.",
+    reviewed: { by: "Zara Raheem", on: "2026-11-19" },
+    source: "",
+    links: [{ label: "Health & safety page (injuries, medication records)", href: "/health" }, { label: "Off campus one-pager", href: "/guides/off-campus" }],
+    sections: [
+      {
+        heading: "Check first: these need approval",
+        tone: "warn",
+        table: {
+          head: ["If you want to…", "Check with", "Why"],
+          rows: [
+            ["Change an off-campus venue, including when a park is closed", "Zara or the security team, before you go", "Every location is vetted for security ahead of time. Don't swap in a new place on the day."],
+            ["Give, store or take in any medication", "Your Campus Coordinator (Julianne, Emerly) or Zara", "There are rules on how and where medicine is kept. Coordinators own this."],
+            ["Spend money on a workshop, or use a new venue (even another floor in the building)", "Tasha, documented and approved", "A blanket workshop approval doesn't cover an exact location or cost."],
+            ["Sign a vendor agreement or contract", "Zara (with Legal)", "Guides never sign agreements themselves."],
+            ["Change a bus route or stop, or give a student a one-off ride", "Zara", "Only students on a regular schedule ride. One-off rides (playdates, after-school plans) are a no."],
+            ["Share photos", "No approval needed for 1:1 photos to that child's family", "No group photos on the community app, and never on personal social media."],
+          ],
+        },
+      },
+      {
+        heading: "Every trip off campus (non-negotiable)",
+        steps: [
+          "List every adult and every student going, in the Off-Campus tracker, every time.",
+          "Add the name and contact details of your point person at the venue (there's a field for it in the tracker).",
+          "Do a headcount when you leave, when you arrive, before you head back, and when you're back.",
+          "Carry a walkie every time: the black and orange ones. They reach our security team from anywhere. At William St, Jenna and Jeremy carry one.",
+          "If you can, walk Zara or the security team through your route before the workshop starts.",
+        ],
+      },
+      {
+        heading: "Rides & transport",
+        tone: "warn",
+        bullets: [
+          "Students never ride in an Uber, Lyft or any rideshare. Book vehicles only through our approved providers.",
+          "Count every student and adult when you book. Everyone buckles up; no student in the front seat. Car seats until age 8, then a booster (we provide seats for under 5s).",
+          "Bus late or vehicle too small? Call the provider; no firm time → Jim Liu for a backup car (cc your Campus Coordinator). Keep students inside with their guides. Never split students into Ubers.",
+        ],
+      },
+      {
+        heading: "If a student is missing",
+        tone: "warn",
+        steps: [
+          "Notify security immediately on your walkie.",
+          "Do a headcount of everyone else and keep the group together.",
+          "Tell your Campus Coordinator. Call 911 if the student can't be found quickly or may be in danger.",
+        ],
+      },
+      {
+        heading: "Medication",
+        bullets: [
+          "Campus Coordinators (or Zara) receive, store and record all medicine.",
+          "Keep it out of reach. Medicine that needs a fridge goes in the mini staff fridge in the admin space.",
+          "Only give medicine with a record on the Health & safety page, exactly as written.",
+        ],
+      },
+    ],
+  },
+
+  transport: {
+    slug: "transport",
+    title: "Transport & rides",
+    kicker: "One-pager",
+    intro: "How our buses and trips work, and what to do when a ride falls through. Students never ride in an Uber or Lyft.",
+    reviewed: { by: "Zara Raheem", on: "2026-11-19" },
+    source: "",
+    links: [{ label: "Transport request tool", href: TRANSPORT_URL }, { label: "Health & safety one-pager", href: "/guides/health-safety" }],
+    sections: [
+      {
+        heading: "Daily buses",
+        text: "Three Manhattan routes: Downtown & the Village, the West Side, and the East Side, run by EK4Kids and Buggy. Rides are planned at 65 minutes or less, and every bus has an attendant on board as well as the driver.",
+        bullets: [
+          "Only students on a regular schedule ride. If a family asks for a one-off ride (a playdate, an after-school plan), the answer is no. Send them to Zara.",
+          "Students get on their assigned bus and get off at their assigned stop. Anyone asking to switch: confirm with Zara first.",
+          "The bus is screen-free. If a student needs to reach a parent, they ask the attendant.",
+        ],
+      },
+      {
+        heading: "Trips",
+        tone: "warn",
+        bullets: [
+          "Book vehicles only through our approved providers. Uber and Lyft are for adults only, never for students.",
+          "When you book, count every student and adult, and leave room for car seats and boosters.",
+          "Everyone buckles up, and no student sits in the front seat.",
+          "New York law: a car seat until age 8, then a booster until the seatbelt fits properly. We provide seats for kids under 5.",
+          "Bring any emergency meds kept on campus, a first-aid kit, and the emergency binder.",
+        ],
+      },
+      {
+        heading: "If a bus doesn't show (or the vehicle is too small)",
+        steps: [
+          "Call the provider first.",
+          "If they can't give you a firm time, contact Jim Liu for a backup car. Copy your Campus Coordinator: Julianne (Maiden Ln) or Emerly (Early Years).",
+          "Keep students inside with their guides until it arrives.",
+          "Your Campus Coordinator updates families. Don't message parents yourself.",
+          "Never split students into Ubers or Lyfts. Get a backup car.",
+        ],
+      },
+      {
+        heading: "Who to contact",
+        table: {
+          head: ["For", "Contact"],
+          rows: [
+            ["Backup cars", "Jim Liu"],
+            ["Maiden Ln", "Julianne Braime"],
+            ["Early Years", "Emerly Campusano"],
+            ["Route changes and ride requests", "Zara Raheem"],
+          ],
+        },
       },
     ],
   },
