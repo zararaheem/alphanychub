@@ -14,6 +14,7 @@ export default async function AskPage({ searchParams }: { searchParams: Promise<
         </div>
         <div className="row" style={{ gap: 6 }}>
           {EDITORS.includes(me.role) && <Link href="/ask/insights" className="edit-toggle">Insights</Link>}
+          {me.role === "admin" && <Link href="/ask/knowledge" className="edit-toggle">What it knows</Link>}
           <Link href="/resources" className="edit-toggle">Resource library</Link>
         </div>
       </div>

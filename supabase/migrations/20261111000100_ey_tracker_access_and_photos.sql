@@ -1,7 +1,7 @@
 -- The Montessori tracker is only for approved people signed in with Google
 -- (not the shared staff code). Admins are always approved.
 alter table public.allowed_users add column if not exists tracker boolean not null default false;
-update public.allowed_users set tracker = true where email = 'tarranum.malhi@alpha.school';
+-- The first approved guide was set in the database directly (not recorded here).
 
 create or replace function public.can_use_tracker()
 returns boolean language sql stable security definer set search_path = public as $$

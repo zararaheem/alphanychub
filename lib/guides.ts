@@ -17,7 +17,9 @@ export type GuideSection = {
   tone?: "warn";
 };
 
-export type Guide = { slug: string; title: string; kicker: string; intro: string; sections: GuideSection[]; source: string; links?: CheckLink[] };
+// reviewed: who last checked the sheet is right, and when (YYYY-MM-DD). Sheets
+// older than 90 days show "due for review" on screen.
+export type Guide = { slug: string; title: string; kicker: string; intro: string; sections: GuideSection[]; source: string; links?: CheckLink[]; reviewed?: { by: string; on: string } };
 
 export const GUIDE_LIST = [
   { slug: "checklist", title: "Before every activity", blurb: "The 12 checks before every workshop, mobile squad or Fun Friday, and who helps." },
@@ -283,6 +285,7 @@ export const GUIDES: Record<string, Guide> = {
     title: "Health & safety",
     kicker: "One-pager",
     intro: "What needs a check before you act, and the rules for every trip off campus. When in doubt, check first. Someone hurt? See the Health & safety page.",
+    reviewed: { by: "Zara Raheem", on: "2026-11-19" },
     source: "",
     links: [{ label: "Health & safety page (injuries, medication records)", href: "/health" }, { label: "Off campus one-pager", href: "/guides/off-campus" }],
     sections: [
@@ -345,6 +348,7 @@ export const GUIDES: Record<string, Guide> = {
     title: "Transport & rides",
     kicker: "One-pager",
     intro: "How our buses and trips work, and what to do when a ride falls through. Students never ride in an Uber or Lyft.",
+    reviewed: { by: "Zara Raheem", on: "2026-11-19" },
     source: "",
     links: [{ label: "Transport request tool", href: TRANSPORT_URL }, { label: "Health & safety one-pager", href: "/guides/health-safety" }],
     sections: [

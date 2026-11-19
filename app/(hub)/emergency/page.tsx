@@ -42,7 +42,7 @@ export default async function EmergencyPage({ searchParams }: { searchParams: SP
       <div className="stack-sm">
         <h1>Emergency</h1>
         <p className="lede">
-          Who to call and what to do{campus ? ` · ${CAMPUS_LABEL[campus]}` : ""}. <Link href="/guides/emergency">Printable one-pager →</Link>
+          Who to call and what to do{campus ? ` · ${CAMPUS_LABEL[campus]}` : ""}. <Link href="/guides/emergency">Printable one-pager →</Link> · <Link href="/drills">Drill log →</Link>
         </p>
       </div>
 

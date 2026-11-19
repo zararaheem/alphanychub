@@ -14,7 +14,7 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
   const g = GUIDES[slug];
   if (!g) notFound();
   return (
-    <Sheet title={g.title} intro={g.intro} source={g.source}>
+    <Sheet title={g.title} intro={g.intro} source={g.source} reviewed={g.reviewed}>
       {g.links && (
         <nav className="sheet-links" aria-label="Tools">
           <span>Open:</span>
@@ -28,7 +28,8 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
   );
 }
 
-function Sheet({ title, intro, source, children, campus }: { title: string; intro: string; source: string; children: React.ReactNode; campus?: Campus | null }) {
+function Sheet({ title, intro, source, children, campus, reviewed }: { title: string; intro: string; source: string; children: React.ReactNode; campus?: Campus | null; reviewed?: { by: string; on: string } }) {
+  const age = reviewed ? (Date.now() - new Date(`${reviewed.on}T12:00:00Z`).getTime()) / 864e5 : null;
   const here = campus ? CAMPUSES.find((c) => c.id === campus) : null;
   return (
     <main className="page sheet">
@@ -48,7 +49,10 @@ function Sheet({ title, intro, source, children, campus }: { title: string; intr
       </header>
       {children}
       <footer className="sheet-foot">
-        {source ? <span>Source: {source}</span> : <span />}
+        <span>
+          {source && <>Source: {source}{reviewed ? " · " : ""}</>}
+          {reviewed ? <>Reviewed by {reviewed.by}, {new Date(`${reviewed.on}T12:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" })}{age! > 90 && <b className="review-due no-print"> · due for review</b>}</> : <span className="review-due no-print">Not reviewed yet</span>}
+        </span>
         <span>Printed {printed()}</span>
       </footer>
     </main>

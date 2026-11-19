@@ -26,6 +26,7 @@ export default async function HealthPage() {
       <div className="stack-sm">
         <h1>Health &amp; safety</h1>
         <p className="lede">Emergency happening now? <a href="tel:911"><b>Call 911</b></a>, then contact your Campus Coordinator.</p>
+        <p className="small"><a href="/drills">Drill log →</a> · <a href="/guides/health-safety">Health &amp; safety one-pager →</a></p>
       </div>
 
       {/* Jump to any section; stays on screen while scrolling. */}
