@@ -2,7 +2,8 @@ import Link from "next/link";
 import { EDITORS, requireMember } from "@/lib/access";
 import { AskChat } from "@/components/ask-chat";
 
-export default async function AskPage() {
+export default async function AskPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
+  const { q } = await searchParams;
   const me = await requireMember();
   return (
     <main className="page" style={{ maxWidth: 860 }}>
@@ -17,7 +18,7 @@ export default async function AskPage() {
         </div>
       </div>
       <p className="notice">In an emergency happening now: <b>call 911</b> and alert everyone by radio (alt: Zello) first.</p>
-      <AskChat />
+      <AskChat initial={q?.slice(0, 500)} />
       <p className="small muted">Answers come from the Policies and Procedures handbook, campus know-how and the hub. Always confirm with the person it names before acting on anything involving a family, safety, discipline or money.</p>
     </main>
   );

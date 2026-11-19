@@ -32,7 +32,7 @@ export function AskWidget() {
             </span>
           </header>
           <div className="ask-panel-body">
-            <p className="small muted">Searches the hub<p className="small muted">Answers from the hub&apos;s procedures, one-pagers and resources. Emergency now? Call 911 first.</p>apos;s procedures, one-pagers, checklist, resources and tools. Emergency now? Call 911 first.</p>
+            <p className="small muted">Ask anything: you get what to do, what to say, who to check with and the handbook link. Emergency now? Call 911 first.</p>
             <AskChat compact />
           </div>
         </section>

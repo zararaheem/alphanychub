@@ -18,7 +18,7 @@ const STARTERS = [
 // Each question gets an AI answer written from the hub's documents, plus the
 // matching hub pages from keyword search. If the AI is unavailable (no key, no
 // credits), the search results still come back on their own.
-export function AskChat({ compact = false }: { compact?: boolean }) {
+export function AskChat({ compact = false, initial }: { compact?: boolean; initial?: string }) {
   const [turns, setTurns] = useState<Turn[]>([]);
   const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState(false);
@@ -29,6 +29,15 @@ export function AskChat({ compact = false }: { compact?: boolean }) {
   useEffect(() => {
     end.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }, [turns, busy]);
+
+  // Arriving from the Home search bar (/ask?q=…): answer it straight away, once.
+  const started = useRef(false);
+  useEffect(() => {
+    if (!initial?.trim() || started.current) return;
+    started.current = true;
+    ask(initial);
+    window.history.replaceState(null, "", "/ask");
+  }, [initial]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function ask(question: string) {
     const q = question.trim();
@@ -210,4 +219,15 @@ function Rich({ text }: { text: string }) {
   return <>{out}</>;
 }
 
-const bold = (s: string) => s.split(/(\*\*[^*]+\*\*)/).map((part, i) => (part.startsWith("**") && part.endsWith("**") ? <b key={i}>{part.slice(2, -2)}</b> : part));
+// **bold** and [links](url): handbook sections open in a new tab, hub pages in place.
+const bold = (s: string): React.ReactNode[] => s.split(/(\*\*[^*]+\*\*|\[[^\]]+\]\([^)\s]+\))/).map((part, i) => {
+  if (part.startsWith("**") && part.endsWith("**")) return <b key={i}>{bold(part.slice(2, -2))}</b>;
+  const link = /^\[([^\]]+)\]\(([^)\s]+)\)$/.exec(part);
+  if (link) {
+    const [, label, href] = link;
+    if (href.startsWith("/")) return <a key={i} href={href}>{label}</a>;
+    if (/^https:\/\/docs\.google\.com\//.test(href)) return <a key={i} href={href} target="_blank" rel="noopener noreferrer">{label} ↗</a>;
+    return label;
+  }
+  return part;
+});

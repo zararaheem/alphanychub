@@ -40,6 +40,13 @@ export default async function HomePage() {
       </section>
 
       <main className="page">
+        <form action="/ask" method="get" className="home-ask" role="search">
+          <label htmlFor="home-q" className="home-ask-label"><b>On the go? Ask anything.</b> <span>Get what to do, what to say, who to check with, and a link to the handbook.</span></label>
+          <div className="home-ask-row">
+            <input id="home-q" name="q" className="input" placeholder="e.g. A parent wants to pick up early" autoComplete="off" enterKeyHint="search" required />
+            <button type="submit" className="btn">Ask</button>
+          </div>
+        </form>
         <div className="kpis">
           <div className="kpi">
             <span className="label-caps">Students enrolled</span>

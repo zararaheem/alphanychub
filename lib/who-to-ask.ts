@@ -33,7 +33,7 @@ const PEOPLE: AskPerson[] = [
   },
   { who: "Emerly", role: "Campus Coordinator, Early Years", topics: ["Lunch changes (Early Years)", "Missing or hurt student (Early Years)", "Medication (Early Years)"] },
   { who: "Lead Guards", role: "Derek Ghee (Maiden Ln) · Sugey Castillo (Early Years)", topics: ["Missing student search", "Door and building security on the day"] },
-  { who: "Emily", role: "Director of Global Programming", topics: ["Student experiences", "Off-campus app (trip on the board)"] },
+  { who: "Emily", role: "Director of Global Programming", topics: ["Experiences", "International expansion", "Guide training", "Off-campus app and tracker (trip on the board, venue point person)"] },
   { who: "Terrence", role: "DoP (Dean of Parents)", topics: ["All parent-facing communications", "Behavioral issues (with Nancy)"] },
   { who: "Nancy", role: "Dean of Students", topics: ["Behavioral issues: infractions, strikes, behavior plans, discipline reviews (with Terrence)"] },
   { who: "Tasha", role: "Head of Schools", topics: ["Finance: budget approvals, spending and reimbursements, workshop costs and new venues (even inside the building), documented and approved", "Booking videographers and storytellers", "Media or press questions", "Anything else"] },

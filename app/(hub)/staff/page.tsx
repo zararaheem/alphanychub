@@ -36,9 +36,12 @@ export default async function StaffPage({ searchParams }: { searchParams: SP }) 
           <h1>Staff</h1>
           <p className="lede">Everyone on site{campus ? ` · ${CAMPUS_LABEL[campus]}` : " at both campuses"}.</p>
         </div>
-        {manager && (
-          <a href={editing ? "/staff" : "/staff?edit=1"} className="edit-toggle" aria-pressed={editing}>{editing ? "Done" : "Move & edit"}</a>
-        )}
+        <div className="row" style={{ gap: 6 }}>
+          <a href="/staff/contacts" className="edit-toggle">Contact sheet (PDF)</a>
+          {manager && (
+            <a href={editing ? "/staff" : "/staff?edit=1"} className="edit-toggle" aria-pressed={editing}>{editing ? "Done" : "Move & edit"}</a>
+          )}
+        </div>
       </div>
       <Flash msg={sp.msg} err={sp.err} />
 
